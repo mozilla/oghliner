@@ -1,0 +1,15 @@
+{
+  "name": "offlinr",
+  "version": "1.0.0",
+  "description": "an offline web app template and toolchain",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/mozilla/offlinr/"
+  },
+  "author": "Myk Melez <myk@mykzilla.org>",
+  "license": "ISC"
+}
