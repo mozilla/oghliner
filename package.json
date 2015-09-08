@@ -11,5 +11,9 @@
     "url": "https://github.com/mozilla/ophliner/"
   },
   "author": "Myk Melez <myk@mykzilla.org>",
-  "license": "ISC"
+  "license": "ISC",
+  "dependencies": {
+    "gulp-gh-pages": "^0.5.2",
+    "sw-precache": "^2.0.0"
+  }
 }
