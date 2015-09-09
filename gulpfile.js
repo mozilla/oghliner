@@ -47,8 +47,14 @@ gulp.task('generate-service-worker', ['copy-app-to-dist'], function(callback) {
     staticFileGlobs: [
       'dist/**/*.css',
       'dist/**/*.html',
-      'dist/**/*.js',
-      '!dist/offline-worker.js', // Don't cache the worker itself.
+      // XXX It should be possible to include all JavaScript files
+      // while excluding the worker itself, but sw-precache doesn't respect
+      // exclude patterns.  We should fix that, but in the meantime,
+      // we include JavaScript files from common subdirectories.
+      // 'dist/**/*.js',
+      // '!dist/offline-worker.js', // Don't cache the worker itself.
+      'dist/js/**/*.js',
+      'dist/scripts/**/*.js',
     ],
     stripPrefix: 'dist/',
   }, callback);
