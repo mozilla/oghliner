@@ -33,7 +33,7 @@ gulp.task('serve', function () {
   });
 });
 
-gulp.task('publish', ['build'], function(callback) {
+gulp.task('publish', function(callback) {
   ghPages.publish(path.join(__dirname, 'dist'), callback);
 });
 
