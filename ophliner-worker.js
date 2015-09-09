@@ -24,7 +24,7 @@
 
 
 
-var PrecacheConfig = [["index.html","5ed20f6ad386f3bbdef73c994fdf94f5"],["ophliner-worker.js","d80435a2f938170a88378ad28c2e0ab9"]];
+var PrecacheConfig = [["index.html","e9db57a9df190e0a481c934068a7679a"],["ophliner-worker.js","a9a910ba525efdee50e51f124955453a"],["scripts/ophliner-manager.js","bb193e6acac66ecfd1292de265e02e22"]];
 var CacheNamePrefix = 'sw-precache-v1-ophliner-' + (self.registration ? self.registration.scope : '') + '-';
 
 
