@@ -24,8 +24,8 @@
 
 
 
-var PrecacheConfig = [["index.html","e9db57a9df190e0a481c934068a7679a"],["ophliner-worker.js","a9a910ba525efdee50e51f124955453a"],["scripts/ophliner-manager.js","bb193e6acac66ecfd1292de265e02e22"]];
-var CacheNamePrefix = 'sw-precache-v1-ophliner-' + (self.registration ? self.registration.scope : '') + '-';
+var PrecacheConfig = [["index.html","511d1a004cfbad2917b8f0eca4ad46aa"],["scripts/offline-manager.js","28bd78ca4fcf8ae2b562c51a1cd2f5d3"]];
+var CacheNamePrefix = 'sw-precache-v1-oghliner-' + (self.registration ? self.registration.scope : '') + '-';
 
 
 var IgnoreUrlParametersMatching = [/^utm_/];
