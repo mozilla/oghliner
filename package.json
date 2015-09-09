@@ -13,6 +13,7 @@
   "author": "Myk Melez <myk@mykzilla.org>",
   "license": "Apache-2.0",
   "dependencies": {
+    "gh-pages": "^0.4.0",
     "gulp": "^3.9.0",
     "gulp-gh-pages": "^0.5.2",
     "sw-precache": "^2.0.0"

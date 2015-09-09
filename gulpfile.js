@@ -16,12 +16,15 @@
 
 'use strict';
 
+var ghPages = require('gh-pages');
 var gulp = require('gulp');
 var packageJson = require('./package.json');
 var path = require('path');
 var swPrecache = require('sw-precache');
 
-gulp.task('default', ['copy-app-to-dist', 'generate-service-worker']);
+gulp.task('default', ['build']);
+
+gulp.task('build', ['copy-app-to-dist', 'generate-service-worker']);
 
 gulp.task('copy-app-to-dist', function(callback) {
   return gulp.src('app/**').pipe(gulp.dest('dist'));
@@ -37,4 +40,8 @@ gulp.task('generate-service-worker', ['copy-app-to-dist'], function(callback) {
     ],
     stripPrefix: 'dist/',
   }, callback);
+});
+
+gulp.task('publish', ['build'], function(callback) {
+  ghPages.publish(path.join(__dirname, 'dist'), callback);
 });
