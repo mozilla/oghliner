@@ -1,5 +1,5 @@
 {
-  "name": "ophliner",
+  "name": "oghliner",
   "version": "1.0.0",
   "description": "an offline web app template and toolchain for publishing to GitHub Pages",
   "main": "index.js",
@@ -8,7 +8,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/mozilla/ophliner/"
+    "url": "https://github.com/mozilla/oghliner/"
   },
   "author": "Myk Melez <myk@mykzilla.org>",
   "license": "Apache-2.0",

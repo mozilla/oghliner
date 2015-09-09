@@ -42,7 +42,7 @@ gulp.task('copy-app-to-dist', function(callback) {
 });
 
 gulp.task('generate-service-worker', ['copy-app-to-dist'], function(callback) {
-  swPrecache.write(path.join('dist', 'ophliner-worker.js'), {
+  swPrecache.write(path.join('dist', 'oghliner-worker.js'), {
     cacheId: packageJson.name,
     staticFileGlobs: [
       'dist/**/*.css',
