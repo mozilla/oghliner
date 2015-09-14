@@ -24,7 +24,7 @@
 
 
 
-var PrecacheConfig = [["index.html","511d1a004cfbad2917b8f0eca4ad46aa"],["scripts/offline-manager.js","28bd78ca4fcf8ae2b562c51a1cd2f5d3"]];
+var PrecacheConfig = [["index.html","cf7d58fcae03ae611cd43590a651e4b2"],["scripts/offline-manager.js","28bd78ca4fcf8ae2b562c51a1cd2f5d3"]];
 var CacheNamePrefix = 'sw-precache-v1-oghliner-' + (self.registration ? self.registration.scope : '') + '-';
 
 
