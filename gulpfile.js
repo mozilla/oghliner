@@ -19,43 +19,37 @@
 var connect = require('gulp-connect');
 var gulp = require('gulp');
 var oghliner = require('./index.js');
-var packageJson = require('./package.json');
-var path = require('path');
-var swPrecache = require('sw-precache');
 
-gulp.task('default', ['build']);
+gulp.task('default', ['build', 'offline']);
 
-gulp.task('build', ['copy-app-to-dist', 'generate-service-worker']);
-
-gulp.task('serve', function () {
-  connect.server({
-    root: 'dist',
-  });
+gulp.task('build', function(callback) {
+  return gulp.src('app/**').pipe(gulp.dest('dist'));
 });
 
 gulp.task('configure', oghliner.configure);
 
 gulp.task('deploy', oghliner.deploy);
 
-gulp.task('copy-app-to-dist', function(callback) {
-  return gulp.src('app/**').pipe(gulp.dest('dist'));
-});
-
-gulp.task('generate-service-worker', ['copy-app-to-dist'], function(callback) {
-  swPrecache.write(path.join('dist', 'offline-worker.js'), {
-    cacheId: packageJson.name,
-    staticFileGlobs: [
-      'dist/**/*.css',
-      'dist/**/*.html',
+gulp.task('offline', ['build'], function(callback) {
+  oghliner.offline({
+    rootDir: './dist/',
+    fileGlobs: [
+      '**/*.css',
+      '**/*.html',
       // XXX It should be possible to include all JavaScript files
       // while excluding the worker itself, but sw-precache doesn't respect
       // exclude patterns.  We should fix that, but in the meantime,
       // we include JavaScript files from common subdirectories.
       // 'dist/**/*.js',
       // '!dist/offline-worker.js', // Don't cache the worker itself.
-      'dist/js/**/*.js',
-      'dist/scripts/**/*.js',
-    ],
-    stripPrefix: 'dist/',
+      'js/**/*.js',
+      'scripts/**/*.js',
+    ]
   }, callback);
+});
+
+gulp.task('serve', function () {
+  connect.server({
+    root: 'dist',
+  });
 });
