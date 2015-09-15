@@ -4,3 +4,7 @@ node_js:
 env:
   global:
     - PLACEHOLDER: 'Fix the bug that requires this placeholder to add entries to this list!'
+    - secure: D5lciCiBEn3zENE5eZ+FJ2c6d9syqk98kPFnIvzbE6d7oW9XN/jP1J8z9B644Ts1tiNPS3tFuTRG2OdIxPV6Ort++zBPOwmBclmylEoUcW80Koi7oAHt+JMG7smEMNsZs1LRW1LkYulynnt0Y9u+xs+E0kq2vGlt1RM28gB7twASKFT1zZK0p2bsbhOxQwjQjTjfP1QfpKFFMqO/ec6QVjp5j+C2DCQTtw0GcH0daDMWVfh0A/t6+LT5tyG2ceBV0GoKaHlkytIiQrUFkSdFCBegr1mLbt+0u1ceUpeeD9S1GzIa0sha/9C0sS4Ubgj0ZBYGtxcMz+etcPSA/dGNwVW3cm6YrdFLXT+DhcHV/Ww+4LlXrijLaBxosD4mJDqPKaR7ScCfKAKQh7Xuy+VEJIG00dFVwtGCckEI0jzwHgevmTLVGUuPqsHeoeOmlbRtLTYtKZsUvk0FqX+Td/BIS07522vru1ctPdVobpxI7wkAzif1rZVEqwNJLT8yIHoLWKAOPgfaUccPUHCDfnoWchPDFz2y+q8dki4yahUVkmFGiFtETetTcaiNtJIFpLAUs+xRaUpb82ecPH667egmACLqFcEXgv1w5S/Z36O5oajybNG08lc7M3zEkuULi0OKkQMYDHnh7W3WMQOZ4lRklkI3/9DUX8t7BR/k7P8Bzys=
+install: npm install
+script: gulp build
+after_success: gulp publish
