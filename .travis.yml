@@ -6,8 +6,9 @@ env:
     - PLACEHOLDER: 'Fix the bug that requires this placeholder to add entries to this list!'
     - secure: A/xXVXKdBhgdEKxgAuzqaScR41oYRWOQPC14vhs07VfyY6a76UEPp8L3Z/NRBFNO8F1037JcArm8abwUufaJqD8xYSav2qil4lLNQfZK/Qk1owTH1jisgs7DWwyZ/fL+T1Jl2g52ZXz4VOEJiAXt+c8z8lirNn68AESEKzN5hcGQaVJTFjW9KC0WTcnhQ2ARNvIp7GYyD6P5BqR8D1rwk1mNNeMMVpKThFlxbYKP1T/WfcuUL0NqQM/H0TSCWub/qrG6DFVvvkOrp2sQqYwn93p+q/DH3EVDcV7sVabEdyeWteRTa4J2GE9Ls68OxXlX+ZX96dPc2B0sK1kdsADOLyimo0Ts3nEBsx4fwpbHetDeFwI849u+BiUtNWes39X1ZAmLov6T8/GpersFGTCg0N6xPyqBAVzkR9zqIOEa4tDnACzDvlpkf6ECfHsK94vFH0/puD/0i6wyZWKeu5ddRYB9SaWtHsM3Ux6xOjChx3k4VUB4s0dAnB4gMr/DZoR8XlcRyoTSwGq1dZcsqRRCHXlTMiLdbsnoqIJDIHPxfH3XCwgfmDRjRImZXjLXQyVvtBNFPyDFAGKg3e19iCFgLpVoFhggiyoD21hZCAQ2dFmpTUyha85EL+tE8t7M5rqJE6fKaWVx5KGEKpLmoD6J9PAbcK/QF+Ej4Fb/yohUV+g=
 install: npm install
+before_script:
+  - 'git config --global user.name "Travis-CI"'
+  - 'git config --global user.email "myk@mykzilla.org"'
 script: gulp build
 after_success:
-  - git config --global user.name "Travis-CI"
-  - git config --global user.email "myk@mykzilla.org"
-  - gulp publish
+  - '[ "${TRAVIS_PULL_REQUEST}" = "false" ] && gulp publish'
