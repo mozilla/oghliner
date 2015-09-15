@@ -118,16 +118,17 @@ gulp.task('generate-service-worker', ['copy-app-to-dist'], function(callback) {
 });
 
 gulp.task('configure-travis-publish', function(callback) {
-  var note = 'use Oghliner to publish to GitHub Pages';
   var url = 'https://github.com/mozilla/oghliner';
 
-  getGitHubToken(['public_repo'], note, url, function(err, token) {
+  getOrigin(function(err, origin) {
     if (err) {
       callback(err);
       return;
     }
 
-    getOrigin(function(err, origin) {
+    var note = 'Oghliner token for ' + origin;
+
+    getGitHubToken(['public_repo'], note, url, function(err, token) {
       if (err) {
         callback(err);
         return;
