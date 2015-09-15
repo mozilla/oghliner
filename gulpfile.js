@@ -28,22 +28,18 @@ gulp.task('build', function(callback) {
 
 gulp.task('configure', oghliner.configure);
 
-gulp.task('deploy', oghliner.deploy);
+gulp.task('deploy', function(callback) {
+  oghliner.deploy({
+    rootDir: 'dist',
+  }, callback);
+});
 
 gulp.task('offline', ['build'], function(callback) {
   oghliner.offline({
-    rootDir: './dist/',
+    rootDir: 'dist',
     fileGlobs: [
-      '**/*.css',
       '**/*.html',
-      // XXX It should be possible to include all JavaScript files
-      // while excluding the worker itself, but sw-precache doesn't respect
-      // exclude patterns.  We should fix that, but in the meantime,
-      // we include JavaScript files from common subdirectories.
-      // 'dist/**/*.js',
-      // '!dist/offline-worker.js', // Don't cache the worker itself.
       'js/**/*.js',
-      'scripts/**/*.js',
     ]
   }, callback);
 });

@@ -93,13 +93,15 @@ function offline(config, callback) {
   var rootDir = config.rootDir || './';
   var fileGlobs = config.fileGlobs || [];
   swPrecache.write(path.join(rootDir, 'offline-worker.js'), {
-    staticFileGlobs: fileGlobs.map(function(v) { return rootDir + v }),
+    staticFileGlobs: fileGlobs.map(function(v) { return path.join(rootDir, v) }),
     stripPrefix: rootDir,
     verbose: true,
   }, callback);
 }
 
-function deploy(callback) {
+function deploy(config, callback) {
+  var rootDir = 'rootDir' in config ? config.rootDir : '.';
+
   if ('GH_TOKEN' in process.env) {
     // We're using a token to authenticate with GitHub, so we have to embed
     // the token into the repo URL (if it isn't already there).
@@ -117,8 +119,10 @@ function deploy(callback) {
           url = 'https://' + process.env.GH_TOKEN + '@github.com/' + match[1] + '/' + match[2] + '.git';
         }
 
-        ghPages.publish(path.join(__dirname, 'dist'), {
+        ghPages.publish(path.join(__dirname, rootDir), {
           repo: url,
+          // We can't log here because it would leak the GitHub token on Travis.
+          // logger: console.log,
         }, callback);
       } else {
         callback('repo has no origin url');
@@ -127,7 +131,9 @@ function deploy(callback) {
   } else {
     // We aren't using a token to authenticate with GitHub, so we don't have to
     // alter the repo URL.
-    ghPages.publish(path.join(__dirname, 'dist'), callback);
+    ghPages.publish(path.join(__dirname, rootDir), {
+      logger: console.log,
+    }, callback);
   }
 }
 
