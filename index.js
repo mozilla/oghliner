@@ -17,6 +17,7 @@
 'use strict';
 
 var getGitHubToken = require('get-github-token');
+var ghPages = require('gh-pages');
 var gitconfiglocal = require('gitconfiglocal');
 var path = require('path');
 var swPrecache = require('sw-precache');
@@ -98,7 +99,40 @@ function offline(config, callback) {
   }, callback);
 }
 
+function deploy(callback) {
+  if ('GH_TOKEN' in process.env) {
+    // We're using a token to authenticate with GitHub, so we have to embed
+    // the token into the repo URL (if it isn't already there).
+    gitconfiglocal('./', function(error, config) {
+      if (error) {
+        callback(error);
+        return;
+      }
+
+      if ('remote' in config && 'origin' in config.remote && 'url' in config.remote.origin) {
+        var url = config.remote.origin.url;
+        var match;
+        if (match = url.match(/^git@github.com:([^/]+)\/([^.]+)\.git$/) ||
+                    url.match(/^https:\/\/github.com\/([^/]+)\/([^.]+)\.git$/)) {
+          url = 'https://' + process.env.GH_TOKEN + '@github.com/' + match[1] + '/' + match[2] + '.git';
+        }
+
+        ghPages.publish(path.join(__dirname, 'dist'), {
+          repo: url,
+        }, callback);
+      } else {
+        callback('repo has no origin url');
+      }
+    });
+  } else {
+    // We aren't using a token to authenticate with GitHub, so we don't have to
+    // alter the repo URL.
+    ghPages.publish(path.join(__dirname, 'dist'), callback);
+  }
+}
+
 module.exports = {
   configure: configure,
+  deploy: deploy,
   offline: offline,
 };

@@ -17,7 +17,6 @@
 'use strict';
 
 var connect = require('gulp-connect');
-var ghPages = require('gh-pages');
 var gulp = require('gulp');
 var oghliner = require('./index.js');
 var packageJson = require('./package.json');
@@ -36,37 +35,7 @@ gulp.task('serve', function () {
 
 gulp.task('configure', oghliner.configure);
 
-gulp.task('publish', function(callback) {
-  if ('GH_TOKEN' in process.env) {
-    // We're using a token to authenticate with GitHub, so we have to embed
-    // the token into the repo URL (if it isn't already there).
-    gitconfiglocal('./', function(error, config) {
-      if (error) {
-        callback(error);
-        return;
-      }
-
-      if ('remote' in config && 'origin' in config.remote && 'url' in config.remote.origin) {
-        var url = config.remote.origin.url;
-        var match;
-        if (match = url.match(/^git@github.com:([^/]+)\/([^.]+)\.git$/) ||
-                    url.match(/^https:\/\/github.com\/([^/]+)\/([^.]+)\.git$/)) {
-          url = 'https://' + process.env.GH_TOKEN + '@github.com/' + match[1] + '/' + match[2] + '.git';
-        }
-
-        ghPages.publish(path.join(__dirname, 'dist'), {
-          repo: url,
-        }, callback);
-      } else {
-        callback('repo has no origin url');
-      }
-    });
-  } else {
-    // We aren't using a token to authenticate with GitHub, so we don't have to
-    // alter the repo URL.
-    ghPages.publish(path.join(__dirname, 'dist'), callback);
-  }
-});
+gulp.task('deploy', oghliner.deploy);
 
 gulp.task('copy-app-to-dist', function(callback) {
   return gulp.src('app/**').pipe(gulp.dest('dist'));
