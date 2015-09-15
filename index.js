@@ -14,8 +14,79 @@
  * limitations under the License.
  */
 
+'use strict';
+
+var getGitHubToken = require('get-github-token');
+var gitconfiglocal = require('gitconfiglocal');
 var path = require('path');
 var swPrecache = require('sw-precache');
+var readYaml = require('read-yaml');
+var travisEncrypt = require('travis-encrypt');
+var writeYaml = require('write-yaml');
+
+// XXX Rename this to getSlug.
+function getOrigin(callback) {
+  gitconfiglocal('./', function(error, config) {
+    if (error) {
+      callback(error);
+      return;
+    }
+
+    if ('remote' in config && 'origin' in config.remote && 'url' in config.remote.origin) {
+      var url = config.remote.origin.url;
+      var match;
+      if (match = url.match(/^git@github.com:([^/]+)\/([^.]+)\.git$/) ||
+                  url.match(/^https:\/\/github.com\/([^/]+)\/([^.]+)\.git$/)) {
+        callback(null, match[1] + '/' + match[2]);
+        return;
+      }
+      callback('could not parse value of origin remote URL: ' + url);
+      return;
+    }
+
+    callback('repo has no origin remote');
+  });
+}
+
+function configure(callback) {
+  getOrigin(function(err, origin) {
+    if (err) {
+      callback(err);
+      return;
+    }
+
+    var note = 'Oghliner token for ' + origin;
+    var url = 'https://github.com/mozilla/oghliner';
+
+    getGitHubToken(['public_repo'], note, url, function(err, token) {
+      if (err) {
+        callback(err);
+        return;
+      }
+
+      travisEncrypt(origin, 'GH_TOKEN=' + token, undefined, undefined, function (err, blob) {
+        if (err) {
+          callback(err);
+          return;
+        }
+
+        var travisYml = readYaml.sync('.travis.yml');
+
+        if (!('env' in travisYml)) {
+          travisYml.env = {};
+        }
+
+        if (!('global' in travisYml.env)) {
+          travisYml.env.global = [];
+        }
+
+        travisYml.env.global.push({ secure: blob });
+        writeYaml.sync('.travis.yml', travisYml);
+        callback();
+      });
+    });
+  });
+}
 
 function offline(config, callback) {
   var rootDir = config.rootDir || './';
@@ -28,5 +99,6 @@ function offline(config, callback) {
 }
 
 module.exports = {
+  configure: configure,
   offline: offline,
 };
