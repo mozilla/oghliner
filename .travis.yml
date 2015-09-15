@@ -11,4 +11,4 @@ before_script:
   - 'git config --global user.email "myk@mykzilla.org"'
 script: gulp build
 after_success:
-  - '[ "${TRAVIS_PULL_REQUEST}" = "false" ] && gulp publish'
+  - '[ "${TRAVIS_PULL_REQUEST}" = "false" ] && [ "${TRAVIS_BRANCH}" = "master" ] && gulp publish'
