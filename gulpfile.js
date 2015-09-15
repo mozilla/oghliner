@@ -77,7 +77,6 @@ gulp.task('publish', function(callback) {
         if (match = url.match(/^git@github.com:([^/]+)\/([^.]+)\.git$/) ||
                     url.match(/^https:\/\/github.com\/([^/]+)\/([^.]+)\.git$/)) {
           url = 'https://' + process.env.GH_TOKEN + '@github.com/' + match[1] + '/' + match[2] + '.git';
-          console.log('publishing to ' + url);
         }
 
         ghPages.publish(path.join(__dirname, 'dist'), {
