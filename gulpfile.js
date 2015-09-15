@@ -17,12 +17,16 @@
 'use strict';
 
 var connect = require('gulp-connect');
+var getGitHubToken = require('get-github-token');
 var ghPages = require('gh-pages');
 var gitconfiglocal = require('gitconfiglocal');
 var gulp = require('gulp');
 var packageJson = require('./package.json');
 var path = require('path');
+var readYaml = require('read-yaml');
 var swPrecache = require('sw-precache');
+var travisEncrypt = require('travis-encrypt');
+var writeYaml = require('write-yaml');
 
 gulp.task('default', ['build']);
 
@@ -33,6 +37,29 @@ gulp.task('serve', function () {
     root: 'dist',
   });
 });
+
+function getOrigin(callback) {
+  gitconfiglocal('./', function(error, config) {
+    if (error) {
+      callback(error);
+      return;
+    }
+
+    if ('remote' in config && 'origin' in config.remote && 'url' in config.remote.origin) {
+      var url = config.remote.origin.url;
+      var match;
+      if (match = url.match(/^git@github.com:([^/]+)\/([^.]+)\.git$/) ||
+                  url.match(/^https:\/\/github.com\/([^/]+)\/([^.]+)\.git$/)) {
+        callback(null, match[1] + '/' + match[2]);
+        return;
+      }
+      callback('could not parse value of origin remote URL: ' + url);
+      return;
+    }
+
+    callback('repo has no origin remote');
+  });
+}
 
 gulp.task('publish', function(callback) {
   if ('GH_TOKEN' in process.env) {
@@ -88,4 +115,43 @@ gulp.task('generate-service-worker', ['copy-app-to-dist'], function(callback) {
     ],
     stripPrefix: 'dist/',
   }, callback);
+});
+
+gulp.task('configure-travis-publish', function(callback) {
+  var note = 'use Oghliner to publish to GitHub Pages';
+  var url = 'https://github.com/mozilla/oghliner';
+
+  getGitHubToken(['public_repo'], note, url, function(err, token) {
+    if (err) {
+      callback(err);
+      return;
+    }
+
+    getOrigin(function(err, origin) {
+      if (err) {
+        callback(err);
+        return;
+      }
+
+      travisEncrypt(origin, 'GH_TOKEN=' + token, undefined, undefined, function (err, blob) {
+        if (err) {
+          callback(err);
+          return;
+        }
+
+        var travisYml = readYaml.sync('.travis.yml');
+
+        if (!('env' in travisYml)) {
+          travisYml.env = {};
+        }
+
+        if (!('global' in travisYml.env)) {
+          travisYml.env.global = [];
+        }
+
+        travisYml.env.global.push({ secure: blob });
+        writeYaml.sync('.travis.yml', travisYml);
+      });
+    });
+  });
 });

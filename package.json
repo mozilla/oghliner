@@ -13,11 +13,15 @@
   "author": "Myk Melez <myk@mykzilla.org>",
   "license": "Apache-2.0",
   "dependencies": {
+    "get-github-token": "0.0.2",
     "gh-pages": "^0.4.0",
     "gitconfiglocal": "^1.0.0",
     "gulp": "^3.9.0",
     "gulp-connect": "^2.2.0",
     "gulp-gh-pages": "^0.5.2",
-    "sw-precache": "^2.0.0"
+    "read-yaml": "^1.0.0",
+    "sw-precache": "^2.0.0",
+    "travis-encrypt": "^1.1.1",
+    "write-yaml": "^0.2.1"
   }
 }
