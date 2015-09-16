@@ -91,7 +91,7 @@ function configure(callback) {
 
 function offline(config, callback) {
   var rootDir = config.rootDir || './';
-  var fileGlobs = config.fileGlobs || [];
+  var fileGlobs = config.fileGlobs || ['**/*'];
   swPrecache.write(path.join(rootDir, 'offline-worker.js'), {
     staticFileGlobs: fileGlobs.map(function(v) { return path.join(rootDir, v) }),
     stripPrefix: rootDir,
