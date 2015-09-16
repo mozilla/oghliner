@@ -100,6 +100,8 @@ function offline(config, callback) {
 }
 
 function deploy(config, callback) {
+  config = config || {};
+
   var rootDir = 'rootDir' in config ? config.rootDir : '.';
 
   if ('GH_TOKEN' in process.env) {
