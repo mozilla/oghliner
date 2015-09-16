@@ -120,9 +120,9 @@ function deploy(config, callback) {
         }
 
         ghPages.publish(path.join(__dirname, rootDir), {
-          repo: url,
           // We can't log here because it would leak the GitHub token on Travis.
           // logger: console.log,
+          repo: url,
         }, callback);
       } else {
         callback('repo has no origin url');

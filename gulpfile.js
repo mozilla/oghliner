@@ -40,7 +40,7 @@ gulp.task('offline', ['build'], function(callback) {
     fileGlobs: [
       '**/*.html',
       'js/**/*.js',
-    ]
+    ],
   }, callback);
 });
 
