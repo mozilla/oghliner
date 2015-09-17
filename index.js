@@ -63,6 +63,13 @@ function configure(callback) {
 
   getSlug(function(err, origin) {
     if (err) {
+      process.stdout.write(
+        '\n' +
+        'I wasn\'t able to determine your GitHub username and repo.  Are you running\n' +
+        'this command in Git repository whose "origin" remote is on GitHub?  The error\n' +
+        'I received is: ' + err + '\n' +
+        '\n'
+      );
       callback(err);
       return;
     }
