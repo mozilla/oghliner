@@ -54,11 +54,34 @@ function getSlug(callback) {
 }
 
 function configure(callback) {
+  process.stdout.write(
+    '\n' +
+    'Oghliner will configure your repository to automatically deploy your app\n' +
+    'to GitHub Pages using Travis CI.\n' +
+    '\n'
+  );
+
   getSlug(function(err, origin) {
     if (err) {
       callback(err);
       return;
     }
+
+    process.stdout.write(
+      'The "origin" remote of your repository is "' + origin + '".\n' +
+      '\n' +
+      'Make sure Travis knows about your repository, and your repository is active\n' +
+      'in Travis, by going to https://travis-ci.org/profile, pressing the Sync button\n' +
+      '(if needed), and activating the repository (if it isn\'t already active).\n' +
+      '\n' +
+      'Requesting a GitHub personal access token that Travis will use\n' +
+      'to deploy your app.  In order to get the token, I need your username\n' +
+      'and password (and two-factor authentication code, if appropriate).\n' +
+      '\n' +
+      'For more information about personal access tokens or to view the token\n' +
+      'I create, see https://github.com/settings/tokens.\n' +
+      '\n'
+    );
 
     var note = 'Oghliner token for ' + origin;
     var url = 'https://github.com/mozilla/oghliner';
@@ -69,11 +92,24 @@ function configure(callback) {
         return;
       }
 
+      process.stdout.write(
+        '\n' +
+        'I retrieved a GitHub personal access token.  Next I\'ll encrypt it\n' +
+        'with Travis\'s public key so I can add the token to the Travis configuration\n' +
+        'without leaking it in public build logs…\n' +
+        '\n'
+      );
+
       travisEncrypt(origin, 'GH_TOKEN=' + token, undefined, undefined, function (err, blob) {
         if (err) {
           callback(err);
           return;
         }
+
+        process.stdout.write(
+          'I encrypted the token. Next I\'ll write it to the Travis configuration…\n' +
+          '\n'
+        );
 
         var travisYml = readYaml.sync('.travis.yml');
 
@@ -87,6 +123,20 @@ function configure(callback) {
 
         travisYml.env.global.push({ secure: blob });
         writeYaml.sync('.travis.yml', travisYml);
+
+        process.stdout.write(
+          'I wrote the encrypted token to the Travis configuration.  You\'re ready\n' +
+          'to auto-deploy using Travis!  Just commit the change to your "master" branch,\n' +
+          'push the change back to the origin remote, and then visit\n' +
+          'https://travis-ci.org/' + origin + '/builds to see the build status.\n' +
+          '\n' +
+          'If the build is successful, the "after_success" build step should show\n' +
+          'that Travis deployed your app to GitHub Pages.  It should look like this:\n' +
+          '\n' +
+          '$ [ "${TRAVIS_PULL_REQUEST}" = "false" ] && [ "${TRAVIS_BRANCH}" = "master" ] && gulp deploy\n' +
+          '\n'
+        );
+
         callback();
       });
     });
