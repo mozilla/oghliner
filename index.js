@@ -83,8 +83,8 @@ function configure(callback) {
       'to deploy your app.  In order to get the token, I need your username\n' +
       'and password (and two-factor authentication code, if appropriate).\n' +
       '\n' +
-      'For more information about personal access tokens or to view the token\n' +
-      'I create, see https://github.com/settings/tokens.\n' +
+      'For more information about personal access tokens or to view the entry\n' +
+      'for the token I create, see https://github.com/settings/tokens.\n' +
       '\n'
     );
 
@@ -96,7 +96,7 @@ function configure(callback) {
     process.stdout.write(
       '\n' +
       'I wasn\'t able to determine your GitHub username and repo.  Are you running\n' +
-      'this command in Git repository whose "origin" remote is on GitHub?  The error\n' +
+      'this command in a Git repository whose "origin" remote is on GitHub?  The error\n' +
       'I received is: ' + err + '\n' +
       '\n'
     );
