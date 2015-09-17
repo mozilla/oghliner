@@ -121,7 +121,7 @@ function deploy(config, callback) {
           url = 'https://' + process.env.GH_TOKEN + '@github.com/' + match[1] + '/' + match[2] + '.git';
         }
 
-        ghPages.publish(path.join(__dirname, rootDir), {
+        ghPages.publish(rootDir, {
           // We can't log here because it would leak the GitHub token on Travis.
           // logger: console.log,
           repo: url,
@@ -133,7 +133,7 @@ function deploy(config, callback) {
   } else {
     // We aren't using a token to authenticate with GitHub, so we don't have to
     // alter the repo URL.
-    ghPages.publish(path.join(__dirname, rootDir), {
+    ghPages.publish(rootDir, {
       logger: console.log,
     }, callback);
   }
