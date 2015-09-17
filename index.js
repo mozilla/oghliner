@@ -25,8 +25,12 @@ var readYaml = require('read-yaml');
 var travisEncrypt = require('travis-encrypt');
 var writeYaml = require('write-yaml');
 
-// XXX Rename this to getSlug.
-function getOrigin(callback) {
+/**
+ * Get the slug (GitHub username/repo combination) for the 'origin' remote
+ * in the repository that contains the current working directory.
+ * XXX Replace with github-slug module?
+ */
+function getSlug(callback) {
   gitconfiglocal('./', function(error, config) {
     if (error) {
       callback(error);
@@ -50,7 +54,7 @@ function getOrigin(callback) {
 }
 
 function configure(callback) {
-  getOrigin(function(err, origin) {
+  getSlug(function(err, origin) {
     if (err) {
       callback(err);
       return;
