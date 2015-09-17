@@ -63,6 +63,18 @@ gulp.task('deploy', function(callback) {
 
 *oghliner.deploy* deploys your files to GitHub Pages. It takes a *config* object and a *callback*. Use *rootDir* to specify the directory in which your files are built (default: `.`). 
 
+Finally, in order for the offline cache to be registered, you need to load the offline manager script in your app by copying it to the location of your other scripts:
+
+```bash
+cp node_modules/oghliner/app/js/offline-manager.js path/to/your/js/files/
+```
+
+And then loading it in the app's the HTML file(s):
+
+```html
+<script src="path/to/your/js/files/offline-manager.js"></script>
+```
+
 Automatic Deployment Via Travis
 -------------------------------
 
