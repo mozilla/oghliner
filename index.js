@@ -48,9 +48,10 @@ var github = new GitHub({
 promptly.prompt = promisify(promptly.prompt);
 promptly.password = promisify(promptly.password);
 
-// Wrap some more individual methods for complex APIs that I'm scared to wrap
-// in toto.
+// Wrap individual methods for complex APIs that I'm scared to wrap in toto.
+github.authorization.create = promisify(github.authorization.create);
 github.authorization.delete = promisify(github.authorization.delete);
+travis.authenticate = promisify(travis.authenticate);
 travis.hooks.get = promisify(travis.hooks.get);
 
 /**
@@ -81,25 +82,6 @@ function getSlug(callback) {
   });
 }
 getSlug = promisify(getSlug);
-
-// XXX Could we promisify github.authorization.create with promisify?
-function createGitHubAuthorization(scopes, note, noteUrl, headers) {
-  return new Promise(function(resolve, reject) {
-    github.authorization.create({
-      scopes: scopes,
-      note: note,
-      note_url: noteUrl,
-      headers: headers,
-    }, function(err, res) {
-      if (err) {
-        reject(err);
-      }
-      else {
-        resolve(res);
-      }
-    });
-  });
-}
 
 function configure(callback) {
   process.stdout.write(
@@ -156,10 +138,6 @@ function configure(callback) {
   })
 
   .then(function() {
-    var scopes = ['read:org', 'user:email', 'repo_deployment', 'repo:status', 'write:repo_hook'];
-    var note = 'temporary Oghliner token to get Travis token for ' + slug;
-    var noteUrl = 'https://github.com/mozilla/oghliner';
-
     // Create a temporary GitHub token to get a Travis token that we can use
     // to activate the repository in Travis.  We only need this GitHub token
     // to get the Travis token, so we delete it afterward.  (We do also need
@@ -170,17 +148,34 @@ function configure(callback) {
     // so it isn't possible to request a token that gives us access to it.
     // Otherwise we'd do that first and then use it to do everything else.
 
-    return createGitHubAuthorization(scopes, note, noteUrl, {})
+    var scopes = ['read:org', 'user:email', 'repo_deployment', 'repo:status', 'write:repo_hook'];
+    var note = 'temporary Oghliner token to get Travis token for ' + slug;
+    var noteUrl = 'https://github.com/mozilla/oghliner';
+
+    return github.authorization.create({
+      scopes: scopes,
+      note: note,
+      noteUrl: noteUrl,
+      headers: {},
+    })
     .catch(function(err) {
       var message = JSON.parse(err.message).message;
       // XXX Also handle the case where the credentials were incorrect.
+      // XXX Also handle the case where the token already exists (because this
+      // configuration process was previously interrupted during retrieval of
+      // the Travis token).
       if (message === 'Must specify two-factor authentication OTP code.') {
         // XXX Display explanatory text so the user knows why we're prompting
         // for their OTP code.
         return promptly.prompt('Auth Code: ')
         .then(function(res) {
           otpCode = res;
-          return createGitHubAuthorization(scopes, note, noteUrl, { 'X-GitHub-OTP': otpCode });
+          return github.authorization.create({
+            scopes: scopes,
+            note: note,
+            noteUrl: noteUrl,
+            headers: { 'X-GitHub-OTP': otpCode },
+          });
         });
       }
     });
@@ -191,20 +186,13 @@ function configure(callback) {
     // after we finish getting the Travis token.
     tempTokenId = res.id;
 
-    return new Promise(function(resolve, reject) {
-      travis.authenticate({
-        github_token: res.token,
-      }, function (err, res) {
-        err ? reject(err) : resolve(res);
-      });
-    });
-
+    return travis.authenticate({ github_token: res.token });
   })
 
   .then(function(res) {
-    console.log("Travis access token: " + res.access_token);
+    console.log("Travis token: " + res.access_token);
 
-    // We don't need to save the access token, because the Travis module
+    // We don't need to save the Travis token, because the Travis module
     // caches it in the Travis instance.
 
     // Now that we have the Travis token, delete the temporary GitHub token.
