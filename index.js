@@ -19,7 +19,6 @@
 // Import this first so we can use it to wrap other modules we import.
 var promisify = require("promisify-node");
 
-var getGitHubToken = promisify(require('get-github-token'));
 var ghPages = require('gh-pages');
 var gitconfiglocal = require('gitconfiglocal');
 var path = require('path');
@@ -95,7 +94,7 @@ function configure(callback) {
   // without having to pass them down the chain.
   // XXX Figure out if user and username will always be the same and, if so,
   // then stop prompting the user to specify their username.
-  var slug, user, repo, username, password, otpCode, tempTokenId;
+  var slug, user, repo, username, password, otpCode, token, tempToken, tempTokenId;
 
   // Will users sometimes want to configure Travis to deploy changes to a
   // non-"origin" repository?  For example, origin is mykmelez/test-app, but I
@@ -115,9 +114,8 @@ function configure(callback) {
     process.stdout.write(
       'The "origin" remote of your repository is "' + slug + '".\n' +
       '\n' +
-      'Make sure Travis knows about your repository, and your repository is active\n' +
-      'in Travis, by going to https://travis-ci.org/profile, pressing the Sync button\n' +
-      '(if needed), and activating the repository (if it isn\'t already active).\n' +
+      'Make sure Travis knows about your repository by going to https://travis-ci.org/profile\n' +
+      'and pressing the Sync button if it isn\'t already in the list of your repositories.\n' +
       '\n' +
       'Requesting a GitHub personal access token that Travis will use\n' +
       'to deploy your app.  In order to get the token, I need your username\n' +
@@ -191,14 +189,65 @@ function configure(callback) {
         });
       }
     });
+
   })
 
   .then(function(res) {
-    // Record the ID of the temporary GitHub token so we can delete it
-    // after we finish getting the Travis token.
-    tempTokenId = res.id;
+    tempToken = res.token;
 
-    return travis.authenticate({ github_token: res.token });
+    // Store the ID of the temporary GitHub token so we can delete it
+    // after we finish using it to get the Travis token.
+    tempTokenId = res.id;
+  })
+
+  .then(function() {
+    // Get the permanent GitHub token that Travis will use to deploy the app.
+    // We get this token right after we get the temporary GitHub token, so we
+    // can (hopefully) use the same OTP code for both requests.
+    var scopes = ['public_repo'];
+    var note = 'Oghliner token for ' + slug;
+    var noteUrl = 'https://github.com/mozilla/oghliner';
+
+    return github.authorization.create({
+      scopes: scopes,
+      note: note,
+      noteUrl: noteUrl,
+      headers: otpCode ? { 'X-GitHub-OTP': otpCode } : {},
+    });
+    // XXX If the OTP code has already expired, then ask for another one.
+    // .catch(function(err) {
+    //   var message = JSON.parse(err.message).message;
+    //   // XXX Also handle the case where the token already exists (because the
+    //   // user already configured this repository).
+    //   if (message === 'XXX Replace with "OTP code expired" error message.') {
+    //     // XXX Display explanatory text so the user knows why we're prompting
+    //     // for their OTP code again.
+    //     return promptly.prompt('Auth Code: ')
+    //     .then(function(res) {
+    //       otpCode = res;
+    //       return github.authorization.create({
+    //         scopes: scopes,
+    //         note: note,
+    //         noteUrl: noteUrl,
+    //         headers: { 'X-GitHub-OTP': otpCode },
+    //       });
+    //     });
+    //   }
+    // });
+
+  })
+
+  .then(function(res) {
+    token = res.token;
+
+    process.stdout.write(
+      '\n' +
+      'I created a GitHub token for deploying via Travis.\n' +
+      'Next I\'ll authenticate with Travis to check your repo status…\n' +
+      '\n'
+    );
+
+    return travis.authenticate({ github_token: tempToken });
   })
 
   .then(function(res) {
@@ -217,7 +266,6 @@ function configure(callback) {
 
   .then(function() {
     // XXX Ensure that the repository is known by and active in Travis.
-    // XXX If necessary, sync Travis with GitHub and/or activate the repository.
     return travis.hooks.get({})
     .then(function(res) {
       for (var hook of res.hooks) {
@@ -269,19 +317,10 @@ function configure(callback) {
   })
 
   .then(function() {
-    // XXX Get this token at the same time we get the temporary token,
-    // so we can use a single 2FA code for both requests.
-    var note = 'Oghliner token for ' + slug;
-    var url = 'https://github.com/mozilla/oghliner';
-    return getGitHubToken(['public_repo'], note, url);
-  })
-
-  .then(function(token) {
     process.stdout.write(
       '\n' +
-      'I retrieved a GitHub personal access token.  Next I\'ll encrypt it\n' +
-      'with Travis\'s public key so I can add the token to the Travis configuration\n' +
-      'without leaking it in public build logs…\n' +
+      'Next I\'ll encrypt the GitHub token with Travis\'s public key so I can add the token\n' +
+      'to the Travis configuration without leaking it in public build logs…\n' +
       '\n'
     );
 
