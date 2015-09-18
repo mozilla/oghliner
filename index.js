@@ -268,7 +268,9 @@ function configure(callback) {
     // XXX Ensure that the repository is known by and active in Travis.
     return travis.hooks.get({})
     .then(function(res) {
-      for (var hook of res.hooks) {
+      var hook;
+      for (var i = 0; i < res.hooks.length; i++) {
+        hook = res.hooks[i];
         if (hook.owner_name === user && hook.name === repo) {
           if (hook.active) {
             process.stdout.write(
