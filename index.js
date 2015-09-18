@@ -93,12 +93,24 @@ function configure(callback) {
 
   // Save some values in the closure so we can use them across the promise chain
   // without having to pass them down the chain.
-  var slug, username, password, otpCode, tempTokenId;
+  // XXX Figure out if user and username will always be the same and, if so,
+  // then stop prompting the user to specify their username.
+  var slug, user, repo, username, password, otpCode, tempTokenId;
+
+  // Will users sometimes want to configure Travis to deploy changes to a
+  // non-"origin" repository?  For example, origin is mykmelez/test-app, but I
+  // want to configure Travis to deploy changes to mozilla/test-app, which has
+  // a different remote name (like upstream).  If so, then we'll need to prompt
+  // the user to choose the remote for which to configure deployment. For now,
+  // though, we assume they are configuring the origin remote.
 
   getSlug()
 
-  .then(function(result) {
-    slug = result;
+  .then(function(res) {
+    slug = res;
+    var slugParts = slug.split('/');
+    user = slugParts[0];
+    repo = slugParts[1];
 
     process.stdout.write(
       'The "origin" remote of your repository is "' + slug + '".\n' +
@@ -118,17 +130,17 @@ function configure(callback) {
   })
 
   .then(function() {
-    return promptly.prompt('Username: ', { default: slug.split('/')[0] });
+    return promptly.prompt('Username: ', { default: user });
   })
 
-  .then(function(result) {
-    username = result;
+  .then(function(res) {
+    username = res;
 
     return promptly.password('Password: ');
   })
 
-  .then(function(result) {
-    password = result;
+  .then(function(res) {
+    password = res;
 
     github.authenticate({
       type: 'basic',
@@ -206,6 +218,54 @@ function configure(callback) {
   .then(function() {
     // XXX Ensure that the repository is known by and active in Travis.
     // XXX If necessary, sync Travis with GitHub and/or activate the repository.
+    return travis.hooks.get({})
+    .then(function(res) {
+      for (var hook of res.hooks) {
+        if (hook.owner_name === user && hook.name === repo) {
+          if (hook.active) {
+            process.stdout.write(
+              '\n' +
+              'Good news, your repository is already active in Travis!\n' +
+              'Next I\'ll configure Travis to deploy your repository to GitHub Pages…\n' +
+              '\n'
+            );
+          } else {
+            process.stdout.write(
+              '\n' +
+              'Your repository isn\'t active in Travis yet. Activating it…\n' +
+              '\n'
+            );
+            // XXX Ensure promisification won't break the method-ness of *put*.
+            return promisify(travis.hooks(hook.id).put)({ hook: { active: true } });
+          }
+          break;
+        }
+      }
+      // XXX The repository wasn't found in hooks, so tell Travis to sync
+      // with GitHub and try to retrieve hooks again.
+    });
+  })
+
+  .then(function(res) {
+    // We'll only get a *res* argument if the previous step requested activation
+    // from Travis.  If the repository was already active, this step is a noop.
+    if (res) {
+      if (res.result) {
+        process.stdout.write(
+          '\n' +
+          'Your repository has been activated in Travis!\n' +
+          '\n'
+        );
+      } else {
+        process.stdout.write(
+          '\n' +
+          'Travis failed to activate your repository, so you\'ll need to do so manually\n' +
+          'in Travis by going to https://travis-ci.org/profile and pressing the toggle button\n' +
+          'next to the name of the repository.\n' +
+          '\n'
+        );
+      }
+    }
   })
 
   .then(function() {
