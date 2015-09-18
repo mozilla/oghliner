@@ -23,6 +23,7 @@
     "promptly": "^0.2.1",
     "read-yaml": "^1.0.0",
     "sw-precache": "^2.0.0",
+    "travis-ci": "^2.0.3",
     "travis-encrypt": "^1.1.1",
     "write-yaml": "^0.2.1"
   }
