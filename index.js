@@ -34,7 +34,7 @@ var travis = new Travis({ version: '2.0.0' });
 var GitHub = require('github');
 var github = new GitHub({
   version: "3.0.0",
-  // debug: true,
+  debug: true,
   protocol: "https", // XXX Determine if this is already the default.
   headers: {
     "user-agent": "Oghliner",
@@ -50,6 +50,7 @@ promptly.password = promisify(promptly.password);
 // Wrap individual methods for complex APIs that I'm scared to wrap in toto.
 github.authorization.create = promisify(github.authorization.create);
 github.authorization.delete = promisify(github.authorization.delete);
+github.authorization.getAll = promisify(github.authorization.getAll);
 travis.authenticate = promisify(travis.authenticate);
 travis.hooks.get = promisify(travis.hooks.get);
 
@@ -103,6 +104,71 @@ function configure(callback) {
   // the user to choose the remote for which to configure deployment. For now,
   // though, we assume they are configuring the origin remote.
 
+  function createTempToken() {
+    // Create a temporary GitHub token to get a Travis token that we can use
+    // to activate the repository in Travis.  We only need this GitHub token
+    // to get the Travis token, so we delete it afterward.  (We do also need
+    // a GitHub token that enables Travis to deploy a build to GitHub Pages,
+    // but we get a separate token for that purpose afterward).
+
+    // NB: The GitHub authorization API always requires basic authentication,
+    // so it isn't possible to request a token that gives us access to it.
+    // Otherwise we'd do that first and then use it to do everything else.
+
+    var scopes = ['read:org', 'user:email', 'repo_deployment', 'repo:status', 'write:repo_hook'];
+    var note = 'temporary Oghliner token to get Travis token for ' + slug;
+    var noteUrl = 'https://github.com/mozilla/oghliner';
+
+    return github.authorization.create({
+      scopes: scopes,
+      note: note,
+      noteUrl: noteUrl,
+      headers: otpCode ? { 'X-GitHub-OTP': otpCode } : {},
+    })
+    .catch(function(err) {
+      var error = JSON.parse(err.message);
+      // XXX Also handle the case where the credentials were incorrect.
+      if (error.message === 'Must specify two-factor authentication OTP code.') {
+        // XXX Display explanatory text so the user knows why we're prompting
+        // for their OTP code.
+        return promptly.prompt('Auth Code: ')
+        .then(function(res) {
+          otpCode = res;
+          return createTempToken();
+        });
+      }
+      else if (error.message === 'Validation Failed' && error.errors[0].code === 'already_exists') {
+        process.stdout.write(
+          'You already have a temporary GitHub token.  Deleting it…\n' +
+          '\n'
+        );
+        // Should we also give the user the option to cancel the process?
+        // Perhaps they don't want to lose the existing token.
+        return deleteToken(note, noteUrl).then(createTempToken);
+      }
+    });
+  }
+
+  function deleteToken(note, noteUrl, page) {
+    page = page || 1;
+
+    return github.authorization.getAll({
+      page: page,
+      headers: otpCode ? { 'X-GitHub-OTP': otpCode } : {},
+    })
+    .then(function(res) {
+      for (var i = 0; i < res.length; i++) {
+        if (res[i].note === note) {
+          return github.authorization.delete({
+            id: res[i].id,
+            headers: otpCode ? { 'X-GitHub-OTP': otpCode } : {},
+          });
+        }
+      }
+      return deleteToken(note, noteUrl, ++page);
+    });
+  }
+
   getSlug()
 
   .then(function(res) {
@@ -147,50 +213,7 @@ function configure(callback) {
     });
   })
 
-  .then(function() {
-    // Create a temporary GitHub token to get a Travis token that we can use
-    // to activate the repository in Travis.  We only need this GitHub token
-    // to get the Travis token, so we delete it afterward.  (We do also need
-    // a GitHub token that enables Travis to deploy a build to GitHub Pages,
-    // but we get a separate token for that purpose afterward).
-
-    // NB: The GitHub authorization API always requires basic authentication,
-    // so it isn't possible to request a token that gives us access to it.
-    // Otherwise we'd do that first and then use it to do everything else.
-
-    var scopes = ['read:org', 'user:email', 'repo_deployment', 'repo:status', 'write:repo_hook'];
-    var note = 'temporary Oghliner token to get Travis token for ' + slug;
-    var noteUrl = 'https://github.com/mozilla/oghliner';
-
-    return github.authorization.create({
-      scopes: scopes,
-      note: note,
-      noteUrl: noteUrl,
-      headers: {},
-    })
-    .catch(function(err) {
-      var message = JSON.parse(err.message).message;
-      // XXX Also handle the case where the credentials were incorrect.
-      // XXX Also handle the case where the token already exists (because this
-      // configuration process was previously interrupted during retrieval of
-      // the Travis token).
-      if (message === 'Must specify two-factor authentication OTP code.') {
-        // XXX Display explanatory text so the user knows why we're prompting
-        // for their OTP code.
-        return promptly.prompt('Auth Code: ')
-        .then(function(res) {
-          otpCode = res;
-          return github.authorization.create({
-            scopes: scopes,
-            note: note,
-            noteUrl: noteUrl,
-            headers: { 'X-GitHub-OTP': otpCode },
-          });
-        });
-      }
-    });
-
-  })
+  .then(createTempToken)
 
   .then(function(res) {
     tempToken = res.token;
