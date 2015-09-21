@@ -414,11 +414,11 @@ function configure(callback) {
 
     var travisYml = readYaml.sync('.travis.yml');
 
-    if (!('env' in travisYml)) {
+    if (!('env' in travisYml) || travisYml.env === null) {
       travisYml.env = {};
     }
 
-    if (!('global' in travisYml.env)) {
+    if (!('global' in travisYml.env) || travisYml.env.global === null) {
       travisYml.env.global = [];
     }
 
