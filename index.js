@@ -141,6 +141,32 @@ function configure(callback) {
     });
   }
 
+  function handleCredentialErrors(err) {
+    var error = JSON.parse(err.message);
+
+    if (error.message === 'Bad credentials') {
+      // We can say this because we know that the configuration flow prompts
+      // the user to enter their credentials before doing anything that might
+      // end up in this error handler.  So if we see "Bad credentials" here,
+      // then we know the user entered them incorrectly.
+      process.stdout.write(
+        'The username and/or password you entered is incorrect.  Please try again…\n' +
+        '\n'
+      );
+      return promptCredentials();
+    }
+
+    if (error.message === 'Must specify two-factor authentication OTP code.') {
+      // This error is the same whether the user hasn't specified a code yet,
+      // has specified an incorrect code, or has specified an expired one.
+      // Which is ok, since in all cases our response is to (re)prompt them
+      // to specify one.
+      return promptOtpCode();
+    }
+
+    throw err;
+  }
+
   function createToken(scopes, note, noteUrl) {
     return github.authorization.create({
       scopes: scopes,
@@ -149,52 +175,30 @@ function configure(callback) {
       headers: otpCode ? { 'X-GitHub-OTP': otpCode } : {},
     })
     .catch(function(err) {
+      return handleCredentialErrors(err)
+      .then(function() {
+        return createToken(scopes, note, noteUrl);
+      })
+    })
+    .catch(function(err) {
       var error = JSON.parse(err.message);
-
-      if (error.message === 'Bad credentials') {
-        process.stdout.write(
-          'The username and/or password you entered is incorrect.  Please try again…\n' +
-          '\n'
-        );
-        return promptCredentials()
-        .then(function() {
-          return createToken(scopes, note, noteUrl);
-        });
-      }
-
-      else if (error.message === 'Must specify two-factor authentication OTP code.') {
-        // This error is the same whether the user hasn't specified a code yet,
-        // has specified an incorrect code, or has specified an expired one.
-        // Which is ok, since in all cases our response is to (re)prompt them
-        // to specify one.
-
-        return promptOtpCode()
-        .then(function() {
-          return createToken(scopes, note, noteUrl);
-        });
-      }
-      else if (error.message === 'Validation Failed' && error.errors[0].code === 'already_exists') {
+      if (error.message === 'Validation Failed' && error.errors[0].code === 'already_exists') {
         // XXX Should we prompt the user to confirm the deletion?
         // Perhaps they don't want to lose the existing token.
-
         process.stdout.write(
           'You already have the GitHub token "' + note + '".\n' +
           'Deleting it…\n' +
           '\n'
         );
-
-        return deleteToken(note, noteUrl).then(function() {
+        return getTokenId(note, noteUrl).then(deleteToken).then(function() {
           return createToken(scopes, note, noteUrl);
         });
       }
-
-      // We don't know how to handle this error, so we rethrow it to make it
-      // propagate down the promise chain.
       throw err;
-    });
+    })
   }
 
-  function deleteToken(note, noteUrl, page) {
+  function getTokenId(note, noteUrl, page) {
     page = page || 1;
 
     return github.authorization.getAll({
@@ -203,14 +207,32 @@ function configure(callback) {
     })
     .then(function(res) {
       for (var i = 0; i < res.length; i++) {
+        // XXX Should we ensure |res[i].note_url === noteUrl| too?
         if (res[i].note === note) {
-          return github.authorization.delete({
-            id: res[i].id,
-            headers: otpCode ? { 'X-GitHub-OTP': otpCode } : {},
-          });
+          return res[i].id;
         }
       }
-      return deleteToken(note, noteUrl, ++page);
+      // XXX How do we determine that we've reached the end of the pages?
+      return getTokenId(note, noteUrl, ++page);
+    })
+    .catch(function(err) {
+      return handleCredentialErrors(err)
+      .then(function() {
+        return getTokenId(note, noteUrl, page);
+      })
+    });
+  }
+
+  function deleteToken(id) {
+    return github.authorization.delete({
+      id: id,
+      headers: otpCode ? { 'X-GitHub-OTP': otpCode } : {},
+    })
+    .catch(function(err) {
+      return handleCredentialErrors(err)
+      .then(function() {
+        return deleteToken(id);
+      })
     });
   }
 
@@ -296,11 +318,7 @@ function configure(callback) {
     // caches it in the Travis instance.
 
     // Now that we have the Travis token, delete the temporary GitHub token.
-    // XXX Handle the case where the OTP code has already expired.
-    return github.authorization.delete({
-      id: tempTokenId,
-      headers: otpCode ? { 'X-GitHub-OTP': otpCode } : {},
-    });
+    return deleteToken(tempTokenId);
   })
 
   .then(function() {
