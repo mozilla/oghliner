@@ -213,27 +213,39 @@ function configure(callback) {
       note: note,
       noteUrl: noteUrl,
       headers: otpCode ? { 'X-GitHub-OTP': otpCode } : {},
+    })
+    .catch(function(err) {
+      var error = JSON.parse(err.message);
+      if (error.message === 'Validation Failed' && error.errors[0].code === 'already_exists') {
+        // XXX Automatically delete and recreate the token.
+        process.stdout.write(
+          '\n' +
+          'A GitHub token already exists for Oghliner to deploy this repository.\n' +
+          'In order to re-configure Oghliner with a new token, you need to delete\n' +
+          'the existing one first by going to https://github.com/settings/tokens\n' +
+          'and deleting the token called "Oghliner token for ' + slug + '".\n' +
+          '\n'
+        );
+      }
+      // XXX If the OTP code has already expired, then ask for another one.
+      // else if (error.message === 'XXX Replace with "OTP code expired" error message.') {
+      //   // XXX Display explanatory text so the user knows why we're prompting
+      //   // for their OTP code again.
+      //   return promptly.prompt('Auth Code: ')
+      //   .then(function(res) {
+      //     otpCode = res;
+      //     return github.authorization.create({
+      //       scopes: scopes,
+      //       note: note,
+      //       noteUrl: noteUrl,
+      //       headers: { 'X-GitHub-OTP': otpCode },
+      //     });
+      //   });
+      // }
+
+      // Rethrow the error message so the configuration process stops.
+      throw err;
     });
-    // XXX If the OTP code has already expired, then ask for another one.
-    // .catch(function(err) {
-    //   var message = JSON.parse(err.message).message;
-    //   // XXX Also handle the case where the token already exists (because the
-    //   // user already configured this repository).
-    //   if (message === 'XXX Replace with "OTP code expired" error message.') {
-    //     // XXX Display explanatory text so the user knows why we're prompting
-    //     // for their OTP code again.
-    //     return promptly.prompt('Auth Code: ')
-    //     .then(function(res) {
-    //       otpCode = res;
-    //       return github.authorization.create({
-    //         scopes: scopes,
-    //         note: note,
-    //         noteUrl: noteUrl,
-    //         headers: { 'X-GitHub-OTP': otpCode },
-    //       });
-    //     });
-    //   }
-    // });
 
   })
 
