@@ -19,6 +19,7 @@
 // Import this first so we can use it to wrap other modules we import.
 var promisify = require("promisify-node");
 
+var childProcess = require('child_process');
 var ghPages = require('gh-pages');
 var gitconfiglocal = require('gitconfiglocal');
 var path = require('path');
@@ -423,6 +424,37 @@ function configure(callback) {
     }
 
     travisYml.env.global.push({ secure: blob });
+
+    // Git requires user.name and user.email to be set, and we need to set them
+    // globally, since the gh-pages module re-clones the repository, and values
+    // we set locally will only apply to the original clone that Travis creates.
+    if (!('before_script' in travisYml) || travisYml.before_script === null) {
+      travisYml.before_script = [];
+    }
+    var command;
+    if (!travisYml.before_script.some(function(v) { return v.search(/git +config +--global +user\.name/) !== -1 })) {
+      // We use the name Travis CI to make it clear that it's Travis committing
+      // the changes.
+      var name = 'Travis CI';
+      command = 'git config --global user.name "' + name + '"';
+      process.stdout.write(
+        'Adding before_script: ' + command + '\n' +
+        '\n'
+      );
+      travisYml.before_script.push(command);
+    }
+    if (!travisYml.before_script.some(function(v) { return v.search(/git +config +--global +user\.email/) !== -1 })) {
+      var email = childProcess.execSync('git config --global user.email').toString().trim();
+      // We use the current user's email address so GitHub associates the change
+      // with the user whose credentials authorize Travis to deploy the changes.
+      command = 'git config --global user.email "' + email + '"';
+      process.stdout.write(
+        'Adding before_script: ' + command + '\n' +
+        '\n'
+      );
+      travisYml.before_script.push(command);
+    }
+
     writeYaml.sync('.travis.yml', travisYml);
   })
 
