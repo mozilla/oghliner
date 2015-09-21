@@ -91,6 +91,10 @@ function configure(callback) {
     '\n'
   );
 
+  // The URL of this project, which we specify in the note_url field
+  // when creating GitHub tokens.
+  var noteUrl = 'https://github.com/mozilla/oghliner';
+
   // Save some values in the closure so we can use them across the promise chain
   // without having to pass them down the chain.
   // XXX Figure out if user and username will always be the same and, if so,
@@ -104,48 +108,52 @@ function configure(callback) {
   // the user to choose the remote for which to configure deployment. For now,
   // though, we assume they are configuring the origin remote.
 
-  function createTempToken() {
-    // Create a temporary GitHub token to get a Travis token that we can use
-    // to activate the repository in Travis.  We only need this GitHub token
-    // to get the Travis token, so we delete it afterward.  (We do also need
-    // a GitHub token that enables Travis to deploy a build to GitHub Pages,
-    // but we get a separate token for that purpose afterward).
-
-    // NB: The GitHub authorization API always requires basic authentication,
-    // so it isn't possible to request a token that gives us access to it.
-    // Otherwise we'd do that first and then use it to do everything else.
-
-    var scopes = ['read:org', 'user:email', 'repo_deployment', 'repo:status', 'write:repo_hook'];
-    var note = 'temporary Oghliner token to get Travis token for ' + slug;
-    var noteUrl = 'https://github.com/mozilla/oghliner';
-
+  function createToken(scopes, note, noteUrl) {
     return github.authorization.create({
       scopes: scopes,
       note: note,
-      noteUrl: noteUrl,
+      note_url: noteUrl,
       headers: otpCode ? { 'X-GitHub-OTP': otpCode } : {},
     })
     .catch(function(err) {
       var error = JSON.parse(err.message);
-      // XXX Also handle the case where the credentials were incorrect.
+      // XXX Also handle the case where the credentials are incorrect.
       if (error.message === 'Must specify two-factor authentication OTP code.') {
         // XXX Display explanatory text so the user knows why we're prompting
         // for their OTP code.
         return promptly.prompt('Auth Code: ')
         .then(function(res) {
           otpCode = res;
-          return createTempToken();
+          return createToken(scopes, note, noteUrl);
         });
       }
       else if (error.message === 'Validation Failed' && error.errors[0].code === 'already_exists') {
         process.stdout.write(
-          'You already have a temporary GitHub token.  Deleting it…\n' +
+          'You already have the GitHub token "' + note + '".\n' +
+          'Deleting it…\n' +
           '\n'
         );
         // Should we also give the user the option to cancel the process?
         // Perhaps they don't want to lose the existing token.
-        return deleteToken(note, noteUrl).then(createTempToken);
+        return deleteToken(note, noteUrl).then(function() {
+          return createToken(scopes, note, noteUrl);
+        });
       }
+
+      // XXX If the OTP code has expired, then ask for another one.
+      // else if (error.message === 'XXX Replace with "OTP code expired" error message.') {
+      //   // XXX Display explanatory text so the user knows why we're prompting
+      //   // for their OTP code again.
+      //   return promptly.prompt('Auth Code: ')
+      //   .then(function(res) {
+      //     otpCode = res;
+      //     return createToken(scopes, note, noteUrl);
+      //   });
+      // }
+
+      // We don't know how to handle this error, so we rethrow it to make it
+      // propagate down the promise chain.
+      throw err;
     });
   }
 
@@ -213,7 +221,20 @@ function configure(callback) {
     });
   })
 
-  .then(createTempToken)
+  .then(function() {
+    // Create a temporary GitHub token to get a Travis token that we can use
+    // to activate the repository in Travis.  We only need this GitHub token
+    // to get the Travis token, so we delete it afterward.  (We do also need
+    // a GitHub token that enables Travis to deploy a build to GitHub Pages,
+    // but we get a separate token for that purpose afterward).
+
+    // NB: The GitHub authorization API always requires basic authentication,
+    // so it isn't possible to request a token that gives us access to it.
+    // Otherwise we'd do that first and then use it to do everything else.
+
+    return createToken(['read:org', 'user:email', 'repo_deployment', 'repo:status', 'write:repo_hook'],
+                       'temporary Oghliner token to get Travis token for ' + slug, noteUrl);
+  })
 
   .then(function(res) {
     tempToken = res.token;
@@ -227,49 +248,7 @@ function configure(callback) {
     // Get the permanent GitHub token that Travis will use to deploy the app.
     // We get this token right after we get the temporary GitHub token, so we
     // can (hopefully) use the same OTP code for both requests.
-    var scopes = ['public_repo'];
-    var note = 'Oghliner token for ' + slug;
-    var noteUrl = 'https://github.com/mozilla/oghliner';
-
-    return github.authorization.create({
-      scopes: scopes,
-      note: note,
-      noteUrl: noteUrl,
-      headers: otpCode ? { 'X-GitHub-OTP': otpCode } : {},
-    })
-    .catch(function(err) {
-      var error = JSON.parse(err.message);
-      if (error.message === 'Validation Failed' && error.errors[0].code === 'already_exists') {
-        // XXX Automatically delete and recreate the token.
-        process.stdout.write(
-          '\n' +
-          'A GitHub token already exists for Oghliner to deploy this repository.\n' +
-          'In order to re-configure Oghliner with a new token, you need to delete\n' +
-          'the existing one first by going to https://github.com/settings/tokens\n' +
-          'and deleting the token called "Oghliner token for ' + slug + '".\n' +
-          '\n'
-        );
-      }
-      // XXX If the OTP code has already expired, then ask for another one.
-      // else if (error.message === 'XXX Replace with "OTP code expired" error message.') {
-      //   // XXX Display explanatory text so the user knows why we're prompting
-      //   // for their OTP code again.
-      //   return promptly.prompt('Auth Code: ')
-      //   .then(function(res) {
-      //     otpCode = res;
-      //     return github.authorization.create({
-      //       scopes: scopes,
-      //       note: note,
-      //       noteUrl: noteUrl,
-      //       headers: { 'X-GitHub-OTP': otpCode },
-      //     });
-      //   });
-      // }
-
-      // Rethrow the error message so the configuration process stops.
-      throw err;
-    });
-
+    return createToken(['public_repo'], 'Oghliner token for ' + slug, noteUrl);
   })
 
   .then(function(res) {
