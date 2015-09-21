@@ -34,7 +34,7 @@ var travis = new Travis({ version: '2.0.0' });
 var GitHub = require('github');
 var github = new GitHub({
   version: "3.0.0",
-  debug: true,
+  // debug: true,
   protocol: "https", // XXX Determine if this is already the default.
   headers: {
     "user-agent": "Oghliner",
@@ -269,59 +269,79 @@ function configure(callback) {
   .then(promptCredentials)
 
   .then(function() {
-    // Create a temporary GitHub token to get a Travis token that we can use
-    // to activate the repository in Travis.  We only need this GitHub token
-    // to get the Travis token, so we delete it afterward.  (We do also need
-    // a GitHub token that enables Travis to deploy a build to GitHub Pages,
-    // but we get a separate token for that purpose afterward).
-
     // NB: The GitHub authorization API always requires basic authentication,
     // so it isn't possible to request a token that gives us access to it.
-    // Otherwise we'd do that first and then use it to do everything else.
-
-    return createToken(['read:org', 'user:email', 'repo_deployment', 'repo:status', 'write:repo_hook'],
-                       'temporary Oghliner token to get Travis token for ' + slug, noteUrl);
-  })
-
-  .then(function(res) {
-    tempToken = res.token;
-
-    // Store the ID of the temporary GitHub token so we can delete it
-    // after we finish using it to get the Travis token.
-    tempTokenId = res.id;
-  })
-
-  .then(function() {
-    // Get the permanent GitHub token that Travis will use to deploy the app.
-    // We get this token right after we get the temporary GitHub token, so we
-    // can (hopefully) use the same OTP code for both requests.
-    return createToken(['public_repo'], 'Oghliner token for ' + slug, noteUrl);
-  })
-
-  .then(function(res) {
-    token = res.token;
+    // Otherwise we'd do that first and then use that token to get the others.
 
     process.stdout.write(
       '\n' +
-      'I created a GitHub token for deploying via Travis.\n' +
-      'Next I\'ll authenticate with Travis to check your repo status…\n' +
+      'Creating permanent GitHub token for Travis to deploy to GitHub Pages…\n' +
       '\n'
     );
 
-    return travis.authenticate({ github_token: tempToken });
+    return createToken(['public_repo'], 'Oghliner token for ' + slug, noteUrl)
+    .then(function(res) {
+      token = res.token;
+    });
   })
 
-  .then(function(res) {
-    console.log("Travis token: " + res.access_token);
+  .then(function() {
+    // Create a temporary GitHub token to get a Travis token that we can use
+    // to activate the repository in Travis.  We only need this GitHub token
+    // to get the Travis token, so we delete it afterward.
 
-    // We don't need to save the Travis token, because the Travis module
-    // caches it in the Travis instance.
+    process.stdout.write(
+      '\n' +
+      'Creating temporary GitHub token for authenticating with Travis…\n' +
+      '\n'
+    );
 
+    return createToken(['read:org', 'user:email', 'repo_deployment', 'repo:status', 'write:repo_hook'],
+                       'temporary Oghliner token to get Travis token for ' + slug, noteUrl)
+    .then(function(res) {
+      tempToken = res.token;
+
+      // Store the ID of the temporary GitHub token so we can delete it
+      // after we finish using it to get the Travis token.
+      tempTokenId = res.id;
+    });
+  })
+
+  .then(function() {
+    process.stdout.write(
+      '\n' +
+      'Authenticating with Travis…\n' +
+      '\n'
+    );
+
+    return travis.authenticate({ github_token: tempToken })
+    .then(function(res) {
+      // console.log("Travis token: " + res.access_token);
+
+      // We don't need to save the Travis token, because the Travis module
+      // caches it in the Travis instance.
+    });
+  })
+
+  .then(function() {
     // Now that we have the Travis token, delete the temporary GitHub token.
+
+    process.stdout.write(
+      '\n' +
+      'Deleting temporary GitHub token for authenticating with Travis…\n' +
+      '\n'
+    );
+
     return deleteToken(tempTokenId);
   })
 
   .then(function() {
+    process.stdout.write(
+      '\n' +
+      'Checking the status of your repository in Travis…\n' +
+      '\n'
+    );
+
     // XXX Ensure that the repository is known by and active in Travis.
     return travis.hooks.get({})
     .then(function(res) {
