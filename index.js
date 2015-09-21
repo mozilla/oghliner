@@ -34,7 +34,7 @@ var travis = new Travis({ version: '2.0.0' });
 var GitHub = require('github');
 var github = new GitHub({
   version: "3.0.0",
-  debug: true, // XXX Disable once things are working fine.
+  // debug: true,
   protocol: "https", // XXX Determine if this is already the default.
   headers: {
     "user-agent": "Oghliner",
