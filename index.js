@@ -97,8 +97,6 @@ function configure(callback) {
 
   // Save some values in the closure so we can use them across the promise chain
   // without having to pass them down the chain.
-  // XXX Figure out if user and username will always be the same and, if so,
-  // then stop prompting the user to specify their username.
   var slug, user, repo, username, password, otpCode, token, tempToken, tempTokenId;
 
   // Will users sometimes want to configure Travis to deploy changes to a
@@ -107,6 +105,22 @@ function configure(callback) {
   // a different remote name (like upstream).  If so, then we'll need to prompt
   // the user to choose the remote for which to configure deployment. For now,
   // though, we assume they are configuring the origin remote.
+
+  function promptCredentials() {
+    return promptly.prompt('Username: ', { default: username })
+    .then(function(res) {
+      username = res;
+      return promptly.password('Password: ');
+    })
+    .then(function(res) {
+      password = res;
+      github.authenticate({
+        type: 'basic',
+        username: username,
+        password: password
+      });
+    });
+  }
 
   function createToken(scopes, note, noteUrl) {
     return github.authorization.create({
@@ -117,8 +131,19 @@ function configure(callback) {
     })
     .catch(function(err) {
       var error = JSON.parse(err.message);
-      // XXX Also handle the case where the credentials are incorrect.
-      if (error.message === 'Must specify two-factor authentication OTP code.') {
+
+      if (error.message === 'Bad credentials') {
+        process.stdout.write(
+          'The username and/or password you entered is incorrect.  Please try again…\n' +
+          '\n'
+        );
+        return promptCredentials()
+        .then(function() {
+          return createToken(scopes, note, noteUrl);
+        });
+      }
+
+      else if (error.message === 'Must specify two-factor authentication OTP code.') {
         // XXX Display explanatory text so the user knows why we're prompting
         // for their OTP code.
         return promptly.prompt('Auth Code: ')
@@ -185,6 +210,12 @@ function configure(callback) {
     user = slugParts[0];
     repo = slugParts[1];
 
+    // Set the username to the value of the user half of the slug to provide
+    // a default value when prompting the user for their username.
+    // XXX Figure out if user and username will always be the same and, if so,
+    // consider never even prompting the user to specify their username.
+    username = user;
+
     process.stdout.write(
       'The "origin" remote of your repository is "' + slug + '".\n' +
       '\n' +
@@ -201,25 +232,7 @@ function configure(callback) {
     );
   })
 
-  .then(function() {
-    return promptly.prompt('Username: ', { default: user });
-  })
-
-  .then(function(res) {
-    username = res;
-
-    return promptly.password('Password: ');
-  })
-
-  .then(function(res) {
-    password = res;
-
-    github.authenticate({
-      type: 'basic',
-      username: username,
-      password: password
-    });
-  })
+  .then(promptCredentials)
 
   .then(function() {
     // Create a temporary GitHub token to get a Travis token that we can use
