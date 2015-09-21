@@ -122,6 +122,25 @@ function configure(callback) {
     });
   }
 
+  function promptOtpCode() {
+    if (otpCode) {
+      process.stdout.write(
+        'Your authentication code is incorrect or has expired.  Please try again.\n' +
+        '\n'
+      );
+    } else {
+      process.stdout.write(
+        'You\'re using two-factor authentication with GitHub.  Please enter the code\n' +
+        'provided by your authentication software.\n' +
+        '\n'
+      );
+    }
+    return promptly.prompt('Auth Code: ')
+    .then(function(res) {
+      otpCode = res;
+    });
+  }
+
   function createToken(scopes, note, noteUrl) {
     return github.authorization.create({
       scopes: scopes,
@@ -144,37 +163,30 @@ function configure(callback) {
       }
 
       else if (error.message === 'Must specify two-factor authentication OTP code.') {
-        // XXX Display explanatory text so the user knows why we're prompting
-        // for their OTP code.
-        return promptly.prompt('Auth Code: ')
-        .then(function(res) {
-          otpCode = res;
+        // This error is the same whether the user hasn't specified a code yet,
+        // has specified an incorrect code, or has specified an expired one.
+        // Which is ok, since in all cases our response is to (re)prompt them
+        // to specify one.
+
+        return promptOtpCode()
+        .then(function() {
           return createToken(scopes, note, noteUrl);
         });
       }
       else if (error.message === 'Validation Failed' && error.errors[0].code === 'already_exists') {
+        // XXX Should we prompt the user to confirm the deletion?
+        // Perhaps they don't want to lose the existing token.
+
         process.stdout.write(
           'You already have the GitHub token "' + note + '".\n' +
           'Deleting it…\n' +
           '\n'
         );
-        // Should we also give the user the option to cancel the process?
-        // Perhaps they don't want to lose the existing token.
+
         return deleteToken(note, noteUrl).then(function() {
           return createToken(scopes, note, noteUrl);
         });
       }
-
-      // XXX If the OTP code has expired, then ask for another one.
-      // else if (error.message === 'XXX Replace with "OTP code expired" error message.') {
-      //   // XXX Display explanatory text so the user knows why we're prompting
-      //   // for their OTP code again.
-      //   return promptly.prompt('Auth Code: ')
-      //   .then(function(res) {
-      //     otpCode = res;
-      //     return createToken(scopes, note, noteUrl);
-      //   });
-      // }
 
       // We don't know how to handle this error, so we rethrow it to make it
       // propagate down the promise chain.
