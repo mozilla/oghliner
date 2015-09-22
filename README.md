@@ -2,40 +2,41 @@ Oghliner is an experimental template and tool for deploying Offline Web Apps to 
 
 As a template, Oghliner can be used to bootstrap an offline app that deploys to your GitHub Pages site. As a tool, Oghliner adds offlining and deployment into your existing app.
 
-Bootstrap With Template
----------------------------
+Using The Template
+------------------
 
 To bootstrap an offline web app, fork this repository on GitHub, clone the fork to your local machine, and `npm install`. If you don't have [gulp](http://gulpjs.com/) installed, also `npm install -g gulp`.
 
-Then `gulp && gulp deploy` to build your app and deploy it to GitHub Pages. Your app will appear at https://*your-GitHub-username*.github.io/oghliner/, f.e. https://mykmelez.github.io/oghliner/.
+Then `gulp && gulp deploy` to build your app and deploy it to GitHub Pages. Your app will appear at https://*your-GitHub-username*.github.io/oghliner/. For example, if @mykmelez forks the repository to https://github.com/mykmelez/oghliner/, then the app will deploy to https://mykmelez.github.io/oghliner/.
 
-To deploy to a different subdirectory of your GitHub Pages site, rename the repository after you fork it.
+To deploy to a different subdirectory of your GitHub Pages site, rename the repository in its Settings. For example, if @mykmelez renames the repository to *eggtimer*, then the app will deploy to https://mykmelez.github.io/eggtimer/.
 
-GitHub doesn't let you fork a repository to the same account more than once. So to bootstrap another offline web app, create a new repository in GitHub, clone it locally, then set Oghliner as the upstream repository, pull its master branch, and push it to the new repository:
+GitHub doesn't let you fork a repository to the same account more than once, so to bootstrap a second offline web app, [create a new repository in GitHub](https://github.com/new), clone it locally, `git pull https://github.com/mozilla/oghliner.git master`, and `git push`. For example, if @mykmelez creates the repository https://github.com/mykmelez/test-app/, then he would bootstrap it via:
 
 ```bash
-> git clone git@github.com:mykmelez/test-offline-app.git
-Cloning into 'test-offline-app'...
+> git clone git@github.com:mykmelez/test-app.git
+Cloning into 'test-app'...
 warning: You appear to have cloned an empty repository.
 Checking connectivity... done.
-> cd test-offline-app/
-> git remote add upstream https://github.com/mozilla/oghliner.git
-> git pull upstream master
+> cd test-app
+> git pull https://github.com/mozilla/oghliner.git master
+…
+From https://github.com/mozilla/oghliner
+ * branch            master     -> FETCH_HEAD
 > git push
-Counting objects: 139, done.
-Delta compression using up to 8 threads.
-Compressing objects: 100% (65/65), done.
-Writing objects: 100% (139/139), 23.09 KiB | 0 bytes/s, done.
-Total 139 (delta 65), reused 139 (delta 65)
-To git@github.com:mykmelez/test-offline-app.git
+…
+To git@github.com:mykmelez/test-app.git
  * [new branch]      master -> master
-> npm install
 ```
+
+And then deploy it via `npm install && gulp && gulp deploy`.
+
+This is also the recommended approach if you intend to contribute changes to Oghliner (even if you only intend to create a single app). In that case, fork the repository for the changes you intend to contribute, and create new repositories for your apps.
 
 The template puts assets in *app/* and includes a simple *gulpfile.js* that builds to *dist/*, but you can modify the build any way you like. Invoke `gulp` to rebuild your app and regenerate the script that offlines it. Invoke `gulp deploy` to publish it to GitHub Pages.
 
-Integrate With Tool
--------------------
+Using The Tool
+--------------
 
 To integrate offlining and deployment into your existing app, `npm install --save oghliner`. Then add tasks to your *gulpfile.js* which call *oghliner.offline* and *offline.deploy*:
 
