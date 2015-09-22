@@ -54,6 +54,8 @@ github.authorization.delete = promisify(github.authorization.delete);
 github.authorization.getAll = promisify(github.authorization.getAll);
 travis.authenticate = promisify(travis.authenticate);
 travis.hooks.get = promisify(travis.hooks.get);
+travis.users.get = promisify(travis.users.get);
+travis.users.sync.post = promisify(travis.users.sync.post);
 
 /**
  * Get the slug (GitHub username/repo combination) for the 'origin' remote
@@ -337,40 +339,46 @@ function configure(callback) {
   })
 
   .then(function() {
-    process.stdout.write(
-      '\n' +
-      'Checking the status of your repository in Travis…\n' +
-      '\n'
-    );
-
-    // XXX Ensure that the repository is known by and active in Travis.
-    return travis.hooks.get({})
-    .then(function(res) {
-      var hook;
-      for (var i = 0; i < res.hooks.length; i++) {
-        hook = res.hooks[i];
-        if (hook.owner_name === user && hook.name === repo) {
-          if (hook.active) {
-            process.stdout.write(
-              '\n' +
-              'Good news, your repository is already active in Travis!\n' +
-              'Next I\'ll configure Travis to deploy your repository to GitHub Pages…\n' +
-              '\n'
-            );
-          } else {
-            process.stdout.write(
-              '\n' +
-              'Your repository isn\'t active in Travis yet. Activating it…\n' +
-              '\n'
-            );
-            // XXX Ensure promisification won't break the method-ness of *put*.
+    function ensureActiveInTravis() {
+      process.stdout.write('Checking the status of your repository in Travis…\n');
+      return travis.hooks.get()
+      .then(function(res) {
+        var hook;
+        for (var i = 0; i < res.hooks.length; i++) {
+          hook = res.hooks[i];
+          if (hook.owner_name === user && hook.name === repo) {
+            if (hook.active) {
+              process.stdout.write('Good news, your repository is already active in Travis!\n');
+              return;
+            }
+            process.stdout.write('Your repository isn\'t active in Travis yet.  Activating it…\n');
             return promisify(travis.hooks(hook.id).put)({ hook: { active: true } });
           }
-          break;
         }
+        throw new Error('repository not found');
+      });
+    }
+
+    function travisAwaitSyncing() {
+      return travis.users.get()
+      .then(function(res) {
+        if (res.user.is_syncing) {
+          process.stdout.write('Waiting for Travis to finish syncing…\n');
+          return new Promise(function(resolve, reject) { setTimeout(resolve, 5000) })
+          .then(travisAwaitSyncing);
+        }
+      });
+    }
+
+    return ensureActiveInTravis()
+    .catch(function(err) {
+      if (err.message === 'repository not found') {
+        process.stdout.write('I didn\'t find your repository in Travis.  Making Travis sync with GitHub…\n');
+        return travis.users.sync.post()
+        .then(travisAwaitSyncing)
+        .then(ensureActiveInTravis);
       }
-      // XXX The repository wasn't found in hooks, so tell Travis to sync
-      // with GitHub and try to retrieve hooks again.
+      throw err;
     });
   })
 
