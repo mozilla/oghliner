@@ -79,37 +79,33 @@ And then loading it in the app's the HTML file(s):
 Automatic Deployment Via Travis
 -------------------------------
 
-Oghliner can configure a repository to automatically deploy to GitHub Pages whenever you push to the *master* branch. Auto-deployment requires creation of a GitHub authorization token for Travis and configuration of Travis to build and deploy your app using the token.
+Oghliner can configure a repository to automatically deploy to GitHub Pages whenever you push to the *master* branch. Configuring the repository includes creating a GitHub authorization token, encrypting it, and writing it to the repository's *.travis.yml* file.
 
-Before configuring the repository, go to [your Travis profile](https://travis-ci.org/profile) and enable Travis for the repository. You may need to press the *Sync* button if you recently created the repository and Travis doesn't list it in its list of your repositories.
+Before configuring the repository, go to [your Travis profile](https://travis-ci.org/profile) and confirm that Travis knows about your repository. You may need to press the *Sync* button if you recently created the repository and Travis doesn't know about it yet.
 
-If you boostrapped your app from a template, your repository already has a .travis.yml configuration file. If you're integrating the tool into an existing app, you'll need to add a .travis.yml file with the necessary configuration:
+If you bootstrapped your app from the template, your repository already has a suitable .travis.yml file and *configure* task in gulpfile.js. If you're integrating the tool into an existing app, you'll need to add a .travis.yml file that builds your repository:
 
 ```yaml
 language: node_js
 node_js:
   - '0.10'
-env:
-  global:
-    - PLACEHOLDER: 'Fix the bug that requires this placeholder to add entries to this list!'
 install: npm install
-before_script:
-  - 'git config --global user.name "Travis-CI"'
-  - 'git config --global user.email "YOUR EMAIL ADDRESS"'
 script: gulp
 after_success:
   - '[ "${TRAVIS_PULL_REQUEST}" = "false" ] && [ "${TRAVIS_BRANCH}" = "master" ] && gulp deploy'
 ```
 
-*oghliner.configure* then walks you through the configuration steps.  Access it by invoking `gulp configure` from an app that was bootstrapped using the template. Add this task for it to your *gulpfile.js* first if you integrated the tool into your existing app:
+And a *configure* task to *gulpfile.js*:
 
 ```js
 gulp.task('configure', oghliner.configure);
 ```
 
-Oghliner will ask you for your GitHub username/password in order to create the authorization token. Then it will encrypt the token with Travis's public key and write the encrypted token to the *.travis.yml* file. The token will only have the *public_repo* permission, which it needs in order for Travis to modify your repository's *gh-pages* branch.
+Then `gulp configure` to configure your app to auto-deploy via Travis.
 
-After it writes the token to the *.travis.yml* file, commit the change to that file and push the branch to GitHub to get Travis to build and auto-deploy your site:
+Oghliner will prompt you for your GitHub credentials in order to create the authorization token. Then it will encrypt the token with Travis's public key and write the encrypted token to the *.travis.yml* file. The token will only have the *public_repo* scope, which it needs in order for Travis to modify your repository's *gh-pages* branch.
+
+After configuring the repository, commit the changes to *.travis.yml* and push the branch to GitHub to make Travis build and auto-deploy your app:
 
 ```bash
 > git commit -m"add GitHub token to auto-deploy on Travis" .travis.yml
