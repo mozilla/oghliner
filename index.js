@@ -20,6 +20,7 @@ var childProcess = require('child_process');
 var configure = require('./lib/configure');
 var ghPages = require('gh-pages');
 var gitconfiglocal = require('gitconfiglocal');
+var path = require('path');
 var swPrecache = require('sw-precache');
 
 function offline(config, callback) {
