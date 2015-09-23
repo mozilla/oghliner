@@ -79,44 +79,28 @@ And then loading it in the app's the HTML file(s):
 Automatic Deployment Via Travis
 -------------------------------
 
-Oghliner can configure a repository to automatically deploy to GitHub Pages whenever you push to the *master* branch. Configuring the repository includes creating a GitHub authorization token, encrypting it, and writing it to the repository's *.travis.yml* file.
+Oghliner can configure a repository to automatically deploy to GitHub Pages whenever you push to its *master* branch. Auto-deploy uses [Travis CI](https://travis-ci.org/), a continuous integration service. Oghliner takes care of most of the steps to configure your repository to auto-deploy via Travis.
 
-If you bootstrapped your app from the template, your repository already has a suitable .travis.yml file and *configure* task in gulpfile.js. If you're integrating the tool into an existing app, you'll need to add a .travis.yml file that builds and deploys your repository:
+If you bootstrapped your app from the template, your repository already has a suitable Travis configuration file (.travis.yml) and a *configure* task in gulpfile.js. Just `gulp configure` to configure your repository.
 
-```yaml
-language: node_js
-node_js:
-  - '0.10'
-install: npm install
-script: gulp
-after_success:
-  - '[ "${TRAVIS_PULL_REQUEST}" = "false" ] && [ "${TRAVIS_BRANCH}" = "master" ] && gulp deploy'
-```
+If you integrated the tool into an existing app, `npm install -g oghliner && oghliner configure` to configure your repository.
 
-And a *configure* task to *gulpfile.js*:
+Oghliner will prompt you for your GitHub credentials in order to create a token that authorizes Travis to push changes to your repository. The token will give Travis limited access to your GitHub account. Specifically: it will have the *public_repo* [scope](https://developer.github.com/v3/oauth/#scopes), which gives it "read/write access to code, commit statuses, collaborators, and deployment statuses for public repositories and organizations."
 
-```js
-gulp.task('configure', oghliner.configure);
-```
-
-Then `gulp configure` to configure your app to auto-deploy via Travis.
-
-Oghliner will prompt you for your GitHub credentials in order to create the authorization token. Then it will encrypt the token with Travis's public key and write the encrypted token to the *.travis.yml* file. The token will only have the *public_repo* scope, which it needs in order for Travis to modify your repository's *gh-pages* branch.
-
-After configuring the repository, commit the changes to *.travis.yml* and push the branch to GitHub to make Travis build and auto-deploy your app:
+After configuring the repository, add and commit the changes to *.travis.yml* and push the *master* branch to the *origin* remote on GitHub to make Travis build and auto-deploy your app:
 
 ```bash
-> git commit -m"add GitHub token to auto-deploy on Travis" .travis.yml
+> git commit -m"configure Travis to auto-deploy to GitHub Pages" .travis.yml
 > git push origin master
 ```
 
-You can see the status of a build/deployment at https://travis-ci.org/*your-GitHub-username*/*your-repository-name*/builds. For example, the status of builds for https://github.com/mykmelez/oghliner/ is at https://travis-ci.org/mykmelez/oghliner/builds.
+You can see the status of a build/deployment at https://travis-ci.org/*your-GitHub-username*/*your-repository-name*/builds. For example, the status of builds for https://github.com/mykmelez/eggtimer/ is at https://travis-ci.org/mykmelez/eggtimer/builds.
 
 If the build was successful, Travis will deploy the site via `gulp deploy`. Expand the log entry to see details about the deployment:
 
 ```bash
 $ [ "${TRAVIS_PULL_REQUEST}" = "false" ] && [ "${TRAVIS_BRANCH}" = "master" ] && gulp deploy
-[23:34:13] Using gulpfile ~/build/mykmelez/test-app-2/gulpfile.js
+[23:34:13] Using gulpfile ~/build/mykmelez/eggtimer/gulpfile.js
 [23:34:13] Starting 'deploy'...
 [23:34:15] Finished 'deploy' after 1.96 s
 ```
