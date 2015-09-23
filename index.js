@@ -87,13 +87,6 @@ function getSlug(callback) {
 getSlug = promisify(getSlug);
 
 function configure(callback) {
-  process.stdout.write(
-    '\n' +
-    'Oghliner will configure your repository to automatically deploy your app\n' +
-    'to GitHub Pages using Travis CI.\n' +
-    '\n'
-  );
-
   // The URL of this project, which we specify in the note_url field
   // when creating GitHub tokens.
   var noteUrl = 'https://github.com/mozilla/oghliner';
@@ -122,25 +115,28 @@ function configure(callback) {
         username: username,
         password: password
       });
+      process.stdout.write('\n');
     });
   }
 
   function promptOtpCode() {
     if (otpCode) {
       process.stdout.write(
-        'Your authentication code is incorrect or has expired.  Please try again.\n' +
-        '\n'
+        'Your authentication code is incorrect or has expired.\n' +
+        'Please try again.\n\n'
       );
     } else {
       process.stdout.write(
-        'You\'re using two-factor authentication with GitHub.  Please enter the code\n' +
-        'provided by your authentication software.\n' +
+        '\n' +
+        'You\'re using two-factor authentication with GitHub.\n' +
+        'Please enter the code provided by your authentication software.\n' +
         '\n'
       );
     }
     return promptly.prompt('Auth Code: ')
     .then(function(res) {
       otpCode = res;
+      process.stdout.write('\n');
     });
   }
 
@@ -153,8 +149,8 @@ function configure(callback) {
       // end up in this error handler.  So if we see "Bad credentials" here,
       // then we know the user entered them incorrectly.
       process.stdout.write(
-        'The username and/or password you entered is incorrect.  Please try again…\n' +
-        '\n'
+        'The username and/or password you entered is incorrect.\n' +
+        'Please try again…\n\n'
       );
       return promptCredentials();
     }
@@ -190,8 +186,7 @@ function configure(callback) {
         // Perhaps they don't want to lose the existing token.
         process.stdout.write(
           'You already have the GitHub token "' + note + '".\n' +
-          'Deleting it…\n' +
-          '\n'
+          'Deleting it…\n'
         );
         return getTokenId(note, noteUrl).then(deleteToken).then(function() {
           return createToken(scopes, note, noteUrl);
@@ -254,17 +249,15 @@ function configure(callback) {
     username = user;
 
     process.stdout.write(
-      'The "origin" remote of your repository is "' + slug + '".\n' +
       '\n' +
-      'Make sure Travis knows about your repository by going to https://travis-ci.org/profile\n' +
-      'and pressing the Sync button if it isn\'t already in the list of your repositories.\n' +
+      'Configuring ' + slug + ' to auto-deploy to GitHub Pages using Travis CI…\n' +
       '\n' +
-      'Requesting a GitHub personal access token that Travis will use\n' +
-      'to deploy your app.  In order to get the token, I need your username\n' +
-      'and password (and two-factor authentication code, if appropriate).\n' +
+      'To authorize Travis to push to the repository, and to check the status\n' +
+      'of the repository in Travis, I\'ll need your GitHub username and password\n' +
+      '(and two-factor authentication code, if appropriate) to create GitHub\n' +
+      'personal access tokens.\n' +
       '\n' +
-      'For more information about personal access tokens or to view the entry\n' +
-      'for the token I create, see https://github.com/settings/tokens.\n' +
+      'For more information about tokens, see: https://github.com/settings/tokens\n' +
       '\n'
     );
   })
@@ -276,11 +269,7 @@ function configure(callback) {
     // so it isn't possible to request a token that gives us access to it.
     // Otherwise we'd do that first and then use that token to get the others.
 
-    process.stdout.write(
-      '\n' +
-      'Creating permanent GitHub token for Travis to deploy to GitHub Pages…\n' +
-      '\n'
-    );
+    process.stdout.write('Creating GitHub token for Travis to push to the repository…\n');
 
     return createToken(['public_repo'], 'Oghliner token for ' + slug, noteUrl)
     .then(function(res) {
@@ -293,11 +282,7 @@ function configure(callback) {
     // to activate the repository in Travis.  We only need this GitHub token
     // to get the Travis token, so we delete it afterward.
 
-    process.stdout.write(
-      '\n' +
-      'Creating temporary GitHub token for authenticating with Travis…\n' +
-      '\n'
-    );
+    process.stdout.write('Creating temporary GitHub token for getting Travis token…\n');
 
     return createToken(['read:org', 'user:email', 'repo_deployment', 'repo:status', 'write:repo_hook'],
                        'temporary Oghliner token to get Travis token for ' + slug, noteUrl)
@@ -311,11 +296,7 @@ function configure(callback) {
   })
 
   .then(function() {
-    process.stdout.write(
-      '\n' +
-      'Authenticating with Travis…\n' +
-      '\n'
-    );
+    process.stdout.write('Getting Travis token…\n');
 
     return travis.authenticate({ github_token: tempToken })
     .then(function(res) {
@@ -329,11 +310,7 @@ function configure(callback) {
   .then(function() {
     // Now that we have the Travis token, delete the temporary GitHub token.
 
-    process.stdout.write(
-      '\n' +
-      'Deleting temporary GitHub token for authenticating with Travis…\n' +
-      '\n'
-    );
+    process.stdout.write('Deleting temporary GitHub token for getting Travis token…\n');
 
     return deleteToken(tempTokenId);
   })
@@ -373,7 +350,7 @@ function configure(callback) {
     return ensureActiveInTravis()
     .catch(function(err) {
       if (err.message === 'repository not found') {
-        process.stdout.write('I didn\'t find your repository in Travis.  Making Travis sync with GitHub…\n');
+        process.stdout.write('I didn\'t find your repository in Travis.  Syncing Travis with GitHub…\n');
         return travis.users.sync.post()
         .then(travisAwaitSyncing)
         .then(ensureActiveInTravis);
@@ -387,39 +364,24 @@ function configure(callback) {
     // from Travis.  If the repository was already active, this step is a noop.
     if (res) {
       if (res.result) {
-        process.stdout.write(
-          '\n' +
-          'Your repository has been activated in Travis!\n' +
-          '\n'
-        );
+        process.stdout.write('Your repository has been activated in Travis!\n');
       } else {
         process.stdout.write(
-          '\n' +
-          'Travis failed to activate your repository, so you\'ll need to do so manually\n' +
-          'in Travis by going to https://travis-ci.org/profile and pressing the toggle button\n' +
-          'next to the name of the repository.\n' +
-          '\n'
+          'Travis failed to activate your repository, so you\'ll need to do so\n' +
+          'manually in Travis by going to https://travis-ci.org/profile and pressing\n' +
+          'the toggle button next to the name of the repository.\n\n'
         );
       }
     }
   })
 
   .then(function() {
-    process.stdout.write(
-      '\n' +
-      'Next I\'ll encrypt the GitHub token with Travis\'s public key so I can add the token\n' +
-      'to the Travis configuration without leaking it in public build logs…\n' +
-      '\n'
-    );
-
+    process.stdout.write('Encrypting GitHub token…\n');
     return travisEncrypt(slug, 'GH_TOKEN=' + token, undefined, undefined);
   })
 
   .then(function(blob) {
-    process.stdout.write(
-      'I encrypted the token. Next I\'ll write it to the Travis configuration…\n' +
-      '\n'
-    );
+    process.stdout.write('Writing encrypted GitHub token to .travis.yml file…\n');
 
     var travisYml = readYaml.sync('.travis.yml');
 
@@ -445,10 +407,7 @@ function configure(callback) {
       // the changes.
       var name = 'Travis CI';
       command = 'git config --global user.name "' + name + '"';
-      process.stdout.write(
-        'Adding before_script: ' + command + '\n' +
-        '\n'
-      );
+      process.stdout.write('Adding before_script command: ' + command + '…\n');
       travisYml.before_script.push(command);
     }
     if (!travisYml.before_script.some(function(v) { return v.search(/git +config +--global +user\.email/) !== -1 })) {
@@ -456,10 +415,7 @@ function configure(callback) {
       // We use the current user's email address so GitHub associates the change
       // with the user whose credentials authorize Travis to deploy the changes.
       command = 'git config --global user.email "' + email + '"';
-      process.stdout.write(
-        'Adding before_script: ' + command + '\n' +
-        '\n'
-      );
+      process.stdout.write('Adding before_script command: ' + command + '…\n');
       travisYml.before_script.push(command);
     }
 
@@ -468,15 +424,10 @@ function configure(callback) {
 
   .then(function() {
     process.stdout.write(
-      'I wrote the encrypted token to the Travis configuration.  You\'re ready\n' +
-      'to auto-deploy using Travis!  Just commit the change to your "master" branch,\n' +
-      'push the change back to the origin remote, and then visit\n' +
+      '\n' +
+      'You\'re ready to auto-deploy using Travis!  Just commit the changes\n' +
+      'in .travis.yml, push the commit to the origin/master branch, and then visit\n' +
       'https://travis-ci.org/' + slug + '/builds to see the build status.\n' +
-      '\n' +
-      'If the build is successful, the "after_success" build step should show\n' +
-      'that Travis deployed your app to GitHub Pages.  It should look like this:\n' +
-      '\n' +
-      '$ [ "${TRAVIS_PULL_REQUEST}" = "false" ] && [ "${TRAVIS_BRANCH}" = "master" ] && gulp deploy\n' +
       '\n'
     );
   })
