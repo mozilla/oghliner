@@ -11,12 +11,20 @@
     "url": "https://github.com/mozilla/oghliner/"
   },
   "author": "Myk Melez <myk@mykzilla.org>",
+  "bin": "./cli.js",
   "license": "Apache-2.0",
-  "keywords": ["offline", "webapp", "github", "gh-pages", "travis"],
+  "keywords": [
+    "offline",
+    "webapp",
+    "github",
+    "gh-pages",
+    "travis"
+  ],
   "files": [
     "index.js"
   ],
   "dependencies": {
+    "commander": "^2.8.1",
     "gh-pages": "^0.4.0",
     "gitconfiglocal": "^1.0.0",
     "github": "^0.2.4",
