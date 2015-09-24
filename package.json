@@ -21,7 +21,9 @@
     "travis"
   ],
   "files": [
-    "index.js"
+    "cli.js",
+    "index.js",
+    "lib/configure.js"
   ],
   "dependencies": {
     "commander": "^2.8.1",
