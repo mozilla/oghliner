@@ -63,7 +63,7 @@ gulp.task('deploy', function(callback) {
 *oghliner.offline* regenerates the script that offlines your app. It takes a *config* object and a *callback*. The properties of the *config* object are:
 - *rootDir*, to specify the directory in which your files are built (default: `.`);
 - *fileGlobs*, to specify the files to offline (default: `['**/*']`). The files in *fileGlobs* are matched inside *rootDir*;
-- *importScripts*, to specify additional scripts to include in the service worker script (default: `[]`). This is useful, for example, when you want to use the Push API.
+- *importScripts*, to specify additional scripts to include in the service worker script (default: `[]`). This is useful, for example, when you want to use the [Push API](https://developer.mozilla.org/en-US/docs/Web/API/Push_API).
 
 *oghliner.deploy* deploys your files to GitHub Pages. It takes a *config* object and a *callback*. Use *rootDir* to specify the directory in which your files are built (default: `.`). 
 
