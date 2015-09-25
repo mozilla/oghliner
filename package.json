@@ -40,5 +40,8 @@
     "travis-ci": "^2.0.3",
     "travis-encrypt": "^1.1.1",
     "write-yaml": "^0.2.1"
+  },
+  "devDependencies": {
+    "gulp-util": "^3.0.6"
   }
 }
