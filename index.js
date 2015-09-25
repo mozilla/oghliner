@@ -32,6 +32,7 @@ function offline(config, callback) {
     stripPrefix: rootDir,
     verbose: true,
     logger: gutil.log,
+    importScripts: config.importScripts || [],
   }, callback);
 }
 
