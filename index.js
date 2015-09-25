@@ -22,6 +22,7 @@ var ghPages = require('gh-pages');
 var gitconfiglocal = require('gitconfiglocal');
 var path = require('path');
 var swPrecache = require('sw-precache');
+var gutil = require('gulp-util');
 
 function offline(config, callback) {
   var rootDir = config.rootDir || './';
@@ -30,6 +31,7 @@ function offline(config, callback) {
     staticFileGlobs: fileGlobs.map(function(v) { return path.join(rootDir, v) }),
     stripPrefix: rootDir,
     verbose: true,
+    logger: gutil.log,
   }, callback);
 }
 
