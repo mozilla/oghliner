@@ -36,7 +36,7 @@ gulp.task('deploy', function(callback) {
 
 gulp.task('offline', ['build'], function(callback) {
   oghliner.offline({
-    rootDir: 'dist',
+    rootDir: 'dist/',
     fileGlobs: [
       '**/*.html',
       'js/**/*.js',

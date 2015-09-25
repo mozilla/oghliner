@@ -1,7 +1,7 @@
 {
   "name": "oghliner",
-  "version": "0.3.0",
-  "description": "an offline web app template and toolchain for publishing to GitHub Pages",
+  "version": "0.4.1",
+  "description": "template and tool for deploying Offline Web Apps to GitHub Pages",
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
@@ -11,8 +11,22 @@
     "url": "https://github.com/mozilla/oghliner/"
   },
   "author": "Myk Melez <myk@mykzilla.org>",
+  "bin": "./cli.js",
   "license": "Apache-2.0",
+  "keywords": [
+    "offline",
+    "webapp",
+    "github",
+    "gh-pages",
+    "travis"
+  ],
+  "files": [
+    "cli.js",
+    "index.js",
+    "lib/configure.js"
+  ],
   "dependencies": {
+    "commander": "^2.8.1",
     "gh-pages": "^0.4.0",
     "gitconfiglocal": "^1.0.0",
     "github": "^0.2.4",
