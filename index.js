@@ -18,6 +18,7 @@
 
 var configure = require('./lib/configure');
 var deploy = require('./lib/deploy');
+var path = require('path');
 var swPrecache = require('sw-precache');
 var gutil = require('gulp-util');
 
