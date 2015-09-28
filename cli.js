@@ -31,9 +31,8 @@ program
     .catch(function(err) {
       console.error(err);
     });
-  });
-
-program.parse(process.argv);
+  })
+  .parse(process.argv);
 
 if (!process.argv.slice(2).length) {
   program.outputHelp();
