@@ -19,11 +19,14 @@
 'use strict';
 
 var configure = require('./lib/configure');
+var deploy = require('./lib/deploy');
 var packageJson = require('./package.json');
 var program = require('commander');
 
 program
-  .version(packageJson.version)
+  .version(packageJson.version);
+
+program
   .command('configure')
   .description('configure repository to auto-deploy to GitHub Pages using Travis CI')
   .action(function(env, options) {
@@ -31,8 +34,22 @@ program
     .catch(function(err) {
       console.error(err);
     });
-  })
-  .parse(process.argv);
+  });
+
+program
+  .command('deploy')
+  .description('deploy to GitHub Pages')
+  .option('--root-dir [dir]', 'the directory to deploy [.]', '.')
+  .action(function(options) {
+    deploy({
+      rootDir: options.rootDir,
+    })
+    .catch(function(err) {
+      console.error(err);
+    });
+  });
+
+program.parse(process.argv);
 
 if (!process.argv.slice(2).length) {
   program.outputHelp();
