@@ -16,23 +16,10 @@
 
 'use strict';
 
+// The scripts that implement the various commands/tasks we expose.
 var configure = require('./lib/configure');
 var deploy = require('./lib/deploy');
-var path = require('path');
-var swPrecache = require('sw-precache');
-var gutil = require('gulp-util');
-
-function offline(config, callback) {
-  var rootDir = config.rootDir || './';
-  var fileGlobs = config.fileGlobs || ['**/*'];
-  swPrecache.write(path.join(rootDir, 'offline-worker.js'), {
-    staticFileGlobs: fileGlobs.map(function(v) { return path.join(rootDir, v) }),
-    stripPrefix: rootDir,
-    verbose: true,
-    logger: gutil.log,
-    importScripts: config.importScripts || [],
-  }, callback);
-}
+var offline = require('./lib/offline');
 
 module.exports = {
   configure: configure,

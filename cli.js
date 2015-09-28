@@ -18,10 +18,13 @@
 
 'use strict';
 
-var configure = require('./lib/configure');
-var deploy = require('./lib/deploy');
 var packageJson = require('./package.json');
 var program = require('commander');
+
+// The scripts that implement the various commands/tasks we expose.
+var configure = require('./lib/configure');
+var deploy = require('./lib/deploy');
+var offline = require('./lib/offline');
 
 program
   .version(packageJson.version);
@@ -37,12 +40,27 @@ program
   });
 
 program
-  .command('deploy')
-  .description('deploy to GitHub Pages')
-  .option('--root-dir [dir]', 'the directory to deploy [.]', '.')
-  .action(function(options) {
+  .command('deploy [dir]')
+  .description('deploy directory to GitHub Pages')
+  .action(function(dir) {
     deploy({
-      rootDir: options.rootDir,
+      rootDir: dir,
+    })
+    .catch(function(err) {
+      console.error(err);
+    });
+  });
+
+program
+  .command('offline [dir]')
+  .description('offline the files in the directory by generating offline-worker.js script')
+  .option('--file-globs [fileGlobs]', 'a comma-separated list of file globs to offline (default: \'**/*\')', '**/*')
+  .option('--import-scripts <importScripts>', 'a comma-separated list of additional scripts to import into offline-worker.js')
+  .action(function(dir, options) {
+    offline({
+      rootDir: dir,
+      fileGlobs: (options.fileGlobs || '').split(','),
+      importScripts: (options.importScripts || '').split(','),
     })
     .catch(function(err) {
       console.error(err);

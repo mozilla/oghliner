@@ -38,14 +38,21 @@ The template puts assets in *app/* and includes a simple *gulpfile.js* that buil
 Using The Tool
 --------------
 
-To integrate offlining and deployment into your existing app, `npm install --save oghliner`. Then add tasks to your *gulpfile.js* which call *oghliner.offline* and *offline.deploy*:
+To integrate offlining and deployment into your existing app, `npm install -g oghliner`, then run `oghliner offline [root-dir]` to offline your app (i.e. regenerate the offline-worker.js script) and `oghliner deploy [root-dir]` to deploy it.  Both commands take an optional *root-dir* argument that specifies the directory to offline/deploy. Its default value is the current directory (`./`).
+
+The *offline* command also allows you to specify these options:
+
+- *--file-globs*: a comma-separated list of file globs to offline (default: `**/*`). The files specified by *--file-globs* are matched inside *root-dir*.
+- *--import-scripts*: a comma-separated list of additional scripts to import into offline-worker.js. This is useful, for example, when you want to use the [Push API](https://developer.mozilla.org/en-US/docs/Web/API/Push_API).
+
+Alternately, you can `npm install --save oghliner` and then add tasks to your *gulpfile.js* which call *oghliner.offline* and *oghliner.deploy*, for example:
 
 ```js
 var oghliner = require('oghliner');
 
 gulp.task('offline', function(callback) {
   oghliner.offline({
-    rootDir: 'dist',
+    rootDir: 'dist/',
     fileGlobs: [
       '**/*.html',
       'js/**/*.js',
@@ -55,31 +62,31 @@ gulp.task('offline', function(callback) {
 
 gulp.task('deploy', function(callback) {
   oghliner.deploy({
-    rootDir: 'dist',
+    rootDir: 'dist/',
   }, callback);
 });
 ```
 
-*oghliner.offline* regenerates the script that offlines your app. It takes a *config* object and a *callback*. The properties of the *config* object are:
-- *rootDir*, to specify the directory in which your files are built (default: `.`);
-- *fileGlobs*, to specify the files to offline (default: `['**/*']`). The files in *fileGlobs* are matched inside *rootDir*;
-- *importScripts*, to specify additional scripts to include in the service worker script (default: `[]`). This is useful, for example, when you want to use the [Push API](https://developer.mozilla.org/en-US/docs/Web/API/Push_API).
+The *oghliner.offline* task takes a *config* object and a *callback*. The properties of the *config* object are:
+- *rootDir*: the directory to offline (default: `./`);
+- *fileGlobs*: an array of file globs to offline (default: `['**/*']`). The files specified by *fileGlobs* are matched inside *rootDir*.
+- *importScripts*: an array of additional scripts to import into offline-worker.js (default: `[]`). This is useful, for example, when you want to use the [Push API](https://developer.mozilla.org/en-US/docs/Web/API/Push_API).
 
-*oghliner.deploy* deploys your files to GitHub Pages. It takes a *config* object and a *callback*. Use *rootDir* to specify the directory in which your files are built (default: `.`). 
+*oghliner.deploy* deploys your files to GitHub Pages. It takes a *config* object and a *callback*. The properties of the *config* object are:
 
-Finally, in order for the offline cache to be registered, you need to load the offline manager script in your app by copying it to the location of your other scripts:
+- *rootDir*: the directory to deploy (default: `./`).
+
+Finally, in order for offline-worker.js to be evaluated, you need to load the offline manager script in your app by copying it to the location of your other scripts:
 
 ```bash
 cp node_modules/oghliner/app/scripts/offline-manager.js path/to/your/scripts/
 ```
 
-And then loading it in the app's the HTML file(s):
+And then loading it into your app's HTML file(s):
 
 ```html
 <script src="path/to/your/scripts/offline-manager.js"></script>
 ```
-
-*oghliner.deploy* can also be invoked from the command line if you install Oghliner globally.  To do so, `npm install -g oghliner && oghliner deploy`.  Specify the root directory with the *--root-dir* flag, i.e. `oghliner deploy --root-dir dist`.
 
 Automatic Deployment Via Travis
 -------------------------------

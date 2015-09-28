@@ -21,11 +21,12 @@
     "travis"
   ],
   "files": [
-    "app/js/offline-manager.js",
+    "app/scripts/offline-manager.js",
     "cli.js",
     "index.js",
     "lib/configure.js",
-    "lib/deploy.js"
+    "lib/deploy.js",
+    "lib/offline.js"
   ],
   "dependencies": {
     "commander": "^2.8.1",
