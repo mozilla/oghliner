@@ -59,8 +59,8 @@ program
   .action(function(dir, options) {
     offline({
       rootDir: dir,
-      fileGlobs: (options.fileGlobs || '').split(','),
-      importScripts: (options.importScripts || '').split(','),
+      fileGlobs: options.fileGlobs ? options.fileGlobs.split(',') : null,
+      importScripts: options.importScripts ? options.importScripts.split(',') : null,
     })
     .catch(function(err) {
       console.error(err);
