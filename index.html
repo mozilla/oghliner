@@ -1,12 +1,151 @@
 <!DOCTYPE html>
 <html>
+
   <head>
-    <meta charset="UTF-8">
-      <title>Offline Template App</title>
-      <script src="js/offline-manager.js"></script>
+    <meta charset='utf-8'>
+    <meta http-equiv="X-UA-Compatible" content="chrome=1">
+    <meta name="description" content="Oghliner : template and tool for deploying Offline Web Apps to GitHub Pages">
+
+    <link rel="stylesheet" type="text/css" media="screen" href="stylesheets/stylesheet.css">
+
+    <title>Oghliner</title>
   </head>
 
   <body>
-    Hello, World! This is the Offline Template App. With Travis integration!
+
+    <!-- HEADER -->
+    <div id="header_wrap" class="outer">
+        <header class="inner">
+          <a id="forkme_banner" href="https://github.com/mozilla/oghliner">View on GitHub</a>
+
+          <h1 id="project_title">Oghliner</h1>
+          <h2 id="project_tagline">template and tool for deploying Offline Web Apps to GitHub Pages</h2>
+
+            <section id="downloads">
+              <a class="zip_download_link" href="https://github.com/mozilla/oghliner/zipball/master">Download this project as a .zip file</a>
+              <a class="tar_download_link" href="https://github.com/mozilla/oghliner/tarball/master">Download this project as a tar.gz file</a>
+            </section>
+        </header>
+    </div>
+
+    <!-- MAIN CONTENT -->
+    <div id="main_content_wrap" class="outer">
+      <section id="main_content" class="inner">
+        <p>Oghliner is an experimental template and tool for deploying Offline Web Apps to GitHub Pages.</p>
+
+<p>As a template, Oghliner can be used to bootstrap an offline app that deploys to your GitHub Pages site. As a tool, Oghliner adds offlining and deployment into your existing app.</p>
+
+<h2>
+<a id="using-the-template" class="anchor" href="#using-the-template" aria-hidden="true"><span class="octicon octicon-link"></span></a>Using The Template</h2>
+
+<p>To bootstrap an offline web app, fork this repository on GitHub, clone the fork to your local machine, and <code>npm install</code>. If you don't have <a href="http://gulpjs.com/">gulp</a> installed, also <code>npm install -g gulp</code>.</p>
+
+<p>Then <code>gulp &amp;&amp; gulp deploy</code> to build your app and deploy it to GitHub Pages. Your app will appear at https://<em>your-GitHub-username</em>.github.io/oghliner/. For example, if <a href="https://github.com/mykmelez" class="user-mention">@mykmelez</a> forks the repository to <a href="https://github.com/mykmelez/oghliner/">https://github.com/mykmelez/oghliner/</a>, then the app will deploy to <a href="https://mykmelez.github.io/oghliner/">https://mykmelez.github.io/oghliner/</a>.</p>
+
+<p>To deploy to a different subdirectory of your GitHub Pages site, rename the repository in its Settings. For example, if <a href="https://github.com/mykmelez" class="user-mention">@mykmelez</a> renames the repository to <em>eggtimer</em>, then the app will deploy to <a href="https://mykmelez.github.io/eggtimer/">https://mykmelez.github.io/eggtimer/</a>.</p>
+
+<p>GitHub doesn't let you fork a repository to the same account more than once, so to bootstrap a second offline web app, <a href="https://github.com/new">create a new repository in GitHub</a>, clone it locally, <code>git pull https://github.com/mozilla/oghliner.git master</code>, and <code>git push</code>. For example, if <a href="https://github.com/mykmelez" class="user-mention">@mykmelez</a> creates the repository <a href="https://github.com/mykmelez/test-app/">https://github.com/mykmelez/test-app/</a>, then he would bootstrap it via:</p>
+
+<div class="highlight highlight-source-shell"><pre><span class="pl-k">&gt;</span> git clone git@github.com:mykmelez/test-app.git
+Cloning into <span class="pl-s"><span class="pl-pds">'</span>test-app<span class="pl-pds">'</span></span>...
+warning: You appear to have cloned an empty repository.
+Checking connectivity... <span class="pl-k">done</span>.
+<span class="pl-k">&gt;</span> <span class="pl-c1">cd</span> <span class="pl-c1">test</span>-app
+<span class="pl-k">&gt;</span> git pull https://github.com/mozilla/oghliner.git master
+…
+From https://github.com/mozilla/oghliner
+ <span class="pl-k">*</span> branch            master     -<span class="pl-k">&gt;</span> FETCH_HEAD
+<span class="pl-k">&gt;</span> git push
+…
+To git@github.com:mykmelez/test-app.git
+ <span class="pl-k">*</span> [new branch]      master -<span class="pl-k">&gt;</span> master</pre></div>
+
+<p>And then deploy it via <code>npm install &amp;&amp; gulp &amp;&amp; gulp deploy</code>.</p>
+
+<p>This is also the recommended approach if you intend to contribute changes to Oghliner (even if you only intend to create a single app). In that case, fork the repository for the changes you intend to contribute, and create new repositories for your apps.</p>
+
+<p>The template puts assets in <em>app/</em> and includes a simple <em>gulpfile.js</em> that builds to <em>dist/</em>, but you can modify the build any way you like. Invoke <code>gulp</code> to rebuild your app and regenerate the script that offlines it. Invoke <code>gulp deploy</code> to publish it to GitHub Pages.</p>
+
+<h2>
+<a id="using-the-tool" class="anchor" href="#using-the-tool" aria-hidden="true"><span class="octicon octicon-link"></span></a>Using The Tool</h2>
+
+<p>To integrate offlining and deployment into your existing app, <code>npm install --save oghliner</code>. Then add tasks to your <em>gulpfile.js</em> which call <em>oghliner.offline</em> and <em>offline.deploy</em>:</p>
+
+<div class="highlight highlight-source-js"><pre><span class="pl-k">var</span> oghliner <span class="pl-k">=</span> <span class="pl-c1">require</span>(<span class="pl-s"><span class="pl-pds">'</span>oghliner<span class="pl-pds">'</span></span>);
+
+gulp.task(<span class="pl-s"><span class="pl-pds">'</span>offline<span class="pl-pds">'</span></span>, <span class="pl-k">function</span>(<span class="pl-smi">callback</span>) {
+  oghliner.offline({
+    rootDir<span class="pl-k">:</span> <span class="pl-s"><span class="pl-pds">'</span>dist<span class="pl-pds">'</span></span>,
+    fileGlobs<span class="pl-k">:</span> [
+      <span class="pl-s"><span class="pl-pds">'</span>**/*.html<span class="pl-pds">'</span></span>,
+      <span class="pl-s"><span class="pl-pds">'</span>js/**/*.js<span class="pl-pds">'</span></span>,
+    ],
+  }, callback);
+});
+
+gulp.task(<span class="pl-s"><span class="pl-pds">'</span>deploy<span class="pl-pds">'</span></span>, <span class="pl-k">function</span>(<span class="pl-smi">callback</span>) {
+  oghliner.deploy({
+    rootDir<span class="pl-k">:</span> <span class="pl-s"><span class="pl-pds">'</span>dist<span class="pl-pds">'</span></span>,
+  }, callback);
+});</pre></div>
+
+<p><em>oghliner.offline</em> regenerates the script that offlines your app. It takes a <em>config</em> object and a <em>callback</em>. The properties of the <em>config</em> object are:</p>
+
+<ul>
+<li>
+<em>rootDir</em>, to specify the directory in which your files are built (default: <code>.</code>);</li>
+<li>
+<em>fileGlobs</em>, to specify the files to offline (default: <code>['**/*']</code>). The files in <em>fileGlobs</em> are matched inside <em>rootDir</em>;</li>
+<li>
+<em>importScripts</em>, to specify additional scripts to include in the service worker script (default: <code>[]</code>). This is useful, for example, when you want to use the <a href="https://developer.mozilla.org/en-US/docs/Web/API/Push_API">Push API</a>.</li>
+</ul>
+
+<p><em>oghliner.deploy</em> deploys your files to GitHub Pages. It takes a <em>config</em> object and a <em>callback</em>. Use <em>rootDir</em> to specify the directory in which your files are built (default: <code>.</code>). </p>
+
+<p>Finally, in order for the offline cache to be registered, you need to load the offline manager script in your app by copying it to the location of your other scripts:</p>
+
+<div class="highlight highlight-source-shell"><pre>cp node_modules/oghliner/app/js/offline-manager.js path/to/your/js/files/</pre></div>
+
+<p>And then loading it in the app's the HTML file(s):</p>
+
+<div class="highlight highlight-text-html-basic"><pre>&lt;<span class="pl-ent">script</span> <span class="pl-e">src</span>=<span class="pl-s"><span class="pl-pds">"</span>path/to/your/js/files/offline-manager.js<span class="pl-pds">"</span></span>&gt;&lt;/<span class="pl-ent">script</span>&gt;</pre></div>
+
+<h2>
+<a id="automatic-deployment-via-travis" class="anchor" href="#automatic-deployment-via-travis" aria-hidden="true"><span class="octicon octicon-link"></span></a>Automatic Deployment Via Travis</h2>
+
+<p>Oghliner can configure a repository to automatically deploy to GitHub Pages whenever you push to its <em>master</em> branch. Auto-deploy uses <a href="https://travis-ci.org/">Travis CI</a>, a continuous integration service. Oghliner takes care of most of the steps to configure your repository to auto-deploy via Travis.</p>
+
+<p>If you bootstrapped your app from the template, your repository already has a suitable Travis configuration file (.travis.yml) and a <em>configure</em> task in gulpfile.js. Just <code>gulp configure</code> to configure your repository.</p>
+
+<p>If you integrated the tool into an existing app, <code>npm install -g oghliner &amp;&amp; oghliner configure</code> to configure your repository.</p>
+
+<p>Oghliner will prompt you for your GitHub credentials in order to create a token that authorizes Travis to push changes to your repository. The token will give Travis limited access to your GitHub account. Specifically: it will have the <em>public_repo</em> <a href="https://developer.github.com/v3/oauth/#scopes">scope</a>, which gives it "read/write access to code, commit statuses, collaborators, and deployment statuses for public repositories and organizations."</p>
+
+<p>After configuring the repository, add and commit the changes to <em>.travis.yml</em> and push the <em>master</em> branch to the <em>origin</em> remote on GitHub to make Travis build and auto-deploy your app:</p>
+
+<div class="highlight highlight-source-shell"><pre><span class="pl-k">&gt;</span> git commit -m<span class="pl-s"><span class="pl-pds">"</span>configure Travis to auto-deploy to GitHub Pages<span class="pl-pds">"</span></span> .travis.yml
+<span class="pl-k">&gt;</span> git push origin master</pre></div>
+
+<p>You can see the status of a build/deployment at <a href="https://travis-ci.org/*your-GitHub-username*/*your-repository-name*/builds">https://travis-ci.org/*your-GitHub-username*/*your-repository-name*/builds</a>. For example, the status of builds for <a href="https://github.com/mykmelez/eggtimer/">https://github.com/mykmelez/eggtimer/</a> is at <a href="https://travis-ci.org/mykmelez/eggtimer/builds">https://travis-ci.org/mykmelez/eggtimer/builds</a>.</p>
+
+<p>If the build was successful, Travis will deploy the site via <code>gulp deploy</code>. Expand the log entry to see details about the deployment:</p>
+
+<div class="highlight highlight-source-shell"><pre>$ [ <span class="pl-s"><span class="pl-pds">"</span><span class="pl-smi">${TRAVIS_PULL_REQUEST}</span><span class="pl-pds">"</span></span> = <span class="pl-s"><span class="pl-pds">"</span>false<span class="pl-pds">"</span></span> ] <span class="pl-k">&amp;&amp;</span> [ <span class="pl-s"><span class="pl-pds">"</span><span class="pl-smi">${TRAVIS_BRANCH}</span><span class="pl-pds">"</span></span> = <span class="pl-s"><span class="pl-pds">"</span>master<span class="pl-pds">"</span></span> ] <span class="pl-k">&amp;&amp;</span> gulp deploy
+[23:34:13] Using gulpfile <span class="pl-k">~</span>/build/mykmelez/eggtimer/gulpfile.js
+[23:34:13] Starting <span class="pl-s"><span class="pl-pds">'</span>deploy<span class="pl-pds">'</span></span>...
+[23:34:15] Finished <span class="pl-s"><span class="pl-pds">'</span>deploy<span class="pl-pds">'</span></span> after 1.96 s</pre></div>
+      </section>
+    </div>
+
+    <!-- FOOTER  -->
+    <div id="footer_wrap" class="outer">
+      <footer class="inner">
+        <p class="copyright">Oghliner maintained by <a href="https://github.com/mozilla">mozilla</a></p>
+        <p>Published with <a href="https://pages.github.com">GitHub Pages</a></p>
+      </footer>
+    </div>
+
+    
+
   </body>
 </html>
