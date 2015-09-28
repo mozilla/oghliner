@@ -79,6 +79,8 @@ And then loading it in the app's the HTML file(s):
 <script src="path/to/your/scripts/offline-manager.js"></script>
 ```
 
+*oghliner.deploy* can also be invoked from the command line if you install Oghliner globally.  To do so, `npm install -g oghliner && oghliner deploy`.  Specify the root directory with the *--root-dir* flag, i.e. `oghliner deploy --root-dir dist`.
+
 Automatic Deployment Via Travis
 -------------------------------
 
