@@ -18,8 +18,12 @@
 
 'use strict';
 
+// Import this first so we can use it to wrap other modules we import.
+var promisify = require("promisify-node");
+
 var packageJson = require('./package.json');
 var program = require('commander');
+var rimraf = promisify(require('rimraf'));
 
 // The scripts that implement the various commands/tasks we expose.
 var configure = require('./lib/configure');
@@ -45,6 +49,10 @@ program
   .action(function(dir) {
     deploy({
       rootDir: dir,
+      cloneDir: '.tempGhPagesCloneDir',
+    })
+    .then(function() {
+      return rimraf('.tempGhPagesCloneDir');
     })
     .catch(function(err) {
       console.error(err);
