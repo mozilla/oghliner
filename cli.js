@@ -49,10 +49,10 @@ program
   .action(function(dir) {
     deploy({
       rootDir: dir,
-      cloneDir: '.tempGhPagesCloneDir',
+      cloneDir: '.gh-pages-cache',
     })
     .then(function() {
-      return rimraf('.tempGhPagesCloneDir');
+      return rimraf('.gh-pages-cache');
     })
     .catch(function(err) {
       console.error(err);
