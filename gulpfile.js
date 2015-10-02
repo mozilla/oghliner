@@ -38,8 +38,10 @@ gulp.task('offline', ['build'], function(callback) {
   oghliner.offline({
     rootDir: 'dist/',
     fileGlobs: [
-      '**/*.html',
-      'js/**/*.js',
+      'images/**',
+      'index.html',
+      'scripts/**',
+      'styles/**',
     ],
   }, callback);
 });
