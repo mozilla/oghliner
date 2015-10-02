@@ -52,7 +52,9 @@ program
       cloneDir: '.gh-pages-cache',
     })
     .then(function() {
-      return rimraf('.gh-pages-cache');
+      // For perf, don't delete the repository.  This means users will have to
+      // add .gh-pages-cache to their .gitignore file to hide its `git status`.
+      // return rimraf('.gh-pages-cache');
     })
     .catch(function(err) {
       console.error(err);
