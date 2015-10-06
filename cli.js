@@ -29,6 +29,7 @@ var rimraf = promisify(require('rimraf'));
 var configure = require('./lib/configure');
 var deploy = require('./lib/deploy');
 var offline = require('./lib/offline');
+var bootstrap = require('./lib/bootstrap');
 
 program
   .version(packageJson.version);
@@ -71,6 +72,18 @@ program
       rootDir: dir,
       fileGlobs: options.fileGlobs ? options.fileGlobs.split(',') : null,
       importScripts: options.importScripts ? options.importScripts.split(',') : null,
+    })
+    .catch(function(err) {
+      console.error(err);
+    });
+  });
+
+program
+  .command('bootstrap [dir]')
+  .description('bootstrap the directory with a template app')
+  .action(function(dir) {
+    bootstrap({
+      rootDir: dir,
     })
     .catch(function(err) {
       console.error(err);

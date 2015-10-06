@@ -18,12 +18,12 @@
 
 var connect = require('gulp-connect');
 var gulp = require('gulp');
-var oghliner = require('./index.js');
+var oghliner = require('oghliner');
 
 gulp.task('default', ['build', 'offline']);
 
 gulp.task('build', function(callback) {
-  return gulp.src('templates/app/**').pipe(gulp.dest('dist'));
+  return gulp.src('app/**').pipe(gulp.dest('dist'));
 });
 
 gulp.task('configure', oghliner.configure);
