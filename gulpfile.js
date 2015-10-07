@@ -23,7 +23,7 @@ var oghliner = require('./index.js');
 gulp.task('default', ['build', 'offline']);
 
 gulp.task('build', function(callback) {
-  return gulp.src('templates/app/**').pipe(gulp.dest('dist'));
+  return gulp.src('app/**').pipe(gulp.dest('dist'));
 });
 
 gulp.task('configure', oghliner.configure);
