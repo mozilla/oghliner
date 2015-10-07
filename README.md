@@ -5,35 +5,30 @@ As a template, Oghliner can be used to bootstrap an offline app that deploys to 
 Using The Template
 ------------------
 
-To bootstrap an offline web app, fork this repository on GitHub, clone the fork to your local machine, and `npm install`. If you don't have [gulp](http://gulpjs.com/) installed, also `npm install -g gulp`.
-
-Then `gulp && gulp deploy` to build your app and deploy it to GitHub Pages. Your app will appear at https://*your-GitHub-username*.github.io/oghliner/. For example, if @mykmelez forks the repository to https://github.com/mykmelez/oghliner/, then the app will deploy to https://mykmelez.github.io/oghliner/.
-
-To deploy to a different subdirectory of your GitHub Pages site, rename the repository in its Settings. For example, if @mykmelez renames the repository to *eggtimer*, then the app will deploy to https://mykmelez.github.io/eggtimer/.
-
-GitHub doesn't let you fork a repository to the same account more than once, so to bootstrap a second offline web app, [create a new repository in GitHub](https://github.com/new), clone it locally, `git pull https://github.com/mozilla/oghliner.git master`, and `git push`. For example, if @mykmelez creates the repository https://github.com/mykmelez/test-app/, then he would bootstrap it via:
+To bootstrap an offline web app, create a repository on GitHub and then clone to your local machine.
 
 ```bash
-> git clone git@github.com:mykmelez/test-app.git
-Cloning into 'test-app'...
-warning: You appear to have cloned an empty repository.
-Checking connectivity... done.
-> cd test-app
-> git pull https://github.com/mozilla/oghliner.git master
-…
-From https://github.com/mozilla/oghliner
- * branch            master     -> FETCH_HEAD
-> git push
-…
-To git@github.com:mykmelez/test-app.git
- * [new branch]      master -> master
+git clone git@github.com:mykmelez/test-app.git
+cd test-app
 ```
 
-And then deploy it via `npm install && gulp && gulp deploy`.
+If you haven't already, install gulp and oghliner.
 
-This is also the recommended approach if you intend to contribute changes to Oghliner (even if you only intend to create a single app). In that case, fork the repository for the changes you intend to contribute, and create new repositories for your apps.
+```bash
+npm install -g gulp oghliner
+```
 
-The template puts assets in *app/* and includes a simple *gulpfile.js* that builds to *dist/*, but you can modify the build any way you like. Invoke `gulp` to rebuild your app and regenerate the script that offlines it. Invoke `gulp deploy` to publish it to GitHub Pages.
+Then bootstrap your app with the bootstrap command which puts assets in *app/* and includes a simple *gulpfile.js* that builds to *dist/*, but you can modify the build any way you like.
+
+```bash
+oghliner bootstrap
+```
+
+Invoke `gulp` to rebuild your app and regenerate the script that offlines it. Invoke `gulp deploy` to publish it to GitHub Pages.
+
+```bash
+gulp && gulp deploy
+```
 
 Using The Tool
 --------------
