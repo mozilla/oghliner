@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html>
+
+  <head>
+    <meta charset="utf-8">
+    <title><%= name %></title>
+    <meta name="description" content="<%= name %> : <%= description %>">
+    <link rel="stylesheet" type="text/css" media="screen" href="styles/stylesheet.css">
+    <script src="scripts/offline-manager.js"></script>
+  </head>
+
+  <body>
+    <!-- HEADER -->
+    <div id="header_wrap" class="outer">
+        <header class="inner">
+          <h1 id="project_title"><%= name %></h1>
+          <h2 id="project_tagline">Template App</h2>
+        </header>
+    </div>
+
+    <!-- MAIN CONTENT -->
+    <div id="main_content_wrap" class="outer">
+      <section id="main_content" class="inner">
+        <p><%= description %></p>
+      </section>
+    </div>
+
+    <!-- FOOTER  -->
+    <div id="footer_wrap" class="outer">
+      <footer class="inner">
+        <p class="copyright">Bootstrapped with <a href="https://github.com/mozilla/oghliner/">oghliner</a>.
+      </footer>
+    </div>
+  </body>
+</html>

@@ -20,9 +20,11 @@
 var configure = require('./lib/configure');
 var deploy = require('./lib/deploy');
 var offline = require('./lib/offline');
+var bootstrap = require('./lib/bootstrap');
 
 module.exports = {
   configure: configure,
   deploy: deploy,
   offline: offline,
+  bootstrap: bootstrap,
 };
