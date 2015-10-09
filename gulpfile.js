@@ -18,6 +18,7 @@
 
 var connect = require('gulp-connect');
 var gulp = require('gulp');
+var mocha = require('gulp-mocha');
 var oghliner = require('./index.js');
 
 gulp.task('default', ['build', 'offline']);
@@ -51,3 +52,9 @@ gulp.task('serve', function () {
     root: 'dist',
   });
 });
+
+gulp.task('test', function () {
+  return gulp.src('test.js', {read: false})
+    // gulp-mocha needs filepaths so you can't have any plugins before it
+    .pipe(mocha());
+})

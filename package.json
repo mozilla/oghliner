@@ -51,6 +51,11 @@
     "travis-encrypt": "^1.1.1",
     "write-yaml": "^0.2.1"
   },
+  "devDependencies": {
+    "chai": "^3.3.0",
+    "gulp-mocha": "^2.1.3",
+    "mocha": "^2.3.3"
+  },
   "engines": {
     "node": ">= 0.12"
   }
