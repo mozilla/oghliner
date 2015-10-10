@@ -71,7 +71,7 @@ The *oghliner.offline* task takes a *config* object and a *callback*. The proper
 
 - *rootDir*: the directory to deploy (default: `./`).
 
-Finally, in order for offline-worker.js to be evaluated, you need to load the offline manager script in your app by copying it to the location of your other scripts. To do this, use the *integrate* command (or *ogliner.integrate* function):
+Finally, in order for offline-worker.js to be evaluated, you need to load the offline manager script in your app by copying it to the location of your other scripts. To do this, use the *integrate* command (or *oghliner.integrate* function):
 
 ```bash
 oghliner integrate path/to/your/scripts/
