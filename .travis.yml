@@ -3,13 +3,13 @@ node_js:
   - '0.10'
 env:
   global:
-    - secure: dF195keOXo9mKATW7IZu8cJUdkp+l5w2aHQzaw8cjjaC4XWdEuMVgmTUYuX2ZB0ialAOS56J5U5Escd1r7htJYfEBsjSkBBETF5G9JxQosRyoJ5hlv5Euzja/PJByw89tNuAIjl4cGMY3KC8KK0HYrMZAO8Tb9LhDytvMW0xi1GxRr9Z6UDUwz3WrKdH4DOwwvSbUSgYDtih+FZiZyFaqEnHBRLrVvPFBIzVUInrXWn0+Co57CJMpOB0MSW5HWvmxLETMiG0Rk60AkM+LZPxIXoLWsSy0s7n6EgM3x1Mbw+dv/COd7e9N3vOpP8Wf+58AGBEhXDjaAcjRiAskVj+9cPDA8Tj4AB1cmD4MLD28sCy9U2KvK081VQrTE2kMWwBttpFOd6TexATxBgWOXifROxtKM5lzqXOrbx9Le3Aq/D7NopF2fZHOlF/T9o10cB7BVAr3LEkzR5XdcMZ7vyD7myKqKMmwbdgyyRzSQnOFiczBGWoyKn/byJjlK8dalWiZn8yrMVcSmF+FxrXA+Q7PTO6eO8Rk26WhzLx0ElTtWLK0RI5HrWeErUg5Uc1BekcWqBOZYdnbOUW/QaneaidRZ038wC+QWRDPCQiZJrUTL3T5bpisgP/DB06LzK49AVqyW9clSt8YBU1gSNGs4QuJNPcz3AvhLuiExxZQkNqyq4=
+    - secure: 0coSgcoHYGI0gRtUyJqYu0YPxSsLL4f5rw9Jd3XoJMZOE1E11UmuSjohNhWQChFrRTgqE0ykC/okV4sOzXnfKGMSiVpBqwCvkBLCIrlbDSOuMRx60MhXb17NUz9Wpm+nBOg6kqp7A0R1YMUujQzckvD4PwhI5T7zrBBzPwYjesgB8jghAJG7FdWhdCfJCXe0OBFq2HZM1U3HTzjWmvlMAtOLqn2DXtTXhHOAitgFc8cxkbtlwsdjRbN5I+rGwMFafNmuqkGYQBf1E76wM5lrUBwllCAri3pMeK1RICqkim2YfLzP9X9G1GNUbhXW1bVt+oSHxCQZSUd5MLI1LLFPXAqXhgGe+Fa9Wb6X2YpHHJyAHOHtTg4kWP8RwkcZquE1XINIrgQP/AEplMq1qjCiwGsKzFDsElXO04MWFOxzYnNTNdxLyp1QmFyq6asiYQrlSlh2TjAhSX342XKUqoTg6y63jV+TEHQ1ap3drgTHybCagOs9bcbAwP9EsPf37RNIULf2YmhaUNSDqMfghb5D1Nsjh5mrSEIHsCETlwBhU9FpePxN2rfJyCkLvjdAz4AgTWfO6Xff+46UCMGTCjT2MsURkIfwm7xxTNTdoOxTbI2JhvzHVYMCAjQVXJfX0qHIqz4DvWwH+WcWMYYPAFsmwPQFtaLH8kY+thsNGFtjsv8=
 install: npm install
 before_script:
   - 'git config --global user.name "Travis-CI"'
   - 'git config --global user.email "myk@mykzilla.org"'
 script:
- - gulp
- - gulp test
+  - gulp
+  - gulp test
 after_success:
   - '[ "${TRAVIS_PULL_REQUEST}" = "false" ] && [ "${TRAVIS_BRANCH}" = "master" ] && gulp deploy'
