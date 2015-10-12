@@ -30,6 +30,7 @@ var configure = require('./lib/configure');
 var deploy = require('./lib/deploy');
 var offline = require('./lib/offline');
 var bootstrap = require('./lib/bootstrap');
+var integrate = require('./lib/integrate');
 
 program
   .version(packageJson.version);
@@ -91,6 +92,18 @@ program
       console.error(err);
     });
   });
+
+  program
+    .command('integrate [dir]')
+    .description('integrate the offline-manager.js script into your app')
+    .action(function(dir) {
+      integrate({
+        dir: dir,
+      })
+      .catch(function(err) {
+        console.error(err);
+      });
+    });
 
 program.parse(process.argv);
 
