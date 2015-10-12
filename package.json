@@ -27,6 +27,7 @@
     "lib/deploy.js",
     "lib/offline.js",
     "lib/bootstrap.js",
+    "lib/integrate.js",
     "templates/"
   ],
   "dependencies": {
