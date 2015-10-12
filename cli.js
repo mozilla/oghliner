@@ -48,10 +48,12 @@ program
 program
   .command('deploy [dir]')
   .description('deploy directory to GitHub Pages')
-  .action(function(dir) {
+  .option('-m, --message <message>', 'commit message')
+  .action(function(dir, options) {
     deploy({
       rootDir: dir,
       cloneDir: '.gh-pages-cache',
+      message: options.message,
     })
     .then(function() {
       // For perf, don't delete the repository.  This means users will have to

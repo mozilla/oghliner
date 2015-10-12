@@ -2,6 +2,10 @@ Oghliner is an experimental template and tool for deploying Offline Web Apps to 
 
 As a template, Oghliner can be used to bootstrap an offline app that deploys to your GitHub Pages site. As a tool, Oghliner adds offlining and deployment into your existing app.
 
+[![Build Status](https://travis-ci.org/mozilla/oghliner.svg)](https://travis-ci.org/mozilla/oghliner)
+[![dependencies](https://david-dm.org/mozilla/oghliner.svg)](https://david-dm.org/mozilla/oghliner)
+[![devdependencies](https://david-dm.org/mozilla/oghliner/dev-status.svg)](https://david-dm.org/mozilla/oghliner#info=devDependencies)
+
 Using The Template
 ------------------
 
