@@ -68,6 +68,14 @@ program
         if (gitignore.indexOf('.gh-pages.cache') === -1) {
           promptly.prompt('.gh-pages-cache is a temporary repository that we use to push changes to your gh-pages branch. Do you want to add it to .gitignore (Y/N, suggested Y): ', {
             default: 'Y',
+            retry: true,
+            validator: function(val) {
+              val = val.toUpperCase();
+              if (val !== 'N' && val !== 'Y') {
+                throw new Error('Value should be Y or N');
+              }
+              return val;
+            },
           }).then(function(answer) {
             if (answer === 'Y') {
               gitignore += '\n.gh-pages.cache\n';
