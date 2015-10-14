@@ -27,4 +27,18 @@ describe('Offline', function() {
       assert.notEqual(content, 'something');
     });
   });
+
+  it('should use importScript in the service worker if the importScripts option is defined', function() {
+    var dir = temp.mkdirSync('tmp');
+
+    fs.writeFileSync('a-script.js', 'something');
+
+    return offline({
+      rootDir: dir,
+      importScripts: [ 'a-script.js', ],
+    }).then(function() {
+      var content = fs.readFileSync(path.join(dir, 'offline-worker.js'), 'utf8');
+      assert.notEqual(content.indexOf('importScripts("a-script.js");'), -1);
+    });
+  });
 });
