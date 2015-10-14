@@ -19,6 +19,7 @@
 var connect = require('gulp-connect');
 var gulp = require('gulp');
 var mocha = require('gulp-mocha');
+var argv = require('yargs').argv;
 var oghliner = require('./index.js');
 
 gulp.task('default', ['build', 'offline']);
@@ -32,6 +33,7 @@ gulp.task('configure', oghliner.configure);
 gulp.task('deploy', function(callback) {
   oghliner.deploy({
     rootDir: 'dist',
+    remote: argv.remote,
   }, callback);
 });
 

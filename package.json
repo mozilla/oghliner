@@ -52,7 +52,8 @@
     "sw-precache": "^2.0.0",
     "travis-ci": "^2.0.3",
     "travis-encrypt": "^1.1.1",
-    "write-yaml": "^0.2.1"
+    "write-yaml": "^0.2.1",
+    "yargs": "^3.27.0"
   },
   "devDependencies": {
     "chai": "^3.3.0",
