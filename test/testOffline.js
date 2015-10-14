@@ -11,7 +11,20 @@ describe('Offline', function() {
     return offline({
       rootDir: dir,
     }).then(function() {
-      fs.accessSync(path.join(dir, 'offline-worker.js'));
+      assert.doesNotThrow(fs.accessSync.bind(fs, path.join(dir, 'offline-worker.js')));
+    });
+  });
+
+  it('should not fail if the destination directory already contains a offline-worker.js file', function() {
+    var dir = temp.mkdirSync('tmp');
+
+    fs.writeFileSync(path.join(dir, 'offline-worker.js'), 'something');
+
+    return offline({
+      rootDir: dir,
+    }).then(function() {
+      var content = fs.readFileSync(path.join(dir, 'offline-worker.js'), 'utf8');
+      assert.notEqual(content, 'something');
     });
   });
 });
