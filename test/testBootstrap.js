@@ -7,11 +7,13 @@ var glob = require('glob');
 var fs = require('fs');
 
 describe('Bootstrap', function() {
+  this.timeout(10000);
+
   var appName = 'test-bootstrap'
   var oldWd;
   before(function() {
     temp.track();
-    return temp.mkdir('pdfcreator').then(function(dirPath) {
+    return temp.mkdir('oghliner').then(function(dirPath) {
       oldWd = process.cwd();
       process.chdir(dirPath);
       childProcess.execSync('git init');
