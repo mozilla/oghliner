@@ -7,10 +7,7 @@ var rewire = require('rewire');
 var offline = rewire('../lib/offline');
 
 describe('Offline', function() {
-  var oldWd;
-  beforeEach(function() {
-    oldWd = process.cwd();
-  });
+  var oldWd = process.cwd();
 
   afterEach(function() {
     process.chdir(oldWd);
