@@ -13,7 +13,7 @@ describe('Deploy', function() {
   });
 
   it('should create a gh-pages branch in the origin repo and publish files to it', function(done) {
-    var dir = temp.mkdirSync('tmp');
+    var dir = temp.mkdirSync('oghliner');
 
     var simpleGit = require('simple-git')(dir);
 
@@ -47,7 +47,7 @@ describe('Deploy', function() {
   });
 
   it('should update the gh-pages branch in the origin repo and publish files to it', function(done) {
-    var dir = temp.mkdirSync('tmp');
+    var dir = temp.mkdirSync('oghliner');
 
     var simpleGit = require('simple-git')(dir);
 
