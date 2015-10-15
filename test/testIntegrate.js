@@ -1,5 +1,7 @@
 var assert = require('assert');
 var fs = require('fs');
+var path = require('path');
+var temp = require('temp').track();
 var integrate = require('../lib/integrate');
 
 describe('Integrate', function() {
@@ -22,7 +24,7 @@ describe('Integrate', function() {
     }
 
     var promise = integrate({
-      dir: 'tmp',
+      dir: temp.mkdirSync('tmp'),
     })
     .then(function() {
       assert(false);
@@ -36,26 +38,14 @@ describe('Integrate', function() {
   });
 
   it('should copy the offline-manager.js script in the destination directory', function() {
-    fs.mkdirSync('tmp');
+    var dir = temp.mkdirSync('tmp');
 
-    function cleanup() {
-      try {
-        fs.unlinkSync('tmp/offline-manager.js');
-      } catch (e) {}
-
-      fs.rmdirSync('tmp');
-    }
-
-    var promise = integrate({
-      dir: 'tmp',
+    return integrate({
+      dir: dir,
     }).then(function() {
       var orig = fs.readFileSync('app/scripts/offline-manager.js');
-      var copied = fs.readFileSync('tmp/offline-manager.js');
+      var copied = fs.readFileSync(path.join(dir, 'offline-manager.js'));
       assert(orig.equals(copied), 'offline-manager.js successfully copied');
     });
-
-    promise.then(cleanup, cleanup);
-
-    return promise;
   });
 });
