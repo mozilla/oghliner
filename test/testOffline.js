@@ -40,8 +40,6 @@ describe('Offline', function() {
   it('should use importScript in the service worker if the importScripts option is defined', function() {
     var dir = temp.mkdirSync('tmp');
 
-    fs.writeFileSync('a-script.js', 'something');
-
     return offline({
       rootDir: dir,
       importScripts: [ 'a-script.js', ],
