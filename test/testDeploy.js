@@ -5,13 +5,12 @@ var path = require('path');
 var deploy = require('../lib/deploy');
 
 describe('Deploy', function() {
+  afterEach(function() {
+    fse.removeSync('tmp');
+  });
+
   it('should create a gh-pages branch in the origin repo and publish files to it', function(done) {
     fs.mkdirSync('tmp');
-
-    function finish(err) {
-      fse.removeSync('tmp');
-      done(err);
-    }
 
     var simpleGit = require('simple-git')('tmp');
 
@@ -32,26 +31,21 @@ describe('Deploy', function() {
             try {
               assert.equal(log.total, 1, '1 commit');
               assert.equal(fs.readFileSync('tmp/file', 'utf8'), 'data');
-              finish();
+              done();
             } catch (e) {
-              finish(e);
+              done(e);
             }
           });
         }, function() {
           process.chdir('..');
           assert(false, 'Deploy\'s promise should be resolved');
-        }).catch(finish);
+        }).catch(done);
       });
     });
   });
 
   it('should update the gh-pages branch in the origin repo and publish files to it', function(done) {
     fs.mkdirSync('tmp');
-
-    function finish(err) {
-      fse.removeSync('tmp');
-      done(err);
-    }
 
     var simpleGit = require('simple-git')('tmp');
 
@@ -78,15 +72,15 @@ describe('Deploy', function() {
               assert.equal(log.total, 3, '3 commits');
               assert.equal(fs.readFileSync('tmp/file1', 'utf8'), 'data1');
               assert(!fs.existsSync('tmp/file2'), 'Old files are removed when deploying');
-              finish();
+              done();
             } catch (e) {
-              finish(e);
+              done(e);
             }
           });
         }, function() {
           process.chdir('..');
           assert(false, 'Deploy\'s promise should be resolved');
-        }).catch(finish);
+        }).catch(done);
       });
     });
   });
