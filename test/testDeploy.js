@@ -6,10 +6,7 @@ var temp = require('temp').track();
 var deploy = require('../lib/deploy');
 
 describe('Deploy', function() {
-  var oldWD;
-  beforeEach(function() {
-    oldWD = process.cwd();
-  });
+  var oldWD = process.cwd();
 
   afterEach(function() {
     process.chdir(oldWD);
