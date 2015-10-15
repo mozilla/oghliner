@@ -7,6 +7,8 @@ var glob = require('glob');
 var fs = require('fs');
 
 describe('Bootstrap', function() {
+  this.timeout(10000);
+
   var appName = 'test-bootstrap'
   var oldWd;
   before(function() {
