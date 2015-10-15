@@ -24,8 +24,13 @@ var promisify = require("promisify-node");
 var packageJson = require('./package.json');
 var program = require('commander');
 var rimraf = promisify(require('rimraf'));
-var promptly = promisify(require('promptly'));
+var promptly = require('promptly');
 var fs = promisify(require('fs'));
+
+// promisify should be able to wrap the entire promptly API
+// via promisify(promptly), but that doesn't seem to work
+// with 'confirm'.
+promptly.confirm = promisify(promptly.confirm);
 
 // The scripts that implement the various commands/tasks we expose.
 var configure = require('./lib/configure');
@@ -62,28 +67,18 @@ program
       // add .gh-pages-cache to their .gitignore file to hide its `git status`.
       // return rimraf('.gh-pages-cache');
 
-      fs.access('.gitignore').then(function() {
+      return fs.access('.gitignore').then(function() {
         var gitignore = fs.readFileSync('.gitignore', 'utf8');
 
         if (gitignore.indexOf('.gh-pages-cache') === -1) {
-          promptly.prompt('.gh-pages-cache is a temporary repository that we use to push changes to your gh-pages branch. Do you want to add it to .gitignore (Y/N, suggested Y): ', {
-            default: 'Y',
-            retry: true,
-            validator: function(val) {
-              val = val.toUpperCase();
-              if (val !== 'N' && val !== 'Y') {
-                throw new Error('Value should be Y or N');
-              }
-              return val;
-            },
-          }).then(function(answer) {
-            if (answer === 'Y') {
+          return promptly.confirm('.gh-pages-cache is a temporary repository that we use to push changes to your gh-pages branch. Do you want to add it to .gitignore?').then(function(answer) {
+            if (answer) {
               gitignore += '\n.gh-pages-cache\n';
               fs.writeFileSync('.gitignore', gitignore);
             }
           });
         }
-      }).catch(function() {
+      }, function() {
         console.log('.gh-pages-cache is a temporary repository that we use to push changes to your gh-pages branch. We suggest you add it to your .gitignore.');
       });
     })
