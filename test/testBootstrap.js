@@ -13,7 +13,7 @@ describe('Bootstrap', function() {
   var oldWd;
   before(function() {
     temp.track();
-    return temp.mkdir('pdfcreator').then(function(dirPath) {
+    return temp.mkdir('oghliner').then(function(dirPath) {
       oldWd = process.cwd();
       process.chdir(dirPath);
       childProcess.execSync('git init');
