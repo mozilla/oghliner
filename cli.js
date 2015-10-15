@@ -65,7 +65,7 @@ program
       fs.access('.gitignore').then(function() {
         var gitignore = fs.readFileSync('.gitignore', 'utf8');
 
-        if (gitignore.indexOf('.gh-pages.cache') === -1) {
+        if (gitignore.indexOf('.gh-pages-cache') === -1) {
           promptly.prompt('.gh-pages-cache is a temporary repository that we use to push changes to your gh-pages branch. Do you want to add it to .gitignore (Y/N, suggested Y): ', {
             default: 'Y',
             retry: true,
@@ -78,7 +78,7 @@ program
             },
           }).then(function(answer) {
             if (answer === 'Y') {
-              gitignore += '\n.gh-pages.cache\n';
+              gitignore += '\n.gh-pages-cache\n';
               fs.writeFileSync('.gitignore', gitignore);
             }
           });
