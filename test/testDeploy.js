@@ -189,4 +189,30 @@ describe('Deploy', function() {
     process.env.GH_TOKEN = 'oghliner';
     return deployOutsideRepo('message');
   });
+
+  it('should succeed if there\'s a node_modules directory in the rootDir', function(done) {
+    var dir = temp.mkdirSync('oghliner');
+
+    var simpleGit = require('simple-git')(dir);
+
+    simpleGit.init(function() {
+      fs.writeFileSync(path.join(dir, 'file'), 'data');
+      fs.mkdirSync(path.join(dir, 'node_modules'));
+
+      return simpleGit.add('file')
+                      .commit('Initial commit')
+                      .addRemote('origin', dir, function() {
+        process.chdir(dir);
+
+        return deploy({
+          cloneDir: '.gh-pages-cache',
+        }).then(function() {
+          assert(true, 'Deploy\'s promise should be resolved');
+          done();
+        }, function() {
+          assert(false, 'Deploy\'s promise should be resolved');
+        }).catch(done);
+      });
+    });
+  });
 });
