@@ -553,7 +553,7 @@ describe('Configure', function() {
     .then(function() {
       var travisYml = readYaml.sync('.travis.yml');
       expect(travisYml.language).to.equal('node_js');
-      expect(travisYml.node_js).to.deep.equal(['0.10']);
+      expect(travisYml.node_js).to.deep.equal(['0.12']);
       expect(travisYml.install).to.equal('npm install');
       expect(travisYml.script).to.equal('gulp');
       expect(travisYml).to.include.keys('env');
