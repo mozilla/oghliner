@@ -128,4 +128,34 @@ describe('Deploy', function() {
   it('should try to publish with a different repo URL (SSH)', function(done) {
     deployDifferentRepoURL(done, 'git@github.com:mozilla/oghliner.git');
   });
+
+  function deployNoOriginRemote(done) {
+    var dir = temp.mkdirSync('oghliner');
+
+    var simpleGit = require('simple-git')(dir);
+
+    simpleGit.init(function() {
+      fs.writeFileSync(path.join(dir, 'file'), 'data');
+
+      return simpleGit.add('file')
+                      .commit('Initial commit', function() {
+        process.chdir(dir);
+
+        return deploy({
+          cloneDir: '.gh-pages-cache',
+        }).then(function() {
+          assert(false, 'Deploy\'s promise should be rejected');
+        }, function() {
+          assert(true, 'Deploy\'s promise should be rejected');
+        }).then(done, done);
+      });
+    });
+  }
+
+  it('should fail if there is no origin remote', deployNoOriginRemote);
+
+  it('should fail if there is no origin remote', function(done) {
+    process.env.GH_TOKEN = 'oghliner';
+    deployNoOriginRemote(done);
+  });
 });
