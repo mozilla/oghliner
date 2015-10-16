@@ -22,7 +22,7 @@ function updateFound() {
 }
 
 if ('serviceWorker' in navigator) {
-  navigator.serviceWorker.register('offline-worker.js').then(function(registration) {
+  off.install().then(function(registration) {
     console.log('offline worker registered');
     registration.addEventListener('updatefound', updateFound);
   });
