@@ -158,4 +158,35 @@ describe('Deploy', function() {
     process.env.GH_TOKEN = 'oghliner';
     deployNoOriginRemote(done);
   });
+
+  function deployOutsideRepo(message) {
+    var dir = temp.mkdirSync('oghliner');
+
+    process.chdir(dir);
+
+    return deploy({
+      cloneDir: '.gh-pages-cache',
+      message: message,
+    }).then(function() {
+      assert(false, 'Deploy\'s promise should be rejected');
+    }, function() {
+      assert(true, 'Deploy\'s promise should be rejected');
+    });
+  }
+
+  it('should fail if called outside of a git repository with no commit message', function() {
+    return deployOutsideRepo();
+  });
+  it('should fail if called outside of a git repository with commit message', function() {
+    return deployOutsideRepo('message');
+  });
+
+  it('should fail if called outside of a git repository (on Travis) with no commit message', function() {
+    process.env.GH_TOKEN = 'oghliner';
+    return deployOutsideRepo();
+  });
+  it('should fail if called outside of a git repository (on Travis) with commit message', function() {
+    process.env.GH_TOKEN = 'oghliner';
+    return deployOutsideRepo('message');
+  });
 });
