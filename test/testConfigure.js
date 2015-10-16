@@ -1,7 +1,7 @@
 'use strict';
 
 // Import this first so we can use it to wrap other modules we import.
-var promisify = require("promisify-node");
+var promisify = require('promisify-node');
 
 var assert = require('assert');
 var expect = require('chai').expect;
