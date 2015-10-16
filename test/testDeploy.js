@@ -73,7 +73,7 @@ describe('Deploy', function() {
             try {
               assert.equal(log.total, 3, '3 commits');
               assert.equal(fs.readFileSync(path.join(dir, 'file1'), 'utf8'), 'data1');
-              assert.throws(fs.accessSync.bind(fs, 'tmp/file2'), 'Old files are removed when deploying');
+              assert.throws(fs.accessSync.bind(fs, path.join(dir, 'file2')), 'Old files are removed when deploying');
               done();
             } catch (e) {
               done(e);
