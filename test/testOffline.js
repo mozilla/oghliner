@@ -1,8 +1,9 @@
+var promisify = require('promisify-node');
 var assert = require('assert');
 var fs = require('fs');
 var path = require('path');
 var temp = require('temp').track();
-var ghslug = require('github-slug');
+var ghslug = promisify(require('github-slug'));
 var rewire = require('rewire');
 var offline = rewire('../lib/offline');
 
@@ -54,8 +55,10 @@ describe('Offline', function() {
     var dir = path.join(rootDir, 'dist');
     fs.mkdirSync(dir);
 
-    offline.__set__('ghslug', function(path, callback) {
-      callback(null, 'mozilla/oghliner');
+    offline.__set__('ghslug', function(path) {
+      return new Promise(function(resolve, reject) {
+        resolve('mozilla/oghliner');
+      });
     });
 
     process.chdir(rootDir);
