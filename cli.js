@@ -25,7 +25,7 @@ var packageJson = require('./package.json');
 var program = require('commander');
 var rimraf = promisify(require('rimraf'));
 var promptly = require('promptly');
-var fs = promisify(require('fs'));
+var fs = require('fs');
 
 // promisify should be able to wrap the entire promptly API
 // via promisify(promptly), but that doesn't seem to work
@@ -67,7 +67,12 @@ program
       // add .gh-pages-cache to their .gitignore file to hide its `git status`.
       // return rimraf('.gh-pages-cache');
 
-      return fs.access('.gitignore').then(function() {
+      fs.access('.gitignore', function(err) {
+        if (err) {
+          console.log('.gh-pages-cache is a temporary repository that we use to push changes to your gh-pages branch. We suggest you add it to your .gitignore.');
+          return;
+        }
+
         var gitignore = fs.readFileSync('.gitignore', 'utf8');
 
         if (gitignore.indexOf('.gh-pages-cache') === -1) {
@@ -78,8 +83,6 @@ program
             }
           });
         }
-      }, function() {
-        console.log('.gh-pages-cache is a temporary repository that we use to push changes to your gh-pages branch. We suggest you add it to your .gitignore.');
       });
     })
     .catch(function(err) {
