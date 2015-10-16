@@ -19,6 +19,7 @@
 var connect = require('gulp-connect');
 var gulp = require('gulp');
 var mocha = require('gulp-mocha');
+var istanbul = require('gulp-istanbul');
 var argv = require('yargs').argv;
 var oghliner = require('./index.js');
 
@@ -54,8 +55,15 @@ gulp.task('serve', function () {
   });
 });
 
-gulp.task('test', function () {
+gulp.task('pre-test', function () {
+  return gulp.src(['lib/**/*.js'])
+    .pipe(istanbul({ includeUntested: true }))
+    .pipe(istanbul.hookRequire());
+});
+
+gulp.task('test', ['pre-test'], function () {
   return gulp.src(argv.file ? argv.file : 'test/test*.js', {read: false})
     // gulp-mocha needs filepaths so you can't have any plugins before it
-    .pipe(mocha());
+    .pipe(mocha())
+    .pipe(istanbul.writeReports());
 })

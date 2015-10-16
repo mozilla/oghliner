@@ -1,6 +1,6 @@
 {
   "name": "oghliner",
-  "version": "0.9.0",
+  "version": "0.9.1",
   "description": "template and tool for deploying Offline Web Apps to GitHub Pages",
   "main": "index.js",
   "scripts": {
@@ -59,9 +59,11 @@
     "chai": "^3.3.0",
     "fs-extra": "^0.24.0",
     "glob": "^5.0.15",
+    "gulp-istanbul": "^0.10.1",
     "gulp-mocha": "^2.1.3",
     "mocha": "^2.3.3",
     "nock": "^2.15.0",
+    "rewire": "^2.3.4",
     "simple-git": "^1.11.0",
     "temp": "^0.8.3",
     "yargs": "^3.27.0"

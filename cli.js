@@ -24,6 +24,13 @@ var promisify = require("promisify-node");
 var packageJson = require('./package.json');
 var program = require('commander');
 var rimraf = promisify(require('rimraf'));
+var promptly = require('promptly');
+var fs = promisify(require('fs'));
+
+// promisify should be able to wrap the entire promptly API
+// via promisify(promptly), but that doesn't seem to work
+// with 'confirm'.
+promptly.confirm = promisify(promptly.confirm);
 
 // The scripts that implement the various commands/tasks we expose.
 var configure = require('./lib/configure');
@@ -59,6 +66,21 @@ program
       // For perf, don't delete the repository.  This means users will have to
       // add .gh-pages-cache to their .gitignore file to hide its `git status`.
       // return rimraf('.gh-pages-cache');
+
+      return fs.access('.gitignore').then(function() {
+        var gitignore = fs.readFileSync('.gitignore', 'utf8');
+
+        if (gitignore.indexOf('.gh-pages-cache') === -1) {
+          return promptly.confirm('.gh-pages-cache is a temporary repository that we use to push changes to your gh-pages branch. Do you want to add it to .gitignore?').then(function(answer) {
+            if (answer) {
+              gitignore += '\n.gh-pages-cache\n';
+              fs.writeFileSync('.gitignore', gitignore);
+            }
+          });
+        }
+      }, function() {
+        console.log('.gh-pages-cache is a temporary repository that we use to push changes to your gh-pages branch. We suggest you add it to your .gitignore.');
+      });
     })
     .catch(function(err) {
       console.error(err);
