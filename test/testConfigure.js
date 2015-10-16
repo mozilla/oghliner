@@ -37,11 +37,6 @@ function cancel() {
 
 describe('Configure', function() {
   var slug = 'mozilla/oghliner', user = 'mozilla', repo = 'oghliner';
-  // Some test functions cause Oghliner to wait five seconds before repeating
-  // a request to the Travis API, so we need to increase the timeout
-  // to accommodate that delay.  I'd rather increase for just those specific
-  // tests, but it isn't clear how to do that for tests that return a promise.
-  this.timeout(10000);
 
   var oldWd;
   beforeEach(function() {
@@ -517,6 +512,11 @@ describe('Configure', function() {
   });
 
   it('configures with syncing', function() {
+    // After Oghliner tells Travis to sync with GitHub, it waits five seconds
+    // before checking the status of the sync, so we need to increase the test
+    // timeout to accommodate the delay.
+    this.timeout(10000);
+
     nockGetGitHubToken();
     nockGetTemporaryGitHubToken();
     nockGetTravisTokenAndUser();
