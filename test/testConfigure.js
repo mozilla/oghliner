@@ -266,6 +266,12 @@ describe('Configure', function() {
     .reply(200, {"result":true});
   }
 
+  function nockRequestSyncButSyncAlreadyInProgress() {
+    return nock('https://api.travis-ci.org:443')
+    .post('/users/sync', {"result":true})
+    .reply(409, {"message":"Sync already in progress. Try again later."});
+  }
+
   function nockGetTravisUser() {
     return nock('https://api.travis-ci.org:443')
     .get('/users')
@@ -478,6 +484,65 @@ describe('Configure', function() {
     .then(function() {
       return await('Waiting for Travis to finish syncing…');
     })
+    .then(complete);
+  });
+
+  it('syncs Travis with GitHub, but sync was already in progress', function() {
+    nockGetGitHubToken();
+    nockGetTemporaryGitHubToken();
+    nockGetTravisTokenAndUser();
+    nockDeleteTemporaryGitHubToken();
+    nockGetHooksIsMissingRepo();
+    nockRequestSyncButSyncAlreadyInProgress();
+    nockGetTravisUserIsSyncing();
+    nockGetTravisUser();
+    nockGetHooks();
+    nockGetTravisKey();
+
+    configure();
+
+    return enterUsernamePassword()
+    .then(complete);
+  });
+
+  it('syncs Travis with GitHub, sync was already in progress but finished before we checked and the repo is not found', function() {
+    nockGetGitHubToken();
+    nockGetTemporaryGitHubToken();
+    nockGetTravisTokenAndUser();
+    nockDeleteTemporaryGitHubToken();
+    nockGetHooksIsMissingRepo();
+    nockRequestSyncButSyncAlreadyInProgress();
+    nockGetTravisUser();
+    nockGetHooksIsMissingRepo();
+
+    var promise = configure();
+
+    enterUsernamePassword();
+
+    return promise
+    .then(function() {
+      assert(false, 'Configure should fail.');
+    }, function() {
+      assert(true, 'Configure should fail.');
+    });
+  });
+
+  it('syncs Travis with GitHub, sync was already in progress but finished before we checked and the repo is found', function() {
+    nockGetGitHubToken();
+    nockGetTemporaryGitHubToken();
+    nockGetTravisTokenAndUser();
+    nockDeleteTemporaryGitHubToken();
+    nockGetHooksIsMissingRepo();
+    nockRequestSyncButSyncAlreadyInProgress();
+    nockGetTravisUser();
+    nockGetHooks();
+    nockGetTravisUser();
+    nockGetHooks();
+    nockGetTravisKey();
+
+    configure();
+
+    return enterUsernamePassword()
     .then(complete);
   });
 
