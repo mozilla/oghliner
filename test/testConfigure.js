@@ -31,6 +31,23 @@ function emit(data) {
   process.stdin.emit('data', data);
 }
 
+function complete() {
+  return await('You\'re ready to auto-deploy using Travis!')
+  .then(checkTravisYmlFile);
+}
+
+function checkTravisYmlFile() {
+  var travisYml = readYaml.sync('.travis.yml');
+  expect(travisYml.language).to.equal('node_js');
+  expect(travisYml.node_js).to.deep.equal(['0.12']);
+  expect(travisYml.install).to.equal('npm install');
+  expect(travisYml.script).to.equal('gulp');
+  expect(travisYml).to.include.keys('env');
+  expect(travisYml.env).to.include.keys('global');
+  expect(travisYml.env.global).to.have.length(1);
+  expect(travisYml.env.global[0]).to.have.keys('secure');
+}
+
 function cancel() {
   emit(String.fromCharCode(3 /* Ctrl-C */));
 }
@@ -65,8 +82,15 @@ describe('Configure', function() {
     });
   }
 
-  function enterUsernamePasswordToken() {
-    nock('https://api.github.com:443')
+  function enter2FACode() {
+    return await('Auth Code:')
+    .then(function() {
+      emit('123456\n');
+    });
+  }
+
+  function nockGitHubRequires2FACode() {
+    return nock('https://api.github.com:443')
     .post('/authorizations', {
       "scopes":["public_repo"],
       "note":"Oghliner token for " + slug,
@@ -76,16 +100,6 @@ describe('Configure', function() {
       "message":"Must specify two-factor authentication OTP code.",
       "documentation_url":"https://developer.github.com/v3/auth#working-with-two-factor-authentication"
     });
-
-    var promise = enterUsernamePassword()
-    .then(function() {
-      return await('Auth Code:');
-    })
-    .then(function() {
-      emit('123456\n');
-    });
-
-    return promise;
   }
 
   function nockGetTokenFailureExists() {
@@ -274,6 +288,15 @@ describe('Configure', function() {
     });
   }
 
+  function nockBasicPostAuthFlow() {
+    nockGetGitHubToken();
+    nockGetTemporaryGitHubToken();
+    nockGetTravisTokenAndUser();
+    nockDeleteTemporaryGitHubToken();
+    nockGetHooks();
+    nockGetTravisKey();
+  }
+
   it('tells you what it\'s going to do', function() {
     var promise = await('Configuring ' + slug + ' to auto-deploy to GitHub Pages using Travis CI…')
     .then(cancel);
@@ -283,25 +306,10 @@ describe('Configure', function() {
     return promise;
   });
 
-  it('prompts you to enter a username', function() {
-    var promise = await('Username: ')
-    .then(cancel);
-
+  it('prompts you to enter a username/password', function() {
+    nockBasicPostAuthFlow();
     configure();
-
-    return promise;
-  });
-
-  it('prompts you to enter a password', function() {
-    var promise = enterUsername()
-    .then(function() {
-      return await('Password:');
-    })
-    .then(cancel);
-
-    configure();
-
-    return promise;
+    return enterUsernamePassword().then(complete);
   });
 
   it('prompts you to re-enter an incorrect username/password', function() {
@@ -316,53 +324,16 @@ describe('Configure', function() {
       "documentation_url":"https://developer.github.com/v3"
     });
 
-    var promise = enterUsernamePassword()
-    .then(function() {
-      return await('The username and/or password you entered is incorrect.\nPlease try again…');
-    })
-    .then(cancel);
-
+    nockBasicPostAuthFlow();
     configure();
-
-    return promise;
+    return enterUsernamePassword().then(enterUsernamePassword).then(complete);
   });
 
   it('prompts you to enter a 2FA code', function() {
-    nock('https://api.github.com:443')
-    .post('/authorizations', {
-      "scopes":["public_repo"],
-      "note":"Oghliner token for " + slug,
-      "note_url":"https://github.com/mozilla/oghliner"
-    })
-    .reply(401, {
-      "message":"Must specify two-factor authentication OTP code.",
-      "documentation_url":"https://developer.github.com/v3/auth#working-with-two-factor-authentication"
-    });
-
-    var promise = enterUsernamePassword()
-    .then(function() {
-      return await('Auth Code:');
-    })
-    .then(cancel);
-
+    nockGitHubRequires2FACode();
+    nockBasicPostAuthFlow();
     configure();
-
-    return promise;
-  });
-
-  it('deletes existing GitHub token', function() {
-    var promise = enterUsernamePasswordToken()
-    .then(function() {
-      nockGetTokenFailureExists();
-    })
-    .then(function() {
-      return await('You already have the GitHub token "Oghliner token for ' + slug + '".');
-    })
-    .then(cancel);
-
-    configure();
-
-    return promise;
+    return enterUsernamePassword().then(enter2FACode).then(complete);
   });
 
   it('recreates existing GitHub token', function() {
@@ -388,130 +359,56 @@ describe('Configure', function() {
     .delete('/authorizations/22200031')
     .reply(204, "");
 
-    nockGetGitHubToken();
-
-    var promise = enterUsernamePassword()
-    .then(function() {
-      return await('Creating temporary GitHub token for getting Travis token…');
-    })
-    .then(cancel);
-
+    nockBasicPostAuthFlow();
     configure();
-
-    return promise;
+    return enterUsernamePassword()
+    .then(function() {
+      return await('You already have the GitHub token "Oghliner token for ' + slug + '".');
+    })
+    .then(complete);
   });
 
   it('gets temporary GitHub token', function() {
-    nockGetGitHubToken();
-    nockGetTemporaryGitHubToken();
-
-    var promise = enterUsernamePassword()
-    .then(function() {
-      return await('Getting Travis token…');
-    })
-    .then(cancel);
-
+    nockBasicPostAuthFlow();
     configure();
-
-    return promise;
+    return enterUsernamePassword()
+    .then(function() {
+      return await('Creating temporary GitHub token for getting Travis token…');
+    })
+    .then(complete);
   });
 
   it('gets Travis token', function() {
-    nockGetGitHubToken();
-    nockGetTemporaryGitHubToken();
-    nockGetTravisTokenAndUser();
-
-    var promise = enterUsernamePassword()
-    .then(function() {
-      return await('Deleting temporary GitHub token for getting Travis token…');
-    })
-    .then(cancel);
-
+    nockBasicPostAuthFlow();
     configure();
-
-    return promise;
+    return enterUsernamePassword()
+    .then(function() {
+      return await('Getting Travis token…');
+    })
+    .then(complete);
   });
 
   it('deletes temporary GitHub token', function() {
-    nockGetGitHubToken();
-    nockGetTemporaryGitHubToken();
-    nockGetTravisTokenAndUser();
-
-    nock('https://api.github.com:443')
-    .delete('/authorizations/23157726')
-    .reply(204, "");
-
-    var promise = enterUsernamePassword()
-    .then(function() {
-      return await('Checking the status of your repository in Travis…');
-    })
-    .then(cancel);
-
+    nockBasicPostAuthFlow();
     configure();
-
-    return promise;
+    return enterUsernamePassword()
+    .then(function() {
+      return await('Deleting temporary GitHub token for getting Travis token…');
+    })
+    .then(complete);
   });
 
-  it('checks status of repository in Travis', function() {
-    nockGetGitHubToken();
-    nockGetTemporaryGitHubToken();
-    nockGetTravisTokenAndUser();
-    nockDeleteTemporaryGitHubToken();
-    nockGetHooks();
-
-    var promise = enterUsernamePassword()
+  it('confirms active repository', function() {
+    nockBasicPostAuthFlow();
+    configure();
+    return enterUsernamePassword()
     .then(function() {
       return await('Good news, your repository is already active in Travis!');
     })
-    .then(cancel);
-
-    configure();
-
-    return promise;
+    .then(complete);
   });
 
   it('syncs Travis with GitHub', function() {
-    nockGetGitHubToken();
-    nockGetTemporaryGitHubToken();
-    nockGetTravisTokenAndUser();
-    nockDeleteTemporaryGitHubToken();
-    nockGetHooksIsMissingRepo();
-    nockRequestSync();
-    nockGetTravisUserIsSyncing();
-
-    var promise = enterUsernamePassword()
-    .then(function() {
-      return await('I didn\'t find your repository in Travis.  Syncing Travis with GitHub…');
-    })
-    .then(function() {
-      return await('Waiting for Travis to finish syncing…');
-    })
-    .then(cancel);
-
-    configure();
-
-    return promise;
-  });
-
-  it('configures without syncing', function() {
-    nockGetGitHubToken();
-    nockGetTemporaryGitHubToken();
-    nockGetTravisTokenAndUser();
-    nockDeleteTemporaryGitHubToken();
-    nockGetHooks();
-    nockGetTravisKey();
-
-    var promise = enterUsernamePassword()
-    .then(function() {
-      return await('You\'re ready to auto-deploy using Travis!');
-    });
-
-    configure();
-
-    return promise;
-  });
-
-  it('configures with syncing', function() {
     // After Oghliner tells Travis to sync with GitHub, it waits five seconds
     // before checking the status of the sync, so we need to increase the test
     // timeout to accommodate the delay.
@@ -528,43 +425,16 @@ describe('Configure', function() {
     nockGetTravisUser();
     nockGetTravisKey();
 
-    var promise = enterUsernamePassword()
-    .then(function() {
-      return await('You\'re ready to auto-deploy using Travis!');
-    });
-
     configure();
 
-    return promise;
-  });
-
-  it('encrypts GitHub token and writes it to .travis.yml file', function() {
-    nockGetGitHubToken();
-    nockGetTemporaryGitHubToken();
-    nockGetTravisTokenAndUser();
-    nockDeleteTemporaryGitHubToken();
-    nockGetHooks();
-    nockGetTravisKey();
-
-    var promise = enterUsernamePassword()
+    return enterUsernamePassword()
     .then(function() {
-      return await('You\'re ready to auto-deploy using Travis!');
+      return await('I didn\'t find your repository in Travis.  Syncing Travis with GitHub…');
     })
     .then(function() {
-      var travisYml = readYaml.sync('.travis.yml');
-      expect(travisYml.language).to.equal('node_js');
-      expect(travisYml.node_js).to.deep.equal(['0.12']);
-      expect(travisYml.install).to.equal('npm install');
-      expect(travisYml.script).to.equal('gulp');
-      expect(travisYml).to.include.keys('env');
-      expect(travisYml.env).to.include.keys('global');
-      expect(travisYml.env.global).to.have.length(1);
-      expect(travisYml.env.global[0]).to.have.keys('secure');
-    });
-
-    configure();
-
-    return promise;
+      return await('Waiting for Travis to finish syncing…');
+    })
+    .then(complete);
   });
 
   afterEach(function() {
