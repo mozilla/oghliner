@@ -212,6 +212,28 @@ describe('Configure', function() {
     });
   }
 
+  function nockGetHooksRepoIsInactive() {
+    return nock('https://api.travis-ci.org:443')
+    .get('/hooks')
+    .reply(200, {
+      "hooks": [{
+        "id": 5910871,
+        "name": repo,
+        "owner_name": user,
+        "description": "template and tool for deploying Offline Web Apps to GitHub Pages",
+        "active": false,
+        "private": false,
+        "admin": true
+      }]
+    });
+  }
+
+  function nockActivateRepo() {
+    nock('https://api.travis-ci.org:443')
+    .put('/hooks/5910871', {"hook":{"active":true}})
+    .reply(200, {"result":true});
+  }
+
   function nockGetTravisKey() {
     return nock('https://api.travis-ci.org:443')
     .get('/repos/' + slug + '/key')
@@ -404,6 +426,28 @@ describe('Configure', function() {
     return enterUsernamePassword()
     .then(function() {
       return await('Good news, your repository is already active in Travis!');
+    })
+    .then(complete);
+  });
+
+  it('activates inactive repository', function() {
+    nockGetGitHubToken();
+    nockGetTemporaryGitHubToken();
+    nockGetTravisTokenAndUser();
+    nockDeleteTemporaryGitHubToken();
+    nockGetHooksRepoIsInactive();
+    nockActivateRepo();
+    nockGetTravisUser();
+    nockGetTravisKey();
+
+    configure();
+
+    return enterUsernamePassword()
+    .then(function() {
+      return await('Your repository isn\'t active in Travis yet.  Activating it…');
+    })
+    .then(function() {
+      return await('Your repository has been activated in Travis!');
     })
     .then(complete);
   });
