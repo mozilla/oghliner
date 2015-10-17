@@ -268,8 +268,14 @@ describe('Configure', function() {
 
   function nockRequestSyncButSyncAlreadyInProgress() {
     return nock('https://api.travis-ci.org:443')
-    .post('/users/sync', {"result":true})
+    .post('/users/sync')
     .reply(409, {"message":"Sync already in progress. Try again later."});
+  }
+
+  function nockRequestSyncFakeError() {
+    return nock('https://api.travis-ci.org:443')
+    .post('/users/sync')
+    .reply(500, {"message":"This error was made up for testing purposes."});
   }
 
   function nockGetTravisUser() {
@@ -522,8 +528,32 @@ describe('Configure', function() {
     return promise
     .then(function() {
       assert(false, 'Configure should fail.');
-    }, function() {
+    }, function(err) {
       assert(true, 'Configure should fail.');
+      assert.equal(err.message, 'Sync already in progress. Try again later.', 'Configure fails with the error thrown by travis.users.sync.post');
+    });
+  });
+
+  it('generic error while syncing with Travis', function() {
+    nockGetGitHubToken();
+    nockGetTemporaryGitHubToken();
+    nockGetTravisTokenAndUser();
+    nockDeleteTemporaryGitHubToken();
+    nockGetHooksIsMissingRepo();
+    nockRequestSyncFakeError();
+    nockGetTravisUser();
+    nockGetHooksIsMissingRepo();
+
+    var promise = configure();
+
+    enterUsernamePassword();
+
+    return promise
+    .then(function() {
+      assert(false, 'Configure should fail.');
+    }, function(err) {
+      assert(true, 'Configure should fail.');
+      assert.equal(err.message, 'This error was made up for testing purposes.', 'Configure fails with the error thrown by travis.users.sync.post');
     });
   });
 
