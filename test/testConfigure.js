@@ -48,10 +48,6 @@ function checkTravisYmlFile() {
   expect(travisYml.env.global[0]).to.have.keys('secure');
 }
 
-function cancel() {
-  emit(String.fromCharCode(3 /* Ctrl-C */));
-}
-
 describe('Configure', function() {
   var slug = 'mozilla/oghliner', user = 'mozilla', repo = 'oghliner';
 
@@ -320,12 +316,16 @@ describe('Configure', function() {
   }
 
   it('tells you what it\'s going to do', function() {
-    var promise = await('Configuring ' + slug + ' to auto-deploy to GitHub Pages using Travis CI…')
-    .then(cancel);
-
+    nockBasicPostAuthFlow();
     configure();
 
-    return promise;
+    // We don't chain this to the promise we return, even though it happens
+    // after the message we await, because the configure flow would race it
+    // if we chained it to that message.
+    enterUsernamePassword();
+
+    return await('Configuring ' + slug + ' to auto-deploy to GitHub Pages using Travis CI…')
+    .then(complete);
   });
 
   it('prompts you to enter a username/password', function() {
