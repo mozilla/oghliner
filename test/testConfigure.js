@@ -468,7 +468,7 @@ describe('Configure', function() {
     // After Oghliner tells Travis to sync with GitHub, it waits five seconds
     // before checking the status of the sync, so we need to increase the test
     // timeout to accommodate the delay.
-    this.timeout(10000);
+    this.timeout(15000);
 
     nockGetGitHubToken();
     nockGetTemporaryGitHubToken();
@@ -494,12 +494,41 @@ describe('Configure', function() {
   });
 
   it('syncs Travis with GitHub, but sync was already in progress', function() {
+    // After Oghliner tells Travis to sync with GitHub, it waits five seconds
+    // before checking the status of the sync, so we need to increase the test
+    // timeout to accommodate the delay.
+    this.timeout(10000);
+
     nockGetGitHubToken();
     nockGetTemporaryGitHubToken();
     nockGetTravisTokenAndUser();
     nockDeleteTemporaryGitHubToken();
     nockGetHooksIsMissingRepo();
     nockRequestSyncButSyncAlreadyInProgress();
+    nockGetTravisUserIsSyncing();
+    nockGetTravisUser();
+    nockGetHooks();
+    nockGetTravisKey();
+
+    configure();
+
+    return enterUsernamePassword()
+    .then(complete);
+  });
+
+  it('syncs Travis with GitHub, but sync was already in progress and is taking some time', function() {
+    // After Oghliner tells Travis to sync with GitHub, it waits five seconds
+    // before checking the status of the sync, so we need to increase the test
+    // timeout to accommodate the delay.
+    this.timeout(15000);
+
+    nockGetGitHubToken();
+    nockGetTemporaryGitHubToken();
+    nockGetTravisTokenAndUser();
+    nockDeleteTemporaryGitHubToken();
+    nockGetHooksIsMissingRepo();
+    nockRequestSyncButSyncAlreadyInProgress();
+    nockGetTravisUserIsSyncing();
     nockGetTravisUserIsSyncing();
     nockGetTravisUser();
     nockGetHooks();
@@ -558,6 +587,11 @@ describe('Configure', function() {
   });
 
   it('syncs Travis with GitHub, sync was already in progress but finished before we checked and the repo is found', function() {
+    // After Oghliner tells Travis to sync with GitHub, it waits five seconds
+    // before checking the status of the sync, so we need to increase the test
+    // timeout to accommodate the delay.
+    this.timeout(10000);
+
     nockGetGitHubToken();
     nockGetTemporaryGitHubToken();
     nockGetTravisTokenAndUser();
