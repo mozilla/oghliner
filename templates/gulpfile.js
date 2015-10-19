@@ -28,14 +28,14 @@ gulp.task('build', function(callback) {
 
 gulp.task('configure', oghliner.configure);
 
-gulp.task('deploy', function(callback) {
-  oghliner.deploy({
+gulp.task('deploy', function() {
+  return oghliner.deploy({
     rootDir: 'dist',
-  }, callback);
+  });
 });
 
-gulp.task('offline', ['build'], function(callback) {
-  oghliner.offline({
+gulp.task('offline', ['build'], function() {
+  return oghliner.offline({
     rootDir: 'dist/',
     fileGlobs: [
       'images/**',
@@ -43,7 +43,7 @@ gulp.task('offline', ['build'], function(callback) {
       'scripts/**',
       'styles/**',
     ],
-  }, callback);
+  });
 });
 
 gulp.task('serve', function () {
