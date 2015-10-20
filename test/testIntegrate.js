@@ -16,6 +16,17 @@ describe('Integrate', function() {
     });
   });
 
+  it('should throw when the destination directory isn\'t a directory', function() {
+    return integrate({
+      dir: 'package.json',
+    })
+    .then(function() {
+      assert(false);
+    }, function() {
+      assert(true);
+    });
+  });
+
   it('should throw when the offline-manager.js script doesn\'t exist', function() {
     fs.renameSync('app/scripts/offline-manager.js', 'app/scripts/offline-manager-temp.js');
 
