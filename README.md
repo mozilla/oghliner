@@ -34,6 +34,12 @@ Invoke `gulp` to rebuild your app and regenerate the script that offlines it. In
 gulp && gulp deploy
 ```
 
+At least one commit to the repository is required for successful deploy.  The following could be used to commit the changes by Oghliner to the repository:
+
+```bash
+git add . && git commit -m "Initial version of app"
+```
+
 Using The Tool
 --------------
 
