@@ -15,6 +15,11 @@ var github = new GitHub({
 
 var username = process.env.USER, password = process.env.PASS;
 
+// Skip these tests if the USER or PASS environment variables aren't set.
+if (!username || !password) {
+  return;
+}
+
 function createRepo() {
   return new Promise(function(resolve, reject) {
     github.repos.create({
