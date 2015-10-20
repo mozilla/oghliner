@@ -87,16 +87,18 @@ function spawn(command, args) {
   });
 }
 
-github.authenticate({
-  type: 'basic',
-  username: username,
-  password: password,
-});
-
 describe('CLI interface, oghliner as a tool', function() {
   this.timeout(60000);
 
   var oldWD = process.cwd();
+
+  before(function() {
+    github.authenticate({
+      type: 'basic',
+      username: username,
+      password: password,
+    });
+  });
 
   beforeEach(function() {
     process.chdir(temp.mkdirSync('oghliner'));
