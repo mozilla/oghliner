@@ -12,44 +12,69 @@ var temp = promisify(require('temp').track());
 
 var configure = require('../lib/configure');
 
-function await(data) {
-  return new Promise(function(resolve, reject) {
-    var write = process.stdout.write;
-    var output = '';
+describe('Configure', function() {
+  var slug = 'mozilla/oghliner', user = 'mozilla', repo = 'oghliner';
+
+  var write = process.stdout.write;
+  var output;
+  var waitingArr;
+
+  before(function() {
     process.stdout.write = function(chunk, encoding, fd) {
       write.apply(process.stdout, arguments);
       output += chunk;
-      if (output.indexOf(data) !== -1) {
-        process.stdout.write = write;
-        resolve();
+      for (var i = 0; i < waitingArr.length; i++) {
+        var waitingData = waitingArr[i];
+
+        if (output.indexOf(waitingData.data) !== -1) {
+          output = output.substr(output.indexOf(waitingData.data) + waitingData.data.length);
+          waitingArr.splice(i, 1);
+          i--;
+          waitingData.fn();
+        }
       }
     };
   });
-}
 
-function emit(data) {
-  process.stdin.emit('data', data);
-}
+  after(function() {
+    process.stdout.write = write;
+  });
 
-function complete() {
-  return await('You\'re ready to auto-deploy using Travis!')
-  .then(checkTravisYmlFile);
-}
+  function await(data) {
+    return new Promise(function(resolve, reject) {
+      if (output.indexOf(data) !== -1) {
+        output = output.substr(output.indexOf(data) + data.length);
+        resolve();
+        return;
+      }
 
-function checkTravisYmlFile() {
-  var travisYml = readYaml.sync('.travis.yml');
-  expect(travisYml.language).to.equal('node_js');
-  expect(travisYml.node_js).to.deep.equal(['0.12']);
-  expect(travisYml.install).to.equal('npm install');
-  expect(travisYml.script).to.equal('gulp');
-  expect(travisYml).to.include.keys('env');
-  expect(travisYml.env).to.include.keys('global');
-  expect(travisYml.env.global).to.have.length(1);
-  expect(travisYml.env.global[0]).to.have.keys('secure');
-}
+      waitingArr.push({
+        data: data,
+        fn: resolve,
+      });
+    });
+  }
 
-describe('Configure', function() {
-  var slug = 'mozilla/oghliner', user = 'mozilla', repo = 'oghliner';
+  function emit(data) {
+    process.stdin.emit('data', data);
+  }
+
+  function complete() {
+    return await('You\'re ready to auto-deploy using Travis!')
+    .then(checkTravisYmlFile);
+  }
+
+  function checkTravisYmlFile() {
+    var travisYml = readYaml.sync('.travis.yml');
+    expect(travisYml.language).to.equal('node_js');
+    expect(travisYml.node_js).to.deep.equal(['0.12']);
+    expect(travisYml.install).to.equal('npm install');
+    expect(travisYml.script).to.equal('gulp');
+    expect(travisYml).to.include.keys('env');
+    expect(travisYml.env).to.include.keys('global');
+    expect(travisYml.env.global).to.have.length(1);
+    expect(travisYml.env.global[0]).to.have.keys('secure');
+  }
 
   var oldWd;
   beforeEach(function() {
@@ -58,6 +83,8 @@ describe('Configure', function() {
       process.chdir(dirPath);
       childProcess.execSync('git init');
       childProcess.execSync('git remote add origin https://github.com/mozilla/oghliner.git');
+      output = '';
+      waitingArr = [];
     });
   });
 
