@@ -486,4 +486,7 @@ describe('Configure', function() {
     temp.cleanupSync();
   });
 
+  after(function() {
+    nock.restore();
+  });
 });
