@@ -76,6 +76,16 @@ describe('Configure', function() {
     expect(travisYml.env.global[0]).to.have.keys('secure');
   }
 
+  var oldSetTimeout = setTimeout;
+  before(function() {
+    setTimeout = function(func, timeout) {
+      oldSetTimeout(func, timeout / 100);
+    }
+  });
+  after(function() {
+    setTimeout = oldSetTimeout;
+  })
+
   var oldWd;
   beforeEach(function() {
     return temp.mkdir('oghliner').then(function(dirPath) {
@@ -293,6 +303,18 @@ describe('Configure', function() {
     .reply(200, {"result":true});
   }
 
+  function nockRequestSyncButSyncAlreadyInProgress() {
+    return nock('https://api.travis-ci.org:443')
+    .post('/users/sync')
+    .reply(409, {"message":"Sync already in progress. Try again later."});
+  }
+
+  function nockRequestSyncFakeError() {
+    return nock('https://api.travis-ci.org:443')
+    .post('/users/sync')
+    .reply(500, {"message":"This error was made up for testing purposes."});
+  }
+
   function nockGetTravisUser() {
     return nock('https://api.travis-ci.org:443')
     .get('/users')
@@ -480,11 +502,6 @@ describe('Configure', function() {
   });
 
   it('syncs Travis with GitHub', function() {
-    // After Oghliner tells Travis to sync with GitHub, it waits five seconds
-    // before checking the status of the sync, so we need to increase the test
-    // timeout to accommodate the delay.
-    this.timeout(10000);
-
     nockGetGitHubToken();
     nockGetTemporaryGitHubToken();
     nockGetTravisTokenAndUser();
@@ -505,6 +522,108 @@ describe('Configure', function() {
     .then(function() {
       return await('Waiting for Travis to finish syncing…');
     })
+    .then(complete);
+  });
+
+  it('syncs Travis with GitHub, but sync was already in progress', function() {
+    nockGetGitHubToken();
+    nockGetTemporaryGitHubToken();
+    nockGetTravisTokenAndUser();
+    nockDeleteTemporaryGitHubToken();
+    nockGetHooksIsMissingRepo();
+    nockRequestSyncButSyncAlreadyInProgress();
+    nockGetTravisUserIsSyncing();
+    nockGetTravisUser();
+    nockGetHooks();
+    nockGetTravisKey();
+
+    configure();
+
+    return enterUsernamePassword()
+    .then(complete);
+  });
+
+  it('syncs Travis with GitHub, but sync was already in progress and is taking some time', function() {
+    nockGetGitHubToken();
+    nockGetTemporaryGitHubToken();
+    nockGetTravisTokenAndUser();
+    nockDeleteTemporaryGitHubToken();
+    nockGetHooksIsMissingRepo();
+    nockRequestSyncButSyncAlreadyInProgress();
+    nockGetTravisUserIsSyncing();
+    nockGetTravisUserIsSyncing();
+    nockGetTravisUser();
+    nockGetHooks();
+    nockGetTravisKey();
+
+    configure();
+
+    return enterUsernamePassword()
+    .then(complete);
+  });
+
+  it('syncs Travis with GitHub, sync was already in progress but finished before we checked and the repo is not found', function() {
+    nockGetGitHubToken();
+    nockGetTemporaryGitHubToken();
+    nockGetTravisTokenAndUser();
+    nockDeleteTemporaryGitHubToken();
+    nockGetHooksIsMissingRepo();
+    nockRequestSyncButSyncAlreadyInProgress();
+    nockGetTravisUser();
+    nockGetHooksIsMissingRepo();
+
+    var promise = configure();
+
+    enterUsernamePassword();
+
+    return promise
+    .then(function() {
+      assert(false, 'Configure should fail.');
+    }, function(err) {
+      assert(true, 'Configure should fail.');
+      assert.equal(err.message, 'Sync already in progress. Try again later.', 'Configure fails with the error thrown by travis.users.sync.post');
+    });
+  });
+
+  it('generic error while syncing with Travis', function() {
+    nockGetGitHubToken();
+    nockGetTemporaryGitHubToken();
+    nockGetTravisTokenAndUser();
+    nockDeleteTemporaryGitHubToken();
+    nockGetHooksIsMissingRepo();
+    nockRequestSyncFakeError();
+    nockGetTravisUser();
+    nockGetHooksIsMissingRepo();
+
+    var promise = configure();
+
+    enterUsernamePassword();
+
+    return promise
+    .then(function() {
+      assert(false, 'Configure should fail.');
+    }, function(err) {
+      assert(true, 'Configure should fail.');
+      assert.equal(err.message, 'This error was made up for testing purposes.', 'Configure fails with the error thrown by travis.users.sync.post');
+    });
+  });
+
+  it('syncs Travis with GitHub, sync was already in progress but finished before we checked and the repo is found', function() {
+    nockGetGitHubToken();
+    nockGetTemporaryGitHubToken();
+    nockGetTravisTokenAndUser();
+    nockDeleteTemporaryGitHubToken();
+    nockGetHooksIsMissingRepo();
+    nockRequestSyncButSyncAlreadyInProgress();
+    nockGetTravisUser();
+    nockGetHooks();
+    nockGetTravisUser();
+    nockGetHooks();
+    nockGetTravisKey();
+
+    configure();
+
+    return enterUsernamePassword()
     .then(complete);
   });
 
