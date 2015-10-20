@@ -51,6 +51,16 @@ function checkTravisYmlFile() {
 describe('Configure', function() {
   var slug = 'mozilla/oghliner', user = 'mozilla', repo = 'oghliner';
 
+  var oldSetTimeout = setTimeout;
+  before(function() {
+    setTimeout = function(func, timeout) {
+      oldSetTimeout(func, timeout / 100);
+    }
+  });
+  after(function() {
+    setTimeout = oldSetTimeout;
+  })
+
   var oldWd;
   beforeEach(function() {
     return temp.mkdir('oghliner').then(function(dirPath) {
@@ -465,11 +475,6 @@ describe('Configure', function() {
   });
 
   it('syncs Travis with GitHub', function() {
-    // After Oghliner tells Travis to sync with GitHub, it waits five seconds
-    // before checking the status of the sync, so we need to increase the test
-    // timeout to accommodate the delay.
-    this.timeout(15000);
-
     nockGetGitHubToken();
     nockGetTemporaryGitHubToken();
     nockGetTravisTokenAndUser();
@@ -494,11 +499,6 @@ describe('Configure', function() {
   });
 
   it('syncs Travis with GitHub, but sync was already in progress', function() {
-    // After Oghliner tells Travis to sync with GitHub, it waits five seconds
-    // before checking the status of the sync, so we need to increase the test
-    // timeout to accommodate the delay.
-    this.timeout(10000);
-
     nockGetGitHubToken();
     nockGetTemporaryGitHubToken();
     nockGetTravisTokenAndUser();
@@ -517,11 +517,6 @@ describe('Configure', function() {
   });
 
   it('syncs Travis with GitHub, but sync was already in progress and is taking some time', function() {
-    // After Oghliner tells Travis to sync with GitHub, it waits five seconds
-    // before checking the status of the sync, so we need to increase the test
-    // timeout to accommodate the delay.
-    this.timeout(15000);
-
     nockGetGitHubToken();
     nockGetTemporaryGitHubToken();
     nockGetTravisTokenAndUser();
@@ -587,11 +582,6 @@ describe('Configure', function() {
   });
 
   it('syncs Travis with GitHub, sync was already in progress but finished before we checked and the repo is found', function() {
-    // After Oghliner tells Travis to sync with GitHub, it waits five seconds
-    // before checking the status of the sync, so we need to increase the test
-    // timeout to accommodate the delay.
-    this.timeout(10000);
-
     nockGetGitHubToken();
     nockGetTemporaryGitHubToken();
     nockGetTravisTokenAndUser();
