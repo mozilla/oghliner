@@ -1,10 +1,7 @@
-var promisify = require('promisify-node');
-
 var assert = require('assert');
 var path = require('path');
 var fse = require('fs-extra');
 var childProcess = require('child_process');
-var promptly = require('promptly');
 var temp = require('temp').track();
 
 var GitHub = require('github');
@@ -15,11 +12,6 @@ var github = new GitHub({
     'user-agent': 'Oghliner',
   },
 });
-
-promptly.prompt = promisify(promptly.prompt);
-promptly.password = promisify(promptly.password);
-
-process.chdir(temp.mkdirSync('oghliner'));
 
 var username = process.env.USER, password = process.env.PASS;
 
@@ -101,13 +93,23 @@ github.authenticate({
   password: password,
 });
 
-process.env.GH_TOKEN = username + ':' + password;
-
 describe('CLI interface, oghliner as a tool', function() {
   this.timeout(60000);
 
+  var oldWD = process.cwd();
+
   beforeEach(function() {
+    process.chdir(temp.mkdirSync('oghliner'));
+
+    process.env.GH_TOKEN = username + ':' + password;
+
     return deleteRepo();
+  });
+
+  afterEach(function() {
+    process.chdir(oldWD);
+
+    delete process.env['GH_TOKEN'];
   });
 
   it('should work', function() {
