@@ -47,17 +47,19 @@ function deleteRepo() {
 
 function getBranch() {
   return new Promise(function(resolve, reject) {
-    github.repos.getBranch({
-      user: username,
-      repo: 'test_oghliner_live',
-      branch: 'gh-pages',
-    }, function(err, res) {
-      if (err) {
-        reject(err);
-      } else {
-        resolve(res);
-      }
-    });
+    setTimeout(function() {
+      github.repos.getBranch({
+        user: username,
+        repo: 'test_oghliner_live',
+        branch: 'gh-pages',
+      }, function(err, res) {
+        if (err) {
+          reject(err);
+        } else {
+          resolve(res);
+        }
+      });
+    }, 3000);
   });
 }
 
@@ -122,6 +124,8 @@ describe('CLI interface, oghliner as a tool', function() {
     .then(() => spawn(path.join(path.dirname(__dirname), 'cli.js'), ['integrate', '.']))
     .then(() => spawn(path.join(path.dirname(__dirname), 'cli.js'), ['deploy', '.']))
     .then(getBranch)
+    .catch(getBranch)
+    .catch(getBranch)
     .then(function() {
       fse.readdirSync('.').forEach(function(file) {
         if (file === '.git') {
