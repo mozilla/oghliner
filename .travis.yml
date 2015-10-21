@@ -20,4 +20,4 @@ script:
   - gulp
   - gulp test
 after_success:
-  - 'echo "travis_fold:end:after_success" && [ "${TRAVIS_PULL_REQUEST}" = "false" ] && [ "${TRAVIS_BRANCH}" = "master" ] && echo "Deploying…" && gulp deploy'
+  - 'echo "travis_fold:end:after_success" && [ "${TRAVIS_PULL_REQUEST}" = "false" ] && [ "${TRAVIS_BRANCH}" = "master" ] && [ "${TRAVIS_NODE_VERSION}" = "0.12" ] && echo "Deploying…" && gulp deploy'
