@@ -12,4 +12,4 @@ script:
   - gulp
   - node node_modules/mocha/bin/mocha test
 after_success:
-  - '[ "${TRAVIS_PULL_REQUEST}" = "false" ] && [ "${TRAVIS_BRANCH}" = "master" ] && gulp deploy'
+  - 'echo "travis_fold:end:after_success" && [ "${TRAVIS_PULL_REQUEST}" = "false" ] && [ "${TRAVIS_BRANCH}" = "master" ] && echo "Deploying…" && gulp deploy'
