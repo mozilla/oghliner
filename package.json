@@ -52,7 +52,7 @@
     "sw-precache": "^2.0.0",
     "through2": "^2.0.0",
     "travis-ci": "^2.0.3",
-    "travis-encrypt": "^1.1.1",
+    "travis-encrypt": "https://github.com/marco-c/node-travis-encrypt/tarball/43d2309eee2c40c23ef48140afb2ad7d0f42f5ef",
     "write-yaml": "^0.2.1"
   },
   "devDependencies": {
