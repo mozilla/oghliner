@@ -46,6 +46,11 @@ function checkTravisYmlFile() {
   expect(travisYml.env).to.include.keys('global');
   expect(travisYml.env.global).to.have.length(1);
   expect(travisYml.env.global[0]).to.have.keys('secure');
+  expect(travisYml.after_success[0]).to.equal(
+    'echo "travis_fold:end:after_success" && ' +
+    '[ "${TRAVIS_PULL_REQUEST}" = "false" ] && [ "${TRAVIS_BRANCH}" = "master" ] && ' +
+    'echo "Deploying…" && gulp deploy'
+  );
 }
 
 describe('Configure', function() {
