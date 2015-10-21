@@ -27,34 +27,13 @@ describe('Integrate', function() {
     });
   });
 
-  it('should throw when the offline-manager.js script doesn\'t exist', function() {
-    fs.renameSync('app/scripts/offline-manager.js', 'app/scripts/offline-manager-temp.js');
-
-    function cleanup() {
-      fs.renameSync('app/scripts/offline-manager-temp.js', 'app/scripts/offline-manager.js');
-    }
-
-    var promise = integrate({
-      dir: temp.mkdirSync('tmp'),
-    })
-    .then(function() {
-      assert(false);
-    }, function() {
-      assert(true);
-    });
-
-    promise.then(cleanup, cleanup);
-
-    return promise;
-  });
-
   it('should copy the offline-manager.js script in the destination directory', function() {
     var dir = temp.mkdirSync('tmp');
 
     return integrate({
       dir: dir,
     }).then(function() {
-      var orig = fs.readFileSync('app/scripts/offline-manager.js');
+      var orig = fs.readFileSync('templates/app/scripts/offline-manager.js');
       var copied = fs.readFileSync(path.join(dir, 'offline-manager.js'));
       assert(orig.equals(copied), 'offline-manager.js successfully copied');
     });
