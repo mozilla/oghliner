@@ -19,6 +19,7 @@
 var connect = require('gulp-connect');
 var gulp = require('gulp');
 var mocha = require('gulp-mocha');
+var istanbul = require('gulp-istanbul');
 var argv = require('yargs').argv;
 var oghliner = require('./index.js');
 
@@ -30,14 +31,14 @@ gulp.task('build', function(callback) {
 
 gulp.task('configure', oghliner.configure);
 
-gulp.task('deploy', function(callback) {
-  oghliner.deploy({
+gulp.task('deploy', function() {
+  return oghliner.deploy({
     rootDir: 'dist',
-  }, callback);
+  });
 });
 
-gulp.task('offline', ['build'], function(callback) {
-  oghliner.offline({
+gulp.task('offline', ['build'], function() {
+  return oghliner.offline({
     rootDir: 'dist/',
     fileGlobs: [
       'images/**',
@@ -45,7 +46,7 @@ gulp.task('offline', ['build'], function(callback) {
       'scripts/**',
       'styles/**',
     ],
-  }, callback);
+  });
 });
 
 gulp.task('serve', function () {
@@ -54,8 +55,15 @@ gulp.task('serve', function () {
   });
 });
 
-gulp.task('test', function () {
+gulp.task('pre-test', function () {
+  return gulp.src(['lib/**/*.js'])
+    .pipe(istanbul({ includeUntested: true }))
+    .pipe(istanbul.hookRequire());
+});
+
+gulp.task('test', ['pre-test'], function () {
   return gulp.src(argv.file ? argv.file : 'test/test*.js', {read: false})
     // gulp-mocha needs filepaths so you can't have any plugins before it
-    .pipe(mocha());
+    .pipe(mocha())
+    .pipe(istanbul.writeReports());
 })

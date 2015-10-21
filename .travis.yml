@@ -20,6 +20,6 @@ before_script:
   - 'git config --global user.email "myk@mykzilla.org"'
 script:
   - gulp
-  - gulp test
+  - node node_modules/mocha/bin/mocha test
 after_success:
   - '[ "${TRAVIS_PULL_REQUEST}" = "false" ] && [ "${TRAVIS_BRANCH}" = "master" ] && gulp deploy'
