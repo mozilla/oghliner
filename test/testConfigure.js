@@ -56,7 +56,10 @@ describe('Configure', function() {
   }
 
   function emit(data) {
-    process.stdin.emit('data', data);
+    // Use setTimeout to avoid some racey behavior with prompt.
+    setTimeout(function() {
+      process.stdin.emit('data', data);
+    });
   }
 
   function complete() {
