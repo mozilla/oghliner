@@ -116,7 +116,7 @@ function spawn(command, args, expected) {
 }
 
 describe('CLI interface, oghliner as a tool', function() {
-  this.timeout(60000);
+  this.timeout(120000);
 
   var oldWD = process.cwd();
 
