@@ -12,44 +12,87 @@ var temp = promisify(require('temp').track());
 
 var configure = require('../lib/configure');
 
-function await(data) {
-  return new Promise(function(resolve, reject) {
-    var write = process.stdout.write;
-    var output = '';
+describe('Configure', function() {
+  var slug = 'mozilla/oghliner', user = 'mozilla', repo = 'oghliner';
+
+  var write = process.stdout.write;
+  var output;
+  var waitingArr;
+
+  before(function() {
     process.stdout.write = function(chunk, encoding, fd) {
       write.apply(process.stdout, arguments);
       output += chunk;
-      if (output.indexOf(data) !== -1) {
-        process.stdout.write = write;
-        resolve();
+      for (var i = 0; i < waitingArr.length; i++) {
+        var waitingData = waitingArr[i];
+
+        if (output.indexOf(waitingData.data) !== -1) {
+          output = output.substr(output.indexOf(waitingData.data) + waitingData.data.length);
+          waitingArr.splice(i, 1);
+          i--;
+          waitingData.fn();
+        }
       }
     };
   });
-}
 
-function emit(data) {
-  process.stdin.emit('data', data);
-}
+  after(function() {
+    process.stdout.write = write;
+  });
 
-function complete() {
-  return await('You\'re ready to auto-deploy using Travis!')
-  .then(checkTravisYmlFile);
-}
+  function await(data) {
+    return new Promise(function(resolve, reject) {
+      if (output.indexOf(data) !== -1) {
+        output = output.substr(output.indexOf(data) + data.length);
+        resolve();
+        return;
+      }
 
-function checkTravisYmlFile() {
-  var travisYml = readYaml.sync('.travis.yml');
-  expect(travisYml.language).to.equal('node_js');
-  expect(travisYml.node_js).to.deep.equal(['0.12']);
-  expect(travisYml.install).to.equal('npm install');
-  expect(travisYml.script).to.equal('gulp');
-  expect(travisYml).to.include.keys('env');
-  expect(travisYml.env).to.include.keys('global');
-  expect(travisYml.env.global).to.have.length(1);
-  expect(travisYml.env.global[0]).to.have.keys('secure');
-}
+      waitingArr.push({
+        data: data,
+        fn: resolve,
+      });
+    });
+  }
 
-describe('Configure', function() {
-  var slug = 'mozilla/oghliner', user = 'mozilla', repo = 'oghliner';
+  function emit(data) {
+    // Use setTimeout to avoid some racey behavior with prompt.
+    setTimeout(function() {
+      process.stdin.emit('data', data);
+    });
+  }
+
+  function complete() {
+    return await('You\'re ready to auto-deploy using Travis!')
+    .then(checkTravisYmlFile);
+  }
+
+  function checkTravisYmlFile() {
+    var travisYml = readYaml.sync('.travis.yml');
+    expect(travisYml.language).to.equal('node_js');
+    expect(travisYml.node_js).to.deep.equal(['0.12']);
+    expect(travisYml.install).to.equal('npm install');
+    expect(travisYml.script).to.equal('gulp');
+    expect(travisYml).to.include.keys('env');
+    expect(travisYml.env).to.include.keys('global');
+    expect(travisYml.env.global).to.have.length(1);
+    expect(travisYml.env.global[0]).to.have.keys('secure');
+    expect(travisYml.after_success[0]).to.equal(
+      'echo "travis_fold:end:after_success" && ' +
+      '[ "${TRAVIS_PULL_REQUEST}" = "false" ] && [ "${TRAVIS_BRANCH}" = "master" ] && ' +
+      'echo "Deploying…" && gulp deploy'
+    );
+  }
+
+  var oldSetTimeout = setTimeout;
+  before(function() {
+    setTimeout = function(func, timeout) {
+      oldSetTimeout(func, timeout / 100);
+    }
+  });
+  after(function() {
+    setTimeout = oldSetTimeout;
+  })
 
   var oldWd;
   beforeEach(function() {
@@ -58,6 +101,8 @@ describe('Configure', function() {
       process.chdir(dirPath);
       childProcess.execSync('git init');
       childProcess.execSync('git remote add origin https://github.com/mozilla/oghliner.git');
+      output = '';
+      waitingArr = [];
     });
   });
 
@@ -266,6 +311,18 @@ describe('Configure', function() {
     .reply(200, {"result":true});
   }
 
+  function nockRequestSyncButSyncAlreadyInProgress() {
+    return nock('https://api.travis-ci.org:443')
+    .post('/users/sync')
+    .reply(409, {"message":"Sync already in progress. Try again later."});
+  }
+
+  function nockRequestSyncFakeError() {
+    return nock('https://api.travis-ci.org:443')
+    .post('/users/sync')
+    .reply(500, {"message":"This error was made up for testing purposes."});
+  }
+
   function nockGetTravisUser() {
     return nock('https://api.travis-ci.org:443')
     .get('/users')
@@ -453,11 +510,6 @@ describe('Configure', function() {
   });
 
   it('syncs Travis with GitHub', function() {
-    // After Oghliner tells Travis to sync with GitHub, it waits five seconds
-    // before checking the status of the sync, so we need to increase the test
-    // timeout to accommodate the delay.
-    this.timeout(10000);
-
     nockGetGitHubToken();
     nockGetTemporaryGitHubToken();
     nockGetTravisTokenAndUser();
@@ -478,6 +530,108 @@ describe('Configure', function() {
     .then(function() {
       return await('Waiting for Travis to finish syncing…');
     })
+    .then(complete);
+  });
+
+  it('syncs Travis with GitHub, but sync was already in progress', function() {
+    nockGetGitHubToken();
+    nockGetTemporaryGitHubToken();
+    nockGetTravisTokenAndUser();
+    nockDeleteTemporaryGitHubToken();
+    nockGetHooksIsMissingRepo();
+    nockRequestSyncButSyncAlreadyInProgress();
+    nockGetTravisUserIsSyncing();
+    nockGetTravisUser();
+    nockGetHooks();
+    nockGetTravisKey();
+
+    configure();
+
+    return enterUsernamePassword()
+    .then(complete);
+  });
+
+  it('syncs Travis with GitHub, but sync was already in progress and is taking some time', function() {
+    nockGetGitHubToken();
+    nockGetTemporaryGitHubToken();
+    nockGetTravisTokenAndUser();
+    nockDeleteTemporaryGitHubToken();
+    nockGetHooksIsMissingRepo();
+    nockRequestSyncButSyncAlreadyInProgress();
+    nockGetTravisUserIsSyncing();
+    nockGetTravisUserIsSyncing();
+    nockGetTravisUser();
+    nockGetHooks();
+    nockGetTravisKey();
+
+    configure();
+
+    return enterUsernamePassword()
+    .then(complete);
+  });
+
+  it('syncs Travis with GitHub, sync was already in progress but finished before we checked and the repo is not found', function() {
+    nockGetGitHubToken();
+    nockGetTemporaryGitHubToken();
+    nockGetTravisTokenAndUser();
+    nockDeleteTemporaryGitHubToken();
+    nockGetHooksIsMissingRepo();
+    nockRequestSyncButSyncAlreadyInProgress();
+    nockGetTravisUser();
+    nockGetHooksIsMissingRepo();
+
+    var promise = configure();
+
+    enterUsernamePassword();
+
+    return promise
+    .then(function() {
+      assert(false, 'Configure should fail.');
+    }, function(err) {
+      assert(true, 'Configure should fail.');
+      assert.equal(err.message, 'Sync already in progress. Try again later.', 'Configure fails with the error thrown by travis.users.sync.post');
+    });
+  });
+
+  it('generic error while syncing with Travis', function() {
+    nockGetGitHubToken();
+    nockGetTemporaryGitHubToken();
+    nockGetTravisTokenAndUser();
+    nockDeleteTemporaryGitHubToken();
+    nockGetHooksIsMissingRepo();
+    nockRequestSyncFakeError();
+    nockGetTravisUser();
+    nockGetHooksIsMissingRepo();
+
+    var promise = configure();
+
+    enterUsernamePassword();
+
+    return promise
+    .then(function() {
+      assert(false, 'Configure should fail.');
+    }, function(err) {
+      assert(true, 'Configure should fail.');
+      assert.equal(err.message, 'This error was made up for testing purposes.', 'Configure fails with the error thrown by travis.users.sync.post');
+    });
+  });
+
+  it('syncs Travis with GitHub, sync was already in progress but finished before we checked and the repo is found', function() {
+    nockGetGitHubToken();
+    nockGetTemporaryGitHubToken();
+    nockGetTravisTokenAndUser();
+    nockDeleteTemporaryGitHubToken();
+    nockGetHooksIsMissingRepo();
+    nockRequestSyncButSyncAlreadyInProgress();
+    nockGetTravisUser();
+    nockGetHooks();
+    nockGetTravisUser();
+    nockGetHooks();
+    nockGetTravisKey();
+
+    configure();
+
+    return enterUsernamePassword()
     .then(complete);
   });
 

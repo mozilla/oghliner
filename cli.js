@@ -24,13 +24,8 @@ var promisify = require("promisify-node");
 var packageJson = require('./package.json');
 var program = require('commander');
 var rimraf = promisify(require('rimraf'));
-var promptly = require('promptly');
+var promptly = require('promisified-promptly');
 var fs = require('fs');
-
-// promisify should be able to wrap the entire promptly API
-// via promisify(promptly), but that doesn't seem to work
-// with 'confirm'.
-promptly.confirm = promisify(promptly.confirm);
 
 // The scripts that implement the various commands/tasks we expose.
 var configure = require('./lib/configure');
