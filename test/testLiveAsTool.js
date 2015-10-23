@@ -1,7 +1,9 @@
 var assert = require('assert');
+var expect = require('chai').expect;
 var path = require('path');
 var fse = require('fs-extra');
 var childProcess = require('child_process');
+var readYaml = require('read-yaml');
 var temp = require('temp').track();
 
 var GitHub = require('github');
@@ -68,7 +70,7 @@ function getBranch() {
   });
 }
 
-function spawn(command, args) {
+function spawn(command, args, expected) {
   return new Promise(function(resolve, reject) {
     var child = childProcess.spawn(command, args);
 
@@ -79,6 +81,25 @@ function spawn(command, args) {
     child.stderr.on('data', function(chunk) {
       process.stderr.write(chunk);
     });
+
+    if (expected) {
+      var output = '';
+      var nextExpected = expected.shift();
+
+      child.stdout.on('data', function(chunk) {
+        output += chunk.toString();
+
+        if (nextExpected && output.indexOf(nextExpected.q) != -1) {
+          child.stdin.write(nextExpected.r + '\n');
+          if (expected.length > 0) {
+            nextExpected = expected.shift();
+            output = '';
+          } else {
+            nextExpected = null;
+          }
+        }
+      });
+    }
 
     child.on('exit', function(code, signal) {
       if (code === 0) {
@@ -131,6 +152,32 @@ describe('CLI interface, oghliner as a tool', function() {
     .then(getBranch)
     .catch(getBranch)
     .catch(getBranch)
+    .then(() => spawn(path.join(path.dirname(__dirname), 'cli.js'), ['configure'], [
+      {
+        q: 'Username: ',
+        r: username,
+      },
+      {
+        q: 'Password: ',
+        r: password,
+      },
+    ]))
+    .then(function() {
+      var travisYml = readYaml.sync('.travis.yml');
+      expect(travisYml.language).to.equal('node_js');
+      expect(travisYml.node_js).to.deep.equal(['0.12']);
+      expect(travisYml.install).to.equal('npm install');
+      expect(travisYml.script).to.equal('gulp');
+      expect(travisYml).to.include.keys('env');
+      expect(travisYml.env).to.include.keys('global');
+      expect(travisYml.env.global).to.have.length(1);
+      expect(travisYml.env.global[0]).to.have.keys('secure');
+      expect(travisYml.after_success[0]).to.equal(
+        'echo "travis_fold:end:after_success" && ' +
+        '[ "${TRAVIS_PULL_REQUEST}" = "false" ] && [ "${TRAVIS_BRANCH}" = "master" ] && ' +
+        'echo "Deploying…" && gulp deploy'
+      );
+    })
     .then(function() {
       fse.readdirSync('.').forEach(function(file) {
         if (file === '.git') {
