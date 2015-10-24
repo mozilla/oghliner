@@ -8,6 +8,8 @@ var expect = require('chai').expect;
 var childProcess = require('child_process');
 var nock = require('nock');
 var readYaml = require('read-yaml');
+var writeYaml = require('write-yaml');
+var fs = require('fs');
 var temp = promisify(require('temp').track());
 
 var configure = require('../lib/configure');
@@ -77,6 +79,8 @@ describe('Configure', function() {
     expect(travisYml.env).to.include.keys('global');
     expect(travisYml.env.global).to.have.length(1);
     expect(travisYml.env.global[0]).to.have.keys('secure');
+    expect(travisYml.before_script).to.have.length(2);
+    expect(travisYml.after_success).to.have.length(1);
     expect(travisYml.after_success[0]).to.equal(
       'echo "travis_fold:end:after_success" && ' +
       '[ "${TRAVIS_PULL_REQUEST}" = "false" ] && [ "${TRAVIS_BRANCH}" = "master" ] && ' +
@@ -633,6 +637,128 @@ describe('Configure', function() {
 
     return enterUsernamePassword()
     .then(complete);
+  });
+
+  it('does not overwrite "language", "node_js", "install" and "script" in an already existing .travis.yml file', function() {
+    nockBasicPostAuthFlow();
+    configure();
+
+    writeYaml.sync('.travis.yml', {
+      language: 'c',
+      node_js: [ '4.2' ],
+      install: 'run something 1',
+      script: 'run something 2',
+    });
+
+    return enterUsernamePassword()
+    .then(function() {
+      return await('You\'re ready to auto-deploy using Travis!');
+    })
+    .then(function() {
+      var travisYml = readYaml.sync('.travis.yml');
+      expect(travisYml.language).to.equal('c');
+      expect(travisYml.node_js).to.deep.equal(['4.2']);
+      expect(travisYml.install).to.equal('run something 1');
+      expect(travisYml.script).to.equal('run something 2');
+    });
+  });
+
+  it('does not remove environment variables in an already existing .travis.yml file', function() {
+    nockBasicPostAuthFlow();
+    configure();
+
+    writeYaml.sync('.travis.yml', {
+      env: {
+        global: [ 'ENV_GLOBAL' ],
+        matrix: [ 'ENV_MATRIX' ],
+      },
+    });
+
+    return enterUsernamePassword()
+    .then(function() {
+      return await('You\'re ready to auto-deploy using Travis!');
+    })
+    .then(function() {
+      var travisYml = readYaml.sync('.travis.yml');
+      expect(travisYml).to.include.keys('env');
+      expect(travisYml.env).to.include.keys('global');
+      expect(travisYml.env).to.include.keys('matrix');
+      expect(travisYml.env.global).to.have.length(2);
+      expect(travisYml.env.global[0]).to.equal('ENV_GLOBAL');
+      expect(travisYml.env.global[1]).to.have.keys('secure');
+      expect(travisYml.env.matrix).to.have.length(1);
+      expect(travisYml.env.matrix[0]).to.equal('ENV_MATRIX');
+    });
+  });
+
+  it('does not remove "before_script" in an already existing .travis.yml file', function() {
+    nockBasicPostAuthFlow();
+    configure();
+
+    writeYaml.sync('.travis.yml', {
+      before_script: [
+        'a_command',
+      ],
+    });
+
+    return enterUsernamePassword()
+    .then(function() {
+      return await('You\'re ready to auto-deploy using Travis!');
+    })
+    .then(function() {
+      var travisYml = readYaml.sync('.travis.yml');
+      expect(travisYml.before_script).to.have.length(3);
+      expect(travisYml.before_script[0]).to.equal('a_command');
+    });
+  });
+
+  it('does not overwrite "before_script" in an already existing .travis.yml file', function() {
+    nockBasicPostAuthFlow();
+    configure();
+
+    writeYaml.sync('.travis.yml', {
+      before_script: [
+        'git config --global user.name "A User"',
+        'git config --global user.email "a_user@mozilla.org"',
+      ],
+    });
+
+    return enterUsernamePassword()
+    .then(function() {
+      return await('You\'re ready to auto-deploy using Travis!');
+    })
+    .then(function() {
+      var travisYml = readYaml.sync('.travis.yml');
+      expect(travisYml.before_script).to.have.length(2);
+      expect(travisYml.before_script[0]).to.equal('git config --global user.name "A User"');
+      expect(travisYml.before_script[1]).to.equal('git config --global user.email "a_user@mozilla.org"');
+    });
+  });
+
+  it('does not remove "after_success" in an already existing .travis.yml file', function() {
+    nockBasicPostAuthFlow();
+    configure();
+
+    writeYaml.sync('.travis.yml', {
+      after_success: [
+        'a_command'
+      ]
+    });
+
+    return enterUsernamePassword()
+    .then(function() {
+      return await('You\'re ready to auto-deploy using Travis!');
+    })
+    .then(function() {
+      var travisYml = readYaml.sync('.travis.yml');
+      expect(travisYml.after_success).to.have.length(2);
+      expect(travisYml.after_success[0]).to.equal('a_command');
+      expect(travisYml.after_success[1]).to.equal(
+        'echo "travis_fold:end:after_success" && ' +
+        '[ "${TRAVIS_PULL_REQUEST}" = "false" ] && [ "${TRAVIS_BRANCH}" = "master" ] && ' +
+        'echo "Deploying…" && gulp deploy'
+      );
+    });
   });
 
   afterEach(function() {
