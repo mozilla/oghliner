@@ -144,15 +144,15 @@ describe('CLI interface, oghliner as a tool', function() {
 
   it('should work', function() {
     return createRepo()
-    .then(() => spawn('git', ['clone', 'https://' + username + ':' + password + '@github.com/' + username + '/test_oghliner_live']))
-    .then(() => process.chdir('test_oghliner_live'))
-    .then(() => spawn(path.join(path.dirname(__dirname), 'cli.js'), ['offline', '.']))
-    .then(() => spawn(path.join(path.dirname(__dirname), 'cli.js'), ['integrate', '.']))
-    .then(() => spawn(path.join(path.dirname(__dirname), 'cli.js'), ['deploy', '.']))
+    .then(spawn.bind(null, 'git', ['clone', 'https://' + username + ':' + password + '@github.com/' + username + '/test_oghliner_live']))
+    .then(process.chdir.bind(null, 'test_oghliner_live'))
+    .then(spawn.bind(null, path.join(path.dirname(__dirname), 'cli.js'), ['offline', '.']))
+    .then(spawn.bind(null, path.join(path.dirname(__dirname), 'cli.js'), ['integrate', '.']))
+    .then(spawn.bind(null, path.join(path.dirname(__dirname), 'cli.js'), ['deploy', '.']))
     .then(getBranch)
     .catch(getBranch)
     .catch(getBranch)
-    .then(() => spawn(path.join(path.dirname(__dirname), 'cli.js'), ['configure'], [
+    .then(spawn.bind(null, path.join(path.dirname(__dirname), 'cli.js'), ['configure'], [
       {
         q: 'Username: ',
         r: username,
@@ -187,11 +187,11 @@ describe('CLI interface, oghliner as a tool', function() {
         fse.removeSync(file);
       });
     })
-    .then(() => spawn('git', ['checkout', '-b', 'gh-pages']))
-    .then(() => spawn('git', ['pull', 'origin', 'gh-pages']))
+    .then(spawn.bind(null, 'git', ['checkout', '-b', 'gh-pages']))
+    .then(spawn.bind(null, 'git', ['pull', 'origin', 'gh-pages']))
     .then(function() {
-      assert.doesNotThrow(() => fse.statSync('offline-manager.js'));
-      assert.doesNotThrow(() => fse.statSync('offline-worker.js'));
+      assert.doesNotThrow(fse.statSync.bind(fse, 'offline-manager.js'));
+      assert.doesNotThrow(fse.statSync.bind(fse, 'offline-worker.js'));
     });
   });
 });
