@@ -9,7 +9,6 @@ var childProcess = require('child_process');
 var nock = require('nock');
 var readYaml = require('read-yaml');
 var writeYaml = require('write-yaml');
-var fs = require('fs');
 var temp = promisify(require('temp').track());
 
 var configure = require('../lib/configure');
