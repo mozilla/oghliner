@@ -116,7 +116,7 @@ function spawn(command, args, expected) {
 }
 
 describe('CLI interface, oghliner as a tool', function() {
-  this.timeout(120000);
+  this.timeout(0);
 
   var oldWD = process.cwd();
 
@@ -146,13 +146,18 @@ describe('CLI interface, oghliner as a tool', function() {
     return createRepo()
     .then(spawn.bind(null, 'git', ['clone', 'https://' + username + ':' + password + '@github.com/' + username + '/test_oghliner_live']))
     .then(process.chdir.bind(null, 'test_oghliner_live'))
-    .then(spawn.bind(null, path.join(path.dirname(__dirname), 'cli.js'), ['offline', '.']))
-    .then(spawn.bind(null, path.join(path.dirname(__dirname), 'cli.js'), ['integrate', '.']))
-    .then(spawn.bind(null, path.join(path.dirname(__dirname), 'cli.js'), ['deploy', '.']))
+    .then(spawn.bind(null, 'npm', ['install', path.dirname(__dirname)]))
+    .then(function() {
+      fse.mkdirSync('dist');
+    })
+    .then(fse.writeFileSync.bind(fse, 'dist/index.html', '<html></html>'))
+    .then(spawn.bind(null, path.join('node_modules', '.bin', 'oghliner'), ['offline', 'dist']))
+    .then(spawn.bind(null, path.join('node_modules', '.bin', 'oghliner'), ['integrate', 'dist']))
+    .then(spawn.bind(null, path.join('node_modules', '.bin', 'oghliner'), ['deploy', 'dist']))
     .then(getBranch)
     .catch(getBranch)
     .catch(getBranch)
-    .then(spawn.bind(null, path.join(path.dirname(__dirname), 'cli.js'), ['configure'], [
+    .then(spawn.bind(null, path.join('node_modules', '.bin', 'oghliner'), ['configure'], [
       {
         q: 'Username: ',
         r: username,
