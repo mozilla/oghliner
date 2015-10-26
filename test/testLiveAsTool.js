@@ -133,7 +133,10 @@ describe('CLI interface, oghliner as a tool', function() {
 
     process.env.GH_TOKEN = username + ':' + password;
 
-    return deleteRepo();
+    return deleteRepo()
+    .catch(function() {
+      // Ignore error if the repo doesn't exist.
+    });
   });
 
   afterEach(function() {
