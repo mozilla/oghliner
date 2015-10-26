@@ -168,9 +168,11 @@ describe('CLI interface, oghliner as a template', function() {
       assert.doesNotThrow(fse.statSync.bind(fse, 'dist'));
     })
     .then(spawn.bind(null, path.join('node_modules', '.bin', 'gulp'), ['deploy']))
-    .then(getBranch)
-    .catch(getBranch)
-    .catch(getBranch)
+    .then(function() {
+      getBranch()
+      .catch(getBranch)
+      .catch(getBranch)
+    })
     .then(spawn.bind(null, path.join('node_modules', '.bin', 'oghliner'), ['configure'], [
       {
         q: 'Username: ',
