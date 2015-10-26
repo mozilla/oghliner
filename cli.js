@@ -111,7 +111,8 @@ program
     })
     .catch(function(err) {
       console.error(err);
-    });
+    })
+    .then(process.exit);
   });
 
   program
