@@ -165,7 +165,7 @@ describe('CLI interface, oghliner as a template', function() {
     })
     .then(spawn.bind(null, 'git', ['add', '*']))
     .then(spawn.bind(null, 'git', ['commit', '-m', 'First commit']))
-    .then(spawn.bind(null, path.join('node_modules', '.bin', 'gulp')))
+    .then(spawn.bind(null, path.join('node_modules', '.bin', 'gulp'), []))
     .then(function() {
       assert.doesNotThrow(fse.statSync.bind(fse, 'dist'));
     })
