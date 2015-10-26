@@ -154,9 +154,11 @@ describe('CLI interface, oghliner as a tool', function() {
     .then(spawn.bind(null, path.join('node_modules', '.bin', 'oghliner'), ['offline', 'dist']))
     .then(spawn.bind(null, path.join('node_modules', '.bin', 'oghliner'), ['integrate', 'dist']))
     .then(spawn.bind(null, path.join('node_modules', '.bin', 'oghliner'), ['deploy', 'dist']))
-    .then(getBranch)
-    .catch(getBranch)
-    .catch(getBranch)
+    .then(function() {
+      return getBranch()
+      .catch(getBranch)
+      .catch(getBranch)
+    })
     .then(spawn.bind(null, path.join('node_modules', '.bin', 'oghliner'), ['configure'], [
       {
         q: 'Username: ',
