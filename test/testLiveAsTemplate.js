@@ -155,7 +155,7 @@ describe('CLI interface, oghliner as a template', function() {
     .then(function() {
       assert.doesNotThrow(fse.statSync.bind(fse, 'README.md'));
       assert.doesNotThrow(fse.statSync.bind(fse, 'app'));
-      var packageJson = JSON.parse(fs.readFileSync('', 'utf8'));
+      var packageJson = JSON.parse(fs.readFileSync('package.json', 'utf8'));
       expect(packageJson.name).to.equal('oghliner-template-app');
       expect(packageJson.license).to.equal('Apache-2.0');
       expect(packageJson).to.include.keys('version');
