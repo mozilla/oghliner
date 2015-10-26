@@ -171,7 +171,7 @@ describe('CLI interface, oghliner as a template', function() {
     })
     .then(spawn.bind(null, path.join('node_modules', '.bin', 'gulp'), ['deploy']))
     .then(function() {
-      getBranch()
+      return getBranch()
       .catch(getBranch)
       .catch(getBranch)
     })
