@@ -1,6 +1,5 @@
-importScripts('./lib/offliner/dist/offliner.min.js');
-importScripts('./lib/offliner/dist/offliner-fetchers.js');
-importScripts('./lib/offliner/dist/offliner-sources.js');
+importScripts('./scripts/offliner/offliner.js');
+importScripts('./scripts/offliner/middlewares.js');
 
 var offliner = new off.Offliner("<%= name %>");
 
@@ -12,5 +11,8 @@ offliner.fetch
   .use(off.sources.cache)
   .use(off.sources.network)
   .orFail();
+
+offliner.update
+  .use(off.updaters.reinstall);
 
 offliner.standalone();
