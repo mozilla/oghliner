@@ -1,6 +1,6 @@
 {
   "name": "oghliner",
-  "version": "0.9.2",
+  "version": "0.9.3",
   "description": "template and tool for deploying Offline Web Apps to GitHub Pages",
   "main": "index.js",
   "scripts": {
