@@ -7,6 +7,26 @@ var ghslug = promisify(require('github-slug'));
 var rewire = require('rewire');
 var offline = rewire('../lib/offline');
 
+function checkWrite(expected) {
+  return new Promise(function(resolve, reject) {
+    var nextExpected = expected.shift();
+
+    var output = '';
+    write = process.stdout.write;
+    process.stdout.write = function(chunk, encoding, fd) {
+      write.apply(process.stdout, arguments);
+      output += chunk;
+      if (output.indexOf(nextExpected) !== -1) {
+        nextExpected = expected.shift();
+        if (!nextExpected) {
+          process.stdout.write = write;
+          resolve();
+        }
+      }
+    };
+  });
+}
+
 describe('Offline', function() {
   var oldWd = process.cwd();
 
@@ -186,7 +206,13 @@ describe('Offline', function() {
 
     process.chdir(rootDir);
 
-    return offline({
+    var checkWarnings = checkWrite([
+      'test_file_1.js is bigger than 2 MiB',
+      'test_file_2.js is bigger than 2 MiB',
+      'test_file_3.js is bigger than 2 MiB',
+    ]);
+
+    var offlinePromise = offline({
       rootDir: dir,
     }).then(function() {
       var content = fs.readFileSync(path.join(dir, 'offline-worker.js'), 'utf8');
@@ -194,6 +220,8 @@ describe('Offline', function() {
       assert.notEqual(content.indexOf('test_file_2.js'), -1);
       assert.notEqual(content.indexOf('test_file_3.js'), -1);
     });
+
+    return Promise.all([ checkWarnings, offlinePromise ]);
   });
 
   it('should not cache excluded files', function() {
@@ -201,13 +229,20 @@ describe('Offline', function() {
     var dir = path.join(rootDir, 'dist');
     fs.mkdirSync(dir);
 
-    fs.writeFileSync(path.join(dir, 'test_file_1.js'), 'test_file_1');
-    fs.writeFileSync(path.join(dir, 'test_file_2.js'), 'test_file_2');
-    fs.writeFileSync(path.join(dir, 'test_file_3.js'), 'test_file_3');
+    var content = new Buffer(4 * 1024 * 1024);
+
+    fs.writeFileSync(path.join(dir, 'test_file_1.js'), content);
+    fs.writeFileSync(path.join(dir, 'test_file_2.js'), content);
+    fs.writeFileSync(path.join(dir, 'test_file_3.js'), content);
 
     process.chdir(rootDir);
 
-    return offline({
+    var checkWarnings = checkWrite([
+      'test_file_2.js is bigger than 2 MiB',
+      'test_file_3.js is bigger than 2 MiB',
+    ]);
+
+    var offlinePromise = offline({
       rootDir: dir,
       fileGlobs: [
         '!(test_file_1.js)',
@@ -218,5 +253,7 @@ describe('Offline', function() {
       assert.notEqual(content.indexOf('test_file_2.js'), -1);
       assert.notEqual(content.indexOf('test_file_3.js'), -1);
     });
+
+    return Promise.all([ checkWarnings, offlinePromise ]);
   });
 });
