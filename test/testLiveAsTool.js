@@ -120,18 +120,42 @@ describe('CLI interface, oghliner as a tool', function() {
 
   var oldWD = process.cwd();
 
-  before(function() {
+  var githubToken, githubTokenId;
+
+  before(function(done) {
     github.authenticate({
       type: 'basic',
       username: username,
       password: password,
+    });
+
+    github.authorization.create({
+      scopes: ['repo', 'public_repo'],
+      note: 'test',
+      note_url: 'http://www.test.org',
+      headers: process.env.OTP_CODE ? { 'X-GitHub-OTP': process.env.OTP_CODE } : {},
+    }, function(err, res) {
+      if (err) {
+        done(err);
+        return;
+      }
+
+      githubToken = res.token;
+      githubTokenId = res.id;
+
+      github.authenticate({
+        type: 'oauth',
+        token: githubToken
+      });
+
+      done();
     });
   });
 
   beforeEach(function() {
     process.chdir(temp.mkdirSync('oghliner'));
 
-    process.env.GH_TOKEN = username + ':' + password;
+    process.env.GH_TOKEN = username + ':' + githubToken;
 
     return deleteRepo()
     .catch(function() {
@@ -139,15 +163,20 @@ describe('CLI interface, oghliner as a tool', function() {
     });
   });
 
-  afterEach(function() {
+  afterEach(function(done) {
     process.chdir(oldWD);
 
     delete process.env['GH_TOKEN'];
+
+    github.authorization.delete({
+      id: githubTokenId,
+      headers: process.env.OTP_CODE ? { 'X-GitHub-OTP': process.env.OTP_CODE } : {},
+    }, done);
   });
 
   it('should work', function() {
     return createRepo()
-    .then(spawn.bind(null, 'git', ['clone', 'https://' + username + ':' + password + '@github.com/' + username + '/test_oghliner_live']))
+    .then(spawn.bind(null, 'git', ['clone', 'https://' + username + ':' + githubToken + '@github.com/' + username + '/test_oghliner_live']))
     .then(process.chdir.bind(null, 'test_oghliner_live'))
     .then(spawn.bind(null, 'npm', ['install', path.dirname(__dirname)]))
     .then(function() {
@@ -171,6 +200,10 @@ describe('CLI interface, oghliner as a tool', function() {
         q: 'Password: ',
         r: password,
       },
+      {
+        q: 'Auth Code: ',
+        r: process.env.OTP_CODE,
+      }
     ]))
     .then(function() {
       var travisYml = readYaml.sync('.travis.yml');
