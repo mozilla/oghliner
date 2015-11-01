@@ -172,4 +172,27 @@ describe('Offline', function() {
       assert.notEqual(content.indexOf('test_file_3.js'), -1);
     });
   });
+
+  it('should cache large files', function() {
+    var rootDir = temp.mkdirSync('oghliner');
+    var dir = path.join(rootDir, 'dist');
+    fs.mkdirSync(dir);
+
+    var content = new Buffer(4 * 1024 * 1024);
+
+    fs.writeFileSync(path.join(dir, 'test_file_1.js'), content);
+    fs.writeFileSync(path.join(dir, 'test_file_2.js'), content);
+    fs.writeFileSync(path.join(dir, 'test_file_3.js'), content);
+
+    process.chdir(rootDir);
+
+    return offline({
+      rootDir: dir,
+    }).then(function() {
+      var content = fs.readFileSync(path.join(dir, 'offline-worker.js'), 'utf8');
+      assert.notEqual(content.indexOf('test_file_1.js'), -1);
+      assert.notEqual(content.indexOf('test_file_2.js'), -1);
+      assert.notEqual(content.indexOf('test_file_3.js'), -1);
+    });
+  });
 });
