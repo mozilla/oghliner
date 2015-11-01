@@ -24,12 +24,15 @@ var promisify = require("promisify-node");
 var packageJson = require('./package.json');
 var program = require('commander');
 var rimraf = promisify(require('rimraf'));
+var promptly = require('promisified-promptly');
+var fs = require('fs');
 
 // The scripts that implement the various commands/tasks we expose.
 var configure = require('./lib/configure');
 var deploy = require('./lib/deploy');
 var offline = require('./lib/offline');
 var bootstrap = require('./lib/bootstrap');
+var integrate = require('./lib/integrate');
 
 program
   .version(packageJson.version);
@@ -47,15 +50,35 @@ program
 program
   .command('deploy [dir]')
   .description('deploy directory to GitHub Pages')
-  .action(function(dir) {
+  .option('-m, --message <message>', 'commit message')
+  .action(function(dir, options) {
     deploy({
       rootDir: dir,
       cloneDir: '.gh-pages-cache',
+      message: options.message,
     })
     .then(function() {
       // For perf, don't delete the repository.  This means users will have to
       // add .gh-pages-cache to their .gitignore file to hide its `git status`.
       // return rimraf('.gh-pages-cache');
+
+      fs.access('.gitignore', function(err) {
+        if (err) {
+          console.log('.gh-pages-cache is a temporary repository that we use to push changes to your gh-pages branch. We suggest you add it to your .gitignore.');
+          return;
+        }
+
+        var gitignore = fs.readFileSync('.gitignore', 'utf8');
+
+        if (gitignore.indexOf('.gh-pages-cache') === -1) {
+          return promptly.confirm('.gh-pages-cache is a temporary repository that we use to push changes to your gh-pages branch. Do you want to add it to .gitignore?').then(function(answer) {
+            if (answer) {
+              gitignore += '\n.gh-pages-cache\n';
+              fs.writeFileSync('.gitignore', gitignore);
+            }
+          });
+        }
+      });
     })
     .catch(function(err) {
       console.error(err);
@@ -89,6 +112,18 @@ program
       console.error(err);
     });
   });
+
+  program
+    .command('integrate [dir]')
+    .description('integrate the offline-manager.js script into your app')
+    .action(function(dir) {
+      integrate({
+        dir: dir,
+      })
+      .catch(function(err) {
+        console.error(err);
+      });
+    });
 
 program.parse(process.argv);
 
