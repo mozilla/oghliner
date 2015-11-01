@@ -7,20 +7,33 @@ var ghslug = promisify(require('github-slug'));
 var rewire = require('rewire');
 var offline = rewire('../lib/offline');
 
-function checkWrite(expected) {
+function checkWrite(expected, unexpected, end) {
   return new Promise(function(resolve, reject) {
     var nextExpected = expected.shift();
+    var nextUnexpected = unexpected.shift();
 
     var output = '';
     write = process.stdout.write;
     process.stdout.write = function(chunk, encoding, fd) {
       write.apply(process.stdout, arguments);
       output += chunk;
-      if (output.indexOf(nextExpected) !== -1) {
+
+      if (nextExpected && output.indexOf(nextExpected) !== -1) {
         nextExpected = expected.shift();
+      }
+
+      if (nextUnexpected && output.indexOf(nextUnexpected) !== -1) {
+        process.stdout.write = write;
+        reject(new Error('Unexpected warning (' + nextUnexpected + ') has been printed'));
+        return;
+      }
+
+      if (output.indexOf(end) !== -1) {
+        process.stdout.write = write;
         if (!nextExpected) {
-          process.stdout.write = write;
           resolve();
+        } else {
+          reject(new Error('Expected warning (' + nextExpected + ') hasn\'t been printed'));
         }
       }
     };
@@ -210,7 +223,7 @@ describe('Offline', function() {
       'test_file_1.js is bigger than 2 MiB',
       'test_file_2.js is bigger than 2 MiB',
       'test_file_3.js is bigger than 2 MiB',
-    ]);
+    ], [], 'Total precache size');
 
     var offlinePromise = offline({
       rootDir: dir,
@@ -240,7 +253,9 @@ describe('Offline', function() {
     var checkWarnings = checkWrite([
       'test_file_2.js is bigger than 2 MiB',
       'test_file_3.js is bigger than 2 MiB',
-    ]);
+    ], [
+      'test_file_1.js is bigger than 2 MiB',
+    ], 'Total precache size');
 
     var offlinePromise = offline({
       rootDir: dir,
