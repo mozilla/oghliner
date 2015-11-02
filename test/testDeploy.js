@@ -50,6 +50,45 @@ describe('Deploy', function() {
     });
   });
 
+  it('should create a gh-pages branch in the origin repo and publish only the specified files to it', function(done) {
+    var dir = temp.mkdirSync('oghliner');
+
+    var simpleGit = require('simple-git')(dir);
+
+    simpleGit.init(function() {
+      fs.writeFileSync(path.join(dir, 'file1'), 'data');
+      fs.writeFileSync(path.join(dir, 'file2'), 'data');
+
+      return simpleGit.add('file1')
+                      .add('file2')
+                      .commit('Initial commit')
+                      .addRemote('origin', dir, function() {
+        process.chdir(dir);
+
+        return deploy({
+          cloneDir: '.gh-pages-cache',
+          fileGlobs: ['file1'],
+        }).then(function() {
+          process.chdir(oldWD);
+
+          return simpleGit.checkout('gh-pages').log(function(err, log) {
+            try {
+              assert.equal(log.total, 1, '1 commit');
+              assert.equal(fs.readFileSync(path.join(dir, 'file1'), 'utf8'), 'data');
+              assert.throws(fs.statSync.bind(fs, path.join(dir, 'file2')), 'file2 isn\'t deployed');
+              done();
+            } catch (e) {
+              done(e);
+            }
+          });
+        }, function(e) {
+          console.log(e);
+          assert(false, 'Deploy\'s promise should be resolved');
+        }).catch(done);
+      });
+    });
+  });
+
   it('should update the gh-pages branch in the origin repo and publish files to it', function(done) {
     var dir = temp.mkdirSync('oghliner');
 
