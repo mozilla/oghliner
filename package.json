@@ -1,6 +1,6 @@
 {
   "name": "oghliner",
-  "version": "0.9.2",
+  "version": "0.9.3",
   "description": "template and tool for deploying Offline Web Apps to GitHub Pages",
   "main": "index.js",
   "scripts": {
@@ -44,14 +44,14 @@
     "gulp-rename": "^1.2.2",
     "gulp-template": "^3.0.0",
     "gulp-util": "^3.0.6",
-    "promisify-node": "^0.2.1",
     "promisified-promptly": "^1.0.0",
+    "promisify-node": "^0.2.1",
     "read-yaml": "^1.0.0",
     "rimraf": "^2.4.3",
     "sw-precache": "^2.0.0",
     "through2": "^2.0.0",
     "travis-ci": "^2.0.3",
-    "travis-encrypt": "https://github.com/marco-c/node-travis-encrypt/tarball/43d2309eee2c40c23ef48140afb2ad7d0f42f5ef",
+    "travis-encrypt": "^1.1.2",
     "write-yaml": "^0.2.1"
   },
   "devDependencies": {
