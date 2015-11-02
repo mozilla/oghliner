@@ -271,4 +271,40 @@ describe('Offline', function() {
 
     return Promise.all([ checkWarnings, offlinePromise ]);
   });
+
+  it('should not warn about explicitely included files', function() {
+    var rootDir = temp.mkdirSync('oghliner');
+    var dir = path.join(rootDir, 'dist');
+    fs.mkdirSync(dir);
+
+    var content = new Buffer(4 * 1024 * 1024);
+
+    fs.writeFileSync(path.join(dir, 'test_file_1.js'), content);
+    fs.writeFileSync(path.join(dir, 'test_file_2.js'), content);
+    fs.writeFileSync(path.join(dir, 'test_file_3.js'), content);
+
+    process.chdir(rootDir);
+
+    var checkWarnings = checkWrite([
+      'test_file_2.js is bigger than 2 MiB',
+      'test_file_3.js is bigger than 2 MiB',
+    ], [
+      'test_file_1.js is bigger than 2 MiB',
+    ], 'Total precache size');
+
+    var offlinePromise = offline({
+      rootDir: dir,
+      fileGlobs: [
+        '*',
+        'test_file_1.js',
+      ],
+    }).then(function() {
+      var content = fs.readFileSync(path.join(dir, 'offline-worker.js'), 'utf8');
+      assert.notEqual(content.indexOf('test_file_1.js'), -1);
+      assert.notEqual(content.indexOf('test_file_2.js'), -1);
+      assert.notEqual(content.indexOf('test_file_3.js'), -1);
+    });
+
+    return Promise.all([ checkWarnings, offlinePromise ]);
+  });
 });
