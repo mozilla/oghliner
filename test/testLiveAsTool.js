@@ -5,6 +5,7 @@ var fse = require('fs-extra');
 var childProcess = require('child_process');
 var readYaml = require('read-yaml');
 var temp = require('temp').track();
+var readlineSync = require('readline-sync');
 
 var GitHub = require('github');
 var github = new GitHub({
@@ -90,7 +91,12 @@ function spawn(command, args, expected) {
         output += chunk.toString();
 
         if (nextExpected && output.indexOf(nextExpected.q) != -1) {
-          child.stdin.write(nextExpected.r + '\n');
+          if (typeof nextExpected.r === 'function') {
+            child.stdin.write(nextExpected.r() + '\n');
+          } else {
+            child.stdin.write(nextExpected.r + '\n');
+          }
+
           if (expected.length > 0) {
             nextExpected = expected.shift();
             output = '';
@@ -130,10 +136,10 @@ describe('CLI interface, oghliner as a tool', function() {
     });
 
     github.authorization.create({
-      scopes: ['repo', 'public_repo'],
+      scopes: ['repo', 'public_repo', 'delete_repo'],
       note: 'test',
       note_url: 'http://www.test.org',
-      headers: process.env.OTP_CODE ? { 'X-GitHub-OTP': process.env.OTP_CODE } : {},
+      headers: process.env.OTP ? { 'X-GitHub-OTP': readlineSync.question('OTP: ') } : {},
     }, function(err, res) {
       if (err) {
         done(err);
@@ -168,9 +174,15 @@ describe('CLI interface, oghliner as a tool', function() {
 
     delete process.env['GH_TOKEN'];
 
+    github.authenticate({
+      type: 'basic',
+      username: username,
+      password: password,
+    });
+
     github.authorization.delete({
       id: githubTokenId,
-      headers: process.env.OTP_CODE ? { 'X-GitHub-OTP': process.env.OTP_CODE } : {},
+      headers: process.env.OTP ? { 'X-GitHub-OTP': readlineSync.question('OTP: ') } : {},
     }, done);
   });
 
@@ -202,7 +214,7 @@ describe('CLI interface, oghliner as a tool', function() {
       },
       {
         q: 'Auth Code: ',
-        r: process.env.OTP_CODE,
+        r: readlineSync.question,
       }
     ]))
     .then(function() {
