@@ -139,7 +139,7 @@ describe('CLI interface, oghliner as a tool', function() {
       scopes: ['repo', 'public_repo', 'delete_repo'],
       note: 'test',
       note_url: 'http://www.test.org',
-      headers: process.env.OTP ? { 'X-GitHub-OTP': readlineSync.question('OTP: ') } : {},
+      headers: process.env.OTP ? { 'X-GitHub-OTP': readlineSync.question('Auth Code: ') } : {},
     }, function(err, res) {
       if (err) {
         done(err);
@@ -182,7 +182,7 @@ describe('CLI interface, oghliner as a tool', function() {
 
     github.authorization.delete({
       id: githubTokenId,
-      headers: process.env.OTP ? { 'X-GitHub-OTP': readlineSync.question('OTP: ') } : {},
+      headers: process.env.OTP ? { 'X-GitHub-OTP': readlineSync.question('Auth Code: ') } : {},
     }, done);
   });
 
