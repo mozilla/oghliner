@@ -17,6 +17,8 @@ var github = new GitHub({
 });
 
 var username = process.env.USER, password = process.env.PASS;
+var githubToken, githubTokenId;
+var useOTP = false;
 
 // Skip these tests if the USER or PASS environment variables aren't set.
 if (!username || !password) {
@@ -121,28 +123,16 @@ function spawn(command, args, expected) {
   });
 }
 
-describe('CLI interface, oghliner as a tool', function() {
-  this.timeout(0);
-
-  var oldWD = process.cwd();
-
-  var githubToken, githubTokenId;
-
-  before(function(done) {
-    github.authenticate({
-      type: 'basic',
-      username: username,
-      password: password,
-    });
-
+function createAuthorization() {
+  return new Promise(function(resolve, reject) {
     github.authorization.create({
       scopes: ['repo', 'public_repo', 'delete_repo'],
       note: 'test',
       note_url: 'http://www.test.org',
-      headers: process.env.OTP ? { 'X-GitHub-OTP': readlineSync.question('Auth Code: ') } : {},
+      headers: useOTP ? { 'X-GitHub-OTP': readlineSync.question('Auth Code: ') } : {},
     }, function(err, res) {
       if (err) {
-        done(err);
+        reject(err);
         return;
       }
 
@@ -151,11 +141,36 @@ describe('CLI interface, oghliner as a tool', function() {
 
       github.authenticate({
         type: 'oauth',
-        token: githubToken
+        token: githubToken,
       });
 
-      done();
+      resolve();
     });
+  }).catch(function(err) {
+    var error = JSON.parse(err.message);
+
+    if (error.message === 'Must specify two-factor authentication OTP code.') {
+      useOTP = true;
+      return createAuthorization();
+    }
+
+    throw err;
+  });
+}
+
+describe('CLI interface, oghliner as a tool', function() {
+  this.timeout(0);
+
+  var oldWD = process.cwd();
+
+  before(function() {
+    github.authenticate({
+      type: 'basic',
+      username: username,
+      password: password,
+    });
+
+    return createAuthorization();
   });
 
   beforeEach(function() {
@@ -182,7 +197,7 @@ describe('CLI interface, oghliner as a tool', function() {
 
     github.authorization.delete({
       id: githubTokenId,
-      headers: process.env.OTP ? { 'X-GitHub-OTP': readlineSync.question('Auth Code: ') } : {},
+      headers: useOTP ? { 'X-GitHub-OTP': readlineSync.question('Auth Code: ') } : {},
     }, done);
   });
 
