@@ -25,8 +25,12 @@ var oghliner = require('./index.js');
 
 gulp.task('default', ['build', 'offline']);
 
-gulp.task('build', function(callback) {
+gulp.task('build', ['build-tabzilla'], function(callback) {
   return gulp.src('app/**').pipe(gulp.dest('dist'));
+});
+
+gulp.task('build-tabzilla', function() {
+  return gulp.src('node_modules/mozilla-tabzilla/**/*.{css,png}').pipe(gulp.dest('app/styles/tabzilla'));
 });
 
 gulp.task('configure', oghliner.configure);
