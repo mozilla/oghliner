@@ -272,7 +272,7 @@ describe('Offline', function() {
     return Promise.all([ checkWarnings, offlinePromise ]);
   });
 
-  it('should not warn about explicitely included files', function() {
+  it('should not warn about explicitly included files', function() {
     var rootDir = temp.mkdirSync('oghliner');
     var dir = path.join(rootDir, 'dist');
     fs.mkdirSync(dir);
