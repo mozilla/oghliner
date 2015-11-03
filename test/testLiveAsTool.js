@@ -123,6 +123,46 @@ function spawn(command, args, expected) {
   });
 }
 
+function getTokenId(page) {
+  page = page || 1;
+
+  return new Promise(function(resolve, reject) {
+    github.authorization.getAll({
+      page: page,
+      headers: useOTP ? { 'X-GitHub-OTP': readlineSync.question('Auth Code: ') } : {},
+    }, function(err, res) {
+      if (err) {
+        reject(err);
+        return;
+      }
+
+      for (var i = 0; i < res.length; i++) {
+        if (res[i].note === 'test' && res[i].note_url === 'http://www.test.org') {
+          resolve(res[i].id);
+          return;
+        }
+      }
+
+      resolve(getToken(++page));
+    });
+  });
+}
+
+function deleteAuthorization(tokenId) {
+  return new Promise(function(resolve, reject) {
+    github.authorization.delete({
+      id: tokenId,
+      headers: useOTP ? { 'X-GitHub-OTP': readlineSync.question('Auth Code: ') } : {},
+    }, function(err) {
+      if (err) {
+        reject(err);
+      } else {
+        resolve();
+      }
+    });
+  });
+}
+
 function createAuthorization() {
   return new Promise(function(resolve, reject) {
     github.authorization.create({
@@ -144,7 +184,7 @@ function createAuthorization() {
         token: githubToken,
       });
 
-      resolve();
+      resolve(res);
     });
   }).catch(function(err) {
     var error = JSON.parse(err.message);
@@ -154,8 +194,12 @@ function createAuthorization() {
       return createAuthorization();
     }
 
+    if (error.message === 'Validation Failed' && error.errors[0].code === 'already_exists') {
+      return getTokenId().then(deleteAuthorization).then(createAuthorization);
+    }
+
     throw err;
-  });
+  })
 }
 
 describe('CLI interface, oghliner as a tool', function() {
@@ -188,17 +232,6 @@ describe('CLI interface, oghliner as a tool', function() {
     process.chdir(oldWD);
 
     delete process.env['GH_TOKEN'];
-
-    github.authenticate({
-      type: 'basic',
-      username: username,
-      password: password,
-    });
-
-    github.authorization.delete({
-      id: githubTokenId,
-      headers: useOTP ? { 'X-GitHub-OTP': readlineSync.question('Auth Code: ') } : {},
-    }, done);
   });
 
   it('should work', function() {
