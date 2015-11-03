@@ -26,6 +26,7 @@ var program = require('commander');
 var rimraf = promisify(require('rimraf'));
 var promptly = require('promisified-promptly');
 var fs = require('fs');
+var gutil = require('gulp-util');
 
 // The scripts that implement the various commands/tasks we expose.
 var configure = require('./lib/configure');
@@ -43,7 +44,7 @@ program
   .action(function(env, options) {
     configure()
     .catch(function(err) {
-      console.error(err);
+      gutil.log(gutil.colors.red(err));
     });
   });
 
@@ -64,7 +65,7 @@ program
 
       fs.access('.gitignore', function(err) {
         if (err) {
-          console.log('.gh-pages-cache is a temporary repository that we use to push changes to your gh-pages branch. We suggest you add it to your .gitignore.');
+          gutil.log('.gh-pages-cache is a temporary repository that we use to push changes to your gh-pages branch. We suggest you add it to your .gitignore.');
           return;
         }
 
@@ -81,7 +82,7 @@ program
       });
     })
     .catch(function(err) {
-      console.error(err);
+      gutil.log(gutil.colors.red(err));
     });
   });
 
@@ -97,7 +98,7 @@ program
       importScripts: options.importScripts ? options.importScripts.split(',') : null,
     })
     .catch(function(err) {
-      console.error(err);
+      gutil.log(gutil.colors.red(err));
     });
   });
 
@@ -109,7 +110,7 @@ program
       rootDir: dir,
     })
     .catch(function(err) {
-      console.error(err);
+      gutil.log(gutil.colors.red(err));
     });
   });
 
@@ -121,7 +122,7 @@ program
         dir: dir,
       })
       .catch(function(err) {
-        console.error(err);
+        gutil.log(gutil.colors.red(err));
       });
     });
 
