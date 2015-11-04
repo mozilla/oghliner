@@ -7,7 +7,7 @@ var glob = require('glob');
 var fs = require('fs');
 
 describe('Bootstrap', function() {
-  this.timeout(10000);
+  this.timeout(180000);
 
   var appName = 'test-bootstrap'
   var oldWd;
@@ -22,7 +22,6 @@ describe('Bootstrap', function() {
         template: {
           name: appName
         },
-        npmInstall: false,
       });
     });
   });
