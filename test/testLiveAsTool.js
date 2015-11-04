@@ -199,7 +199,7 @@ function createAuthorization() {
     }
 
     throw err;
-  })
+  });
 }
 
 describe('CLI interface, oghliner as a tool', function() {
