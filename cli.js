@@ -44,7 +44,7 @@ program
   .action(function(env, options) {
     configure()
     .catch(function(err) {
-      gutil.log(gutil.colors.red(err));
+      gutil.log(gutil.colors.red.bold(err));
     });
   });
 
@@ -82,7 +82,7 @@ program
       });
     })
     .catch(function(err) {
-      gutil.log(gutil.colors.red(err));
+      gutil.log(gutil.colors.red.bold(err));
     });
   });
 
@@ -98,7 +98,7 @@ program
       importScripts: options.importScripts ? options.importScripts.split(',') : null,
     })
     .catch(function(err) {
-      gutil.log(gutil.colors.red(err));
+      gutil.log(gutil.colors.red.bold(err));
     });
   });
 
@@ -110,7 +110,7 @@ program
       rootDir: dir,
     })
     .catch(function(err) {
-      gutil.log(gutil.colors.red(err));
+      gutil.log(gutil.colors.red.bold(err));
     });
   });
 
@@ -122,7 +122,7 @@ program
         dir: dir,
       })
       .catch(function(err) {
-        gutil.log(gutil.colors.red(err));
+        gutil.log(gutil.colors.red.bold(err));
       });
     });
 
