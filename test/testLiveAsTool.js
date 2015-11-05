@@ -34,7 +34,7 @@ describe('CLI interface, oghliner as a tool', function() {
     });
   });
 
-  afterEach(function(done) {
+  afterEach(function() {
     process.chdir(oldWD);
 
     delete process.env['GH_TOKEN'];
