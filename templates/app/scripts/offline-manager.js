@@ -1,29 +1,32 @@
-function updateFound() {
-  var installingWorker = this.installing;
+(function (global) {
+  'use strict';
 
-  // Wait for the new service worker to be installed before prompting to update.
-  installingWorker.addEventListener('statechange', function() {
-    switch (installingWorker.state) {
-      case 'installed':
-        // Only show the prompt if there is currently a controller so it is not
-        // shown on first load.
-        if (navigator.serviceWorker.controller &&
-            window.confirm('An updated version of this page is available, would you like to update?')) {
-          window.location.reload();
-          return;
+  if ('serviceWorker' in navigator) {
+    var script = document.createElement('SCRIPT');
+    script.src = 'scripts/offliner/offliner-client.js';
+    script.dataset.worker = 'offline-worker.js';
+    script.onload = function () {
+      var off = global.off.restore();
+      var isActivationDelayed = false;
+
+      off.on('activationPending', function () {
+        if (confirm('An updated version of this page is available, would you like to update?')) {
+          off.activate().then(function () { window.location.reload(); });
         }
-        break;
-
-      case 'redundant':
-        console.error('The installing service worker became redundant.');
-        break;
-    }
-  });
-}
-
-if ('serviceWorker' in navigator) {
-  navigator.serviceWorker.register('offline-worker.js').then(function(registration) {
-    console.log('offline worker registered');
-    registration.addEventListener('updatefound', updateFound);
-  });
-}
+        else if (!isActivationDelayed) {
+          global.addEventListener('beforeunload', function () {
+            off.activate();
+          });
+          isActivationDelayed = true;
+        }
+      });
+      off.install().then(function () {
+        console.log('offline worker registered');
+      });
+    };
+    document.addEventListener('DOMContentLoaded', function onBody() {
+      document.removeEventListener('DOMContentLoaded', onBody);
+      document.body.appendChild(script);
+    });
+  }
+}(this));
