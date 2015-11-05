@@ -84,7 +84,7 @@ function getTokenId(page) {
       }
 
       for (var i = 0; i < res.length; i++) {
-        if (res[i].note === 'test' + process.version && res[i].note_url === 'http://www.test.org' + process.version) {
+        if (res[i].note === 'test' + process.version + process.pid && res[i].note_url === 'http://www.test.org' + process.version + process.pid) {
           resolve(res[i].id);
           return;
         }
@@ -120,8 +120,8 @@ function createAuthorization(username, password) {
 
     github.authorization.create({
       scopes: ['repo', 'public_repo', 'delete_repo'],
-      note: 'test' + process.version,
-      note_url: 'http://www.test.org' + process.version,
+      note: 'test' + process.version + process.pid,
+      note_url: 'http://www.test.org' + process.version + process.pid,
       headers: useOTP ? { 'X-GitHub-OTP': readlineSync.question('Auth Code: ') } : {},
     }, function(err, res) {
       if (err) {
