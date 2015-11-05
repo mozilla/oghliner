@@ -20,6 +20,7 @@ var connect = require('gulp-connect');
 var gulp = require('gulp');
 var mocha = require('gulp-mocha');
 var istanbul = require('gulp-istanbul');
+var eslint = require('gulp-eslint');
 var argv = require('yargs').argv;
 var oghliner = require('./index.js');
 
@@ -67,9 +68,20 @@ gulp.task('pre-test', function () {
     .pipe(istanbul.hookRequire());
 });
 
-gulp.task('test', ['pre-test'], function () {
+gulp.task('test', ['lint', 'pre-test'], function () {
   return gulp.src(argv.file ? argv.file : 'test/test*.js', {read: false})
     // gulp-mocha needs filepaths so you can't have any plugins before it
     .pipe(mocha())
     .pipe(istanbul.writeReports());
-})
+});
+
+gulp.task('lint', function() {
+  return gulp.src('lib/**').pipe(eslint({
+    'rules':{
+        'quotes': [1, 'single'],
+        'semi': [1, 'always'],
+        'comma-dangle': [1, 'always-multiline'],
+        'quote-props': [1, 'as-needed']
+    }
+  })).pipe(eslint.format());
+});
