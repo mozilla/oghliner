@@ -2,18 +2,9 @@ var assert = require('assert');
 var expect = require('chai').expect;
 var path = require('path');
 var fse = require('fs-extra');
-var childProcess = require('child_process');
 var readYaml = require('read-yaml');
 var temp = require('temp').track();
-
-var GitHub = require('github');
-var github = new GitHub({
-  version: '3.0.0',
-  protocol: 'https',
-  headers: {
-    'user-agent': 'Oghliner',
-  },
-});
+var liveUtils = require('./liveUtils');
 
 var username = process.env.USER, password = process.env.PASS;
 
@@ -22,117 +13,21 @@ if (!username || !password) {
   return;
 }
 
-function createRepo() {
-  return new Promise(function(resolve, reject) {
-    github.repos.create({
-      name: 'test_oghliner_live',
-    }, function(err) {
-      if (err) {
-        reject(err);
-      } else {
-        resolve();
-      }
-    });
-  });
-}
-
-function deleteRepo() {
-  return new Promise(function(resolve, reject) {
-    github.repos.delete({
-      user: username,
-      repo: 'test_oghliner_live',
-    }, function(err) {
-      if (err) {
-        reject(err);
-      } else {
-        resolve();
-      }
-    });
-  });
-}
-
-function getBranch() {
-  return new Promise(function(resolve, reject) {
-    setTimeout(function() {
-      github.repos.getBranch({
-        user: username,
-        repo: 'test_oghliner_live',
-        branch: 'gh-pages',
-      }, function(err, res) {
-        if (err) {
-          reject(err);
-        } else {
-          resolve(res);
-        }
-      });
-    }, 3000);
-  });
-}
-
-function spawn(command, args, expected) {
-  return new Promise(function(resolve, reject) {
-    var child = childProcess.spawn(command, args);
-
-    child.stdout.on('data', function(chunk) {
-      process.stdout.write(chunk);
-    });
-
-    child.stderr.on('data', function(chunk) {
-      process.stderr.write(chunk);
-    });
-
-    if (expected) {
-      var output = '';
-      var nextExpected = expected.shift();
-
-      child.stdout.on('data', function(chunk) {
-        output += chunk.toString();
-
-        if (nextExpected && output.indexOf(nextExpected.q) != -1) {
-          child.stdin.write(nextExpected.r + '\n');
-          if (expected.length > 0) {
-            nextExpected = expected.shift();
-            output = '';
-          } else {
-            nextExpected = null;
-          }
-        }
-      });
-    }
-
-    child.on('exit', function(code, signal) {
-      if (code === 0) {
-        resolve(code);
-      } else {
-        reject(code);
-      }
-    });
-
-    child.on('error', function(err) {
-      reject(err);
-    });
-  });
-}
-
 describe('CLI interface, oghliner as a template', function() {
   this.timeout(0);
 
   var oldWD = process.cwd();
 
   before(function() {
-    github.authenticate({
-      type: 'basic',
-      username: username,
-      password: password,
-    });
+    return liveUtils.createAuthorization(username, password);
   });
 
   beforeEach(function() {
     process.chdir(temp.mkdirSync('oghliner'));
 
-    process.env.GH_TOKEN = username + ':' + password;
+    process.env.GH_TOKEN = username + ':' + liveUtils.githubToken;
 
-    return deleteRepo()
+    return liveUtils.deleteRepo(username)
     .catch(function() {
       // Ignore error if the repo doesn't exist.
     });
@@ -145,11 +40,11 @@ describe('CLI interface, oghliner as a template', function() {
   });
 
   it('should work', function() {
-    return createRepo()
-    .then(spawn.bind(null, 'git', ['clone', 'https://' + username + ':' + password + '@github.com/' + username + '/test_oghliner_live']))
+    return liveUtils.createRepo(false)
+    .then(liveUtils.spawn.bind(null, 'git', ['clone', 'https://' + username + ':' + liveUtils.githubToken + '@github.com/' + username + '/test_oghliner_live']))
     .then(process.chdir.bind(null, 'test_oghliner_live'))
-    .then(spawn.bind(null, 'npm', ['install', path.dirname(__dirname)]))
-    .then(spawn.bind(null, path.join('node_modules', '.bin', 'oghliner'), ['bootstrap', '.'], [
+    .then(liveUtils.spawn.bind(null, 'npm', ['install', path.dirname(__dirname)]))
+    .then(liveUtils.spawn.bind(null, path.join('node_modules', '.bin', 'oghliner'), ['bootstrap', '.'], [
       {
         q: 'Would you like to change any of the above configuration values?',
         r: 'n',
@@ -166,19 +61,19 @@ describe('CLI interface, oghliner as a template', function() {
       expect(packageJson).to.include.keys('repository');
       expect(packageJson).to.include.keys('dependencies');
     })
-    .then(spawn.bind(null, 'git', ['add', '*']))
-    .then(spawn.bind(null, 'git', ['commit', '-m', 'First commit']))
-    .then(spawn.bind(null, path.join('node_modules', '.bin', 'gulp'), []))
+    .then(liveUtils.spawn.bind(null, 'git', ['add', '*']))
+    .then(liveUtils.spawn.bind(null, 'git', ['commit', '-m', 'First commit']))
+    .then(liveUtils.spawn.bind(null, path.join('node_modules', '.bin', 'gulp'), []))
     .then(function() {
       assert.doesNotThrow(fse.statSync.bind(fse, 'dist'));
     })
-    .then(spawn.bind(null, path.join('node_modules', '.bin', 'gulp'), ['deploy']))
+    .then(liveUtils.spawn.bind(null, path.join('node_modules', '.bin', 'gulp'), ['deploy']))
     .then(function() {
-      return getBranch()
-      .catch(getBranch)
-      .catch(getBranch)
+      return liveUtils.getBranch(username)
+      .catch(liveUtils.getBranch.bind(null, username))
+      .catch(liveUtils.getBranch.bind(null, username))
     })
-    .then(spawn.bind(null, path.join('node_modules', '.bin', 'oghliner'), ['configure'], [
+    .then(liveUtils.spawn.bind(null, path.join('node_modules', '.bin', 'oghliner'), ['configure'], [
       {
         q: 'Username: ',
         r: username,
@@ -213,8 +108,8 @@ describe('CLI interface, oghliner as a template', function() {
         fse.removeSync(file);
       });
     })
-    .then(spawn.bind(null, 'git', ['checkout', '-b', 'gh-pages']))
-    .then(spawn.bind(null, 'git', ['pull', 'origin', 'gh-pages']))
+    .then(liveUtils.spawn.bind(null, 'git', ['checkout', '-b', 'gh-pages']))
+    .then(liveUtils.spawn.bind(null, 'git', ['pull', 'origin', 'gh-pages']))
     .then(function() {
       assert.doesNotThrow(fse.statSync.bind(fse, 'index.html'));
       assert.doesNotThrow(fse.statSync.bind(fse, 'offline-worker.js'));

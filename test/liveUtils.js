@@ -22,11 +22,11 @@ var liveUtils = {
 var githubTokenId;
 var useOTP = false;
 
-function createRepo() {
+function createRepo(autoInit) {
   return new Promise(function(resolve, reject) {
     github.repos.create({
       name: 'test_oghliner_live',
-      auto_init: true,
+      auto_init: autoInit,
     }, function(err) {
       if (err) {
         reject(err);

@@ -41,7 +41,7 @@ describe('CLI interface, oghliner as a tool', function() {
   });
 
   it('should work', function() {
-    return liveUtils.createRepo()
+    return liveUtils.createRepo(true)
     .then(liveUtils.spawn.bind(null, 'git', ['clone', 'https://' + username + ':' + liveUtils.githubToken + '@github.com/' + username + '/test_oghliner_live']))
     .then(process.chdir.bind(null, 'test_oghliner_live'))
     .then(liveUtils.spawn.bind(null, 'npm', ['install', path.dirname(__dirname)]))
