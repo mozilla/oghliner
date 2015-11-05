@@ -51,6 +51,8 @@ describe('CLI interface, oghliner as a template', function() {
         r: 'n',
       }
     ]))
+    // Overwrite the oghliner version installed by bootstrap with the development one from the top directory.
+    .then(liveUtils.spawn.bind(null, 'npm', ['install', path.dirname(__dirname)]))
     .then(function() {
       assert.doesNotThrow(fse.statSync.bind(fse, 'README.md'));
       assert.doesNotThrow(fse.statSync.bind(fse, 'app'));
