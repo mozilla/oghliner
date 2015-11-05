@@ -1,10 +1,5 @@
-var SAFEGUARD_SCRIPT = /^\/scripts\/offliner\/safeguard\.js$/;
 
 self.off.sources.cache = function (request, activeCache) {
-  var url = new URL(request.url, location);
-  if (url.pathname.match(SAFEGUARD_SCRIPT)) {
-    return fetch(request);
-  }
   return activeCache.match(request).then(function (response) {
     return response ? Promise.resolve(response) : Promise.reject();
   });

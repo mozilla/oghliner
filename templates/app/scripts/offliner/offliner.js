@@ -130,7 +130,7 @@
    * @method standalone
    * @throws {Error} offliner throws when trying to install it in standalone
    * mode if it was already used as middleware by calling
-   * {{#crossLink Offliner/asMiddleware:method}}{{/crossLink}}.
+   * {{#crossLink "Offliner/asMiddleware:method"}}{{/crossLink}}.
    */
   Offliner.prototype.standalone = function () {
     if (this._isMiddleware) {
@@ -185,7 +185,7 @@
    * @method asMiddleware
    * @return {Object} A serviceworkerware middleware.
    * @throws {Error} offliner will throw if you try to use it as middleware
-   * after calling {{#crossLink Offliner/standalone:method}}{{/crossLink}}.
+   * after calling {{#crossLink "Offliner/standalone:method"}}{{/crossLink}}.
    */
   Offliner.prototype.asMiddleware = function () {
     if (this._isStarted) {
@@ -228,6 +228,9 @@
       case 'xpromise':
         this._receiveCrossPromise(msg.id, msg.order);
         break;
+      case 'checkForActivationPending':
+        this._checkForActivationPending();
+        break;
       default:
         warn('Message not recognized:', msg);
         break;
@@ -261,6 +264,21 @@
         warn('Cross Promise implementation not recognized:', order);
         break;
     }
+  };
+
+  /**
+   * Check if there is an activation pending. If so, offliner dispatches an
+   * activation pending request.
+   *
+   * @method _checkForActivationPending
+   * @private
+   */
+  Offliner.prototype._checkForActivationPending = function () {
+    this.get('activation-pending').then(function (isActivationPending) {
+      if (isActivationPending) {
+        this._sendActivationPending();
+      }
+    }.bind(this));
   };
 
   /**
@@ -461,6 +479,7 @@
    *
    * @method _sendActivationDone
    * @private
+   * @for Offliner
    */
   Offliner.prototype._sendActivationDone = function () {
     this._broadcastMessage({ type: 'activationDone' });
@@ -480,7 +499,7 @@
   /**
    * Broadcast a message in the clients. The method will add the `offliner:`
    * prefix to the type of the events but this is stripped out automatically by
-   * the {{#crossLink OfflinerClient/_installMessageHandlers:method}}{{/crossLink}}
+   * the {{#crossLink "OfflinerClient/_installMessageHandlers:method"}}{{/crossLink}}
    * client side.
    *
    * @method _broadcastMessage
@@ -768,7 +787,7 @@
    */
 
   /**
-   * Normalizes a resource not following the {{#crossLink Resource}}
+   * Normalizes a resource not following the {{#crossLink "Resource"}}
    * {{/crossLink}} convention.
    *
    * @method normalize
@@ -798,7 +817,7 @@
   }
 
   /**
-   * Register a {{#crossLink Fetcher}}{{/crossLink}}. The fetcher will be used
+   * Register a {{#crossLink "Fetcher"}}{{/crossLink}}. The fetcher will be used
    * to retrieve the resources of the fetcher's type.
    *
    * @method use
