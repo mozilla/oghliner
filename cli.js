@@ -112,7 +112,8 @@ program
     })
     .catch(function(err) {
       gutil.log(gutil.colors.red.bold(err));
-    });
+    })
+    .then(process.exit);
   });
 
   program
