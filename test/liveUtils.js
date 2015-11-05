@@ -144,7 +144,7 @@ function createAuthorization(username, password) {
 
     if (error.message === 'Must specify two-factor authentication OTP code.') {
       useOTP = true;
-      return createAuthorization(uesrname, password);
+      return createAuthorization(username, password);
     }
 
     if (error.message === 'Validation Failed' && error.errors[0].code === 'already_exists') {
