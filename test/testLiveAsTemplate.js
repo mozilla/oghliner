@@ -4,6 +4,7 @@ var path = require('path');
 var fse = require('fs-extra');
 var readYaml = require('read-yaml');
 var temp = require('temp').track();
+var readlineSync = require('readline-sync');
 var liveUtils = require('./liveUtils');
 
 var username = process.env.USER, password = process.env.PASS;
@@ -82,6 +83,10 @@ describe('CLI interface, oghliner as a template', function() {
         q: 'Password: ',
         r: password,
       },
+      {
+        q: 'Auth Code: ',
+        r: readlineSync.question,
+      }
     ]))
     .then(function() {
       var travisYml = readYaml.sync('.travis.yml');
