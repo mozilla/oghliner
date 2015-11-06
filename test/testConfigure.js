@@ -468,7 +468,7 @@ describe('Configure', function() {
     configure();
     return enterUsernamePassword()
     .then(function() {
-      return await('Getting Travis token…');
+      return await('Getting Travis token… done!');
     })
     .then(complete);
   });
@@ -478,7 +478,7 @@ describe('Configure', function() {
     configure();
     return enterUsernamePassword()
     .then(function() {
-      return await('Deleting temporary GitHub token for getting Travis token…');
+      return await('Deleting temporary GitHub token for getting Travis token… done!');
     })
     .then(complete);
   });
