@@ -19,6 +19,9 @@ var github = new GitHub({
 });
 
 var liveUtils = {
+  repoName: 'test_oghliner_live' + process.version + process.pid,
+  githubNote: 'test' + process.version + process.pid,
+  githubNoteURL: 'http://www.test.org/' + process.version + process.pid,
   githubToken: null,
   getTokenId: getTokenId,
   createAuthorization: createAuthorization,
@@ -36,7 +39,7 @@ var useOTP = false;
 function createRepo(autoInit) {
   return new Promise(function(resolve, reject) {
     github.repos.create({
-      name: 'test_oghliner_live',
+      name: liveUtils.repoName,
       auto_init: autoInit,
     }, function(err) {
       if (err) {
@@ -52,7 +55,7 @@ function deleteRepo(username) {
   return new Promise(function(resolve, reject) {
     github.repos.delete({
       user: username,
-      repo: 'test_oghliner_live',
+      repo: liveUtils.repoName,
     }, function(err) {
       if (err) {
         reject(err);
@@ -68,7 +71,7 @@ function getBranch(username) {
     setTimeout(function() {
       github.repos.getBranch({
         user: username,
-        repo: 'test_oghliner_live',
+        repo: liveUtils.repoName,
         branch: 'gh-pages',
       }, function(err, res) {
         if (err) {
@@ -81,7 +84,7 @@ function getBranch(username) {
   });
 }
 
-function getTokenId(username, password, page) {
+function getTokenId(username, password, note, noteURL, page) {
   github.authenticate({
     type: 'basic',
     username: username,
@@ -101,13 +104,13 @@ function getTokenId(username, password, page) {
       }
 
       for (var i = 0; i < res.length; i++) {
-        if (res[i].note === 'test' + process.version + process.pid && res[i].note_url === 'http://www.test.org' + process.version + process.pid) {
+        if (res[i].note === note && res[i].note_url === noteURL) {
           resolve(res[i].id);
           return;
         }
       }
 
-      resolve(getTokenId(username, password, ++page));
+      resolve(getTokenId(username, password, note, noteURL, ++page));
     });
   });
 }
@@ -137,8 +140,8 @@ function createAuthorization(username, password) {
 
     github.authorization.create({
       scopes: ['repo', 'public_repo', 'delete_repo', 'read:org', 'user:email', 'repo_deployment', 'repo:status', 'write:repo_hook'],
-      note: 'test' + process.version + process.pid,
-      note_url: 'http://www.test.org' + process.version + process.pid,
+      note: liveUtils.githubNote,
+      note_url: liveUtils.githubNoteURL,
       headers: useOTP ? { 'X-GitHub-OTP': readlineSync.question('Auth Code: ') } : {},
     }, function(err, res) {
       if (err) {
@@ -165,7 +168,7 @@ function createAuthorization(username, password) {
     }
 
     if (error.message === 'Validation Failed' && error.errors[0].code === 'already_exists') {
-      return getTokenId(username, password).then(deleteAuthorization).then(createAuthorization.bind(null, username, password));
+      return getTokenId(username, password, liveUtils.githubNote, liveUtils.githubNoteURL).then(deleteAuthorization).then(createAuthorization.bind(null, username, password));
     }
 
     throw err;
@@ -190,9 +193,9 @@ function travisAwaitSyncing() {
 }
 
 function cleanup(username, password) {
-  travis.authenticate({ github_token: liveUtils.githubToken })
+  return travis.authenticate({ github_token: liveUtils.githubToken })
   .then(travis.users.sync.post)
-  .catch(function() {
+  .catch(function(err) {
     // Ignore sync errors.
   })
   .then(travisAwaitSyncing)
@@ -202,7 +205,12 @@ function cleanup(username, password) {
       .catch(function() {
         // Ignore error if the repo doesn't exist.
       }),
-      getTokenId(username, password)
+      getTokenId(username, password, liveUtils.githubNote, liveUtils.githubNoteURL)
+      .then(deleteAuthorization)
+      .catch(function() {
+        // Ignore error if the authorization doesn't exist.
+      }),
+      getTokenId(username, password, 'Oghliner token for ' + username + '/' + liveUtils.repoName, 'https://github.com/mozilla/oghliner')
       .then(deleteAuthorization)
       .catch(function() {
         // Ignore error if the authorization doesn't exist.
