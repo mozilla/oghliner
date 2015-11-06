@@ -133,19 +133,6 @@ describe('Configure', function() {
     });
   }
 
-  function nockGitHubRequires2FACode() {
-    return nock('https://api.github.com:443')
-    .post('/authorizations', {
-      "scopes":["public_repo"],
-      "note":"Oghliner token for " + slug,
-      "note_url":"https://github.com/mozilla/oghliner"
-    })
-    .reply(401, {
-      "message":"Must specify two-factor authentication OTP code.",
-      "documentation_url":"https://developer.github.com/v3/auth#working-with-two-factor-authentication"
-    });
-  }
-
   function nockGetTokenFailureExists() {
     return nock('https://api.github.com:443')
     .post('/authorizations', {
@@ -209,6 +196,19 @@ describe('Configure', function() {
       "updated_at":"2015-10-12T21:43:00Z",
       "scopes":["read:org","user:email","repo_deployment","repo:status","write:repo_hook"],
       "fingerprint":null
+    });
+  }
+
+  function nockGitHubRequires2FACode() {
+    return nock('https://api.github.com:443')
+    .post('/authorizations', {
+      "scopes":["read:org","user:email","repo_deployment","repo:status","write:repo_hook"],
+      "note":"temporary Oghliner token to get Travis token for " + slug,
+      "note_url":"https://github.com/mozilla/oghliner"
+    })
+    .reply(401, {
+      "message":"Must specify two-factor authentication OTP code.",
+      "documentation_url":"https://developer.github.com/v3/auth#working-with-two-factor-authentication"
     });
   }
 
@@ -367,10 +367,10 @@ describe('Configure', function() {
   }
 
   function nockBasicPostAuthFlow() {
-    nockGetGitHubToken();
     nockGetTemporaryGitHubToken();
     nockGetTravisTokenAndUser();
     nockDeleteTemporaryGitHubToken();
+    nockGetGitHubToken();
     nockGetHooks();
     nockGetTravisKey();
   }
