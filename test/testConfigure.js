@@ -384,7 +384,7 @@ describe('Configure', function() {
     // if we chained it to that message.
     enterUsernamePassword();
 
-    return await('Configuring ' + slug + ' to auto-deploy to GitHub Pages using Travis CI…')
+    return await('Configuring Travis to auto-deploy ' + slug + ' to GitHub Pages…')
     .then(complete);
   });
 
