@@ -1,5 +1,13 @@
+var promisify = require('promisify-node');
 var childProcess = require('child_process');
 var readlineSync = require('readline-sync');
+
+var Travis = require('travis-ci');
+var travis = new Travis({ version: '2.0.0' });
+
+travis.authenticate = promisify(travis.authenticate);
+travis.users.get = promisify(travis.users.get);
+travis.users.sync.post = promisify(travis.users.sync.post);
 
 var GitHub = require('github');
 var github = new GitHub({
@@ -128,7 +136,7 @@ function createAuthorization(username, password) {
     });
 
     github.authorization.create({
-      scopes: ['repo', 'public_repo', 'delete_repo'],
+      scopes: ['repo', 'public_repo', 'delete_repo', 'read:org', 'user:email', 'repo_deployment', 'repo:status', 'write:repo_hook'],
       note: 'test' + process.version + process.pid,
       note_url: 'http://www.test.org' + process.version + process.pid,
       headers: useOTP ? { 'X-GitHub-OTP': readlineSync.question('Auth Code: ') } : {},
@@ -164,18 +172,43 @@ function createAuthorization(username, password) {
   });
 }
 
+function travisIsSyncing() {
+  return travis.users.get()
+  .then(function(res) {
+    return res.user.is_syncing;
+  });
+}
+
+function travisAwaitSyncing() {
+  return new Promise(function(resolve, reject) { setTimeout(resolve, 5000); })
+  .then(travisIsSyncing)
+  .then(function(isSyncing) {
+    if (isSyncing) {
+      return travisAwaitSyncing();
+    }
+  });
+}
+
 function cleanup(username, password) {
-  return Promise.all([
-    deleteRepo(username)
-    .catch(function() {
-      // Ignore error if the repo doesn't exist.
-    }),
-    getTokenId(username, password)
-    .then(deleteAuthorization)
-    .catch(function() {
-      // Ignore error if the authorization doesn't exist.
-    }),
-  ])
+  travis.authenticate({ github_token: liveUtils.githubToken })
+  .then(travis.users.sync.post)
+  .catch(function() {
+    // Ignore sync errors.
+  })
+  .then(travisAwaitSyncing)
+  .then(function() {
+    return Promise.all([
+      deleteRepo(username)
+      .catch(function() {
+        // Ignore error if the repo doesn't exist.
+      }),
+      getTokenId(username, password)
+      .then(deleteAuthorization)
+      .catch(function() {
+        // Ignore error if the authorization doesn't exist.
+      }),
+    ]);
+  });
 }
 
 function spawn(command, args, expected) {
