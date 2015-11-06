@@ -448,12 +448,12 @@ describe('Configure', function() {
     configure();
     return enterUsernamePassword()
     .then(function() {
-      return await('You already have the GitHub token "Oghliner token for ' + slug + '".');
+      return await('You already have that token; deleting it… done!');
     })
     .then(complete);
   });
 
-  it('gets temporary GitHub token', function() {
+  it('creates temporary GitHub token', function() {
     nockBasicPostAuthFlow();
     configure();
     return enterUsernamePassword()
@@ -479,6 +479,16 @@ describe('Configure', function() {
     return enterUsernamePassword()
     .then(function() {
       return await('Deleting temporary GitHub token for getting Travis token… done!');
+    })
+    .then(complete);
+  });
+
+  it('creates permanent GitHub token', function() {
+    nockBasicPostAuthFlow();
+    configure();
+    return enterUsernamePassword()
+    .then(function() {
+      return await('Creating permanent GitHub token for Travis to push to the repository… done!');
     })
     .then(complete);
   });
