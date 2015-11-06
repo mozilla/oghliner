@@ -12,10 +12,13 @@ var github = new GitHub({
 
 var liveUtils = {
   githubToken: null,
+  getTokenId: getTokenId,
   createAuthorization: createAuthorization,
+  deleteAuthorization: deleteAuthorization,
   createRepo: createRepo,
   deleteRepo: deleteRepo,
   getBranch: getBranch,
+  cleanup: cleanup,
   spawn: spawn,
 };
 
@@ -70,7 +73,13 @@ function getBranch(username) {
   });
 }
 
-function getTokenId(page) {
+function getTokenId(username, password, page) {
+  github.authenticate({
+    type: 'basic',
+    username: username,
+    password: password,
+  });
+
   page = page || 1;
 
   return new Promise(function(resolve, reject) {
@@ -90,7 +99,7 @@ function getTokenId(page) {
         }
       }
 
-      resolve(getTokenId(++page));
+      resolve(getTokenId(username, password, ++page));
     });
   });
 }
@@ -148,11 +157,25 @@ function createAuthorization(username, password) {
     }
 
     if (error.message === 'Validation Failed' && error.errors[0].code === 'already_exists') {
-      return getTokenId().then(deleteAuthorization).then(createAuthorization.bind(null, username, password));
+      return getTokenId(username, password).then(deleteAuthorization).then(createAuthorization.bind(null, username, password));
     }
 
     throw err;
   });
+}
+
+function cleanup(username, password) {
+  return Promise.all([
+    deleteRepo(username)
+    .catch(function() {
+      // Ignore error if the repo doesn't exist.
+    }),
+    getTokenId(username, password)
+    .then(deleteAuthorization)
+    .catch(function() {
+      // Ignore error if the authorization doesn't exist.
+    }),
+  ])
 }
 
 function spawn(command, args, expected) {

@@ -23,6 +23,10 @@ describe('CLI interface, oghliner as a tool', function() {
     return liveUtils.createAuthorization(username, password);
   });
 
+  after(function() {
+    return liveUtils.cleanup(username, password);
+  });
+
   beforeEach(function() {
     process.chdir(temp.mkdirSync('oghliner'));
 
