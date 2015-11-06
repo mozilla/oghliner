@@ -458,7 +458,7 @@ describe('Configure', function() {
     configure();
     return enterUsernamePassword()
     .then(function() {
-      return await('Creating temporary GitHub token for getting Travis token…');
+      return await('✓ Creating temporary GitHub token for getting Travis token… done!');
     })
     .then(complete);
   });
