@@ -1,6 +1,6 @@
-Oghliner is an experimental template and tool for deploying Offline Web Apps to GitHub Pages.
+Oghliner is an experimental template and tool for deploying Offline Web Apps to GitHub Pages. As a template, Oghliner can be used to bootstrap an offline app that deploys to GitHub Pages. As a tool, Oghliner adds offlining and GitHub Pages deployment into your existing app.
 
-As a template, Oghliner can be used to bootstrap an offline app that deploys to your GitHub Pages site. As a tool, Oghliner adds offlining and deployment into your existing app.
+Offline Web Apps are web apps that work when your network doesn't. They use Service Workers to cache and serve your app's assets (HTML, JavaScript, CSS, images, etc.) on a user's machine, regardless of the status of its network connection. And they degrade gracefully, so the app works identically in browsers that don't support Service Workers when the machine is online.
 
 [![Build Status](https://travis-ci.org/mozilla/oghliner.svg?branch=master)](https://travis-ci.org/mozilla/oghliner)
 [![dependencies](https://david-dm.org/mozilla/oghliner.svg)](https://david-dm.org/mozilla/oghliner)
@@ -105,7 +105,7 @@ After configuring the repository, add and commit the changes to *.travis.yml* an
 > git push origin master
 ```
 
-You can see the status of a build/deployment at https://travis-ci.org/*your-GitHub-username*/*your-repository-name*/builds. For example, the status of builds for https://github.com/mykmelez/eggtimer/ is at https://travis-ci.org/mykmelez/eggtimer/builds.
+You can see the status of a build/deployment at `https://travis-ci.org/*your-GitHub-username*/*your-repository-name*/builds`. For example, the status of builds for https://github.com/mykmelez/eggtimer/ is at https://travis-ci.org/mykmelez/eggtimer/builds.
 
 If the build was successful, Travis will deploy the site via `gulp deploy`. Expand the log entry to see details about the deployment:
 
