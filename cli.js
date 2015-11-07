@@ -66,7 +66,7 @@ program
 
       fs.access('.gitignore', function(err) {
         if (err) {
-          gutil.log('.gh-pages-cache is a temporary repository that we use to push changes to your gh-pages branch. We suggest you add it to your .gitignore.');
+          gutil.log(gutil.colors.blue.bold('.gh-pages-cache is a temporary repository that we use to push changes to your gh-pages branch. We suggest you add it to your .gitignore.'));
           return;
         }
 
