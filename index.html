@@ -46,7 +46,7 @@
     <!-- MAIN CONTENT -->
     <main class="center">
       <h1>Oghliner</h1>
-      <h2>Deploy Offline Web Apps to GitHub Pages</h2>
+      <h2 class="subtitle center-text">Deploy Offline Web Apps to GitHub Pages</h2>
 
       <section class="buttons">
         <a href="https://github.com/mozilla/oghliner" class="button">Fork on GitHub</a>
@@ -54,33 +54,113 @@
       </section>
 
       <section>
+        
         <p>Oghliner is an experimental template and tool for deploying Offline Web Apps to GitHub Pages. As a template, Oghliner can be used to bootstrap an offline app that deploys to GitHub Pages. As a tool, Oghliner adds offlining and GitHub Pages deployment into your existing app.</p>
+<p>Offline Web Apps are web apps that work when your network doesn&#39;t. They use Service Workers to cache and serve your app&#39;s assets (HTML, JavaScript, CSS, images, etc.) on a user&#39;s machine, regardless of the status of its network connection. And they degrade gracefully, so the app works identically in browsers that don&#39;t support Service Workers when the machine is online.</p>
+<p><a href="https://travis-ci.org/mozilla/oghliner"><img src="https://travis-ci.org/mozilla/oghliner.svg?branch=master" alt="Build Status"></a>
+<a href="https://david-dm.org/mozilla/oghliner"><img src="https://david-dm.org/mozilla/oghliner.svg" alt="dependencies"></a>
+<a href="https://david-dm.org/mozilla/oghliner#info=devDependencies"><img src="https://david-dm.org/mozilla/oghliner/dev-status.svg" alt="devdependencies"></a></p>
+<h2 id="using-the-template">Using The Template</h2>
+<p>To bootstrap an offline web app, create a repository on GitHub and then clone to your local machine.</p>
+<pre><code class="lang-bash">git clone git@github.com:mykmelez/test-app.git
+cd test-app
+</code></pre>
+<p>If you haven&#39;t already, install gulp and oghliner.</p>
+<pre><code class="lang-bash">npm install -g gulp oghliner
+</code></pre>
+<p>Then bootstrap your app with the bootstrap command which puts assets in <em>app/</em> and includes a simple <em>gulpfile.js</em> that builds to <em>dist/</em>, but you can modify the build any way you like.</p>
+<pre><code class="lang-bash">oghliner bootstrap
+</code></pre>
+<p>Invoke <code>gulp</code> to rebuild your app and regenerate the script that offlines it. Invoke <code>gulp deploy</code> to publish it to GitHub Pages.</p>
+<pre><code class="lang-bash">gulp &amp;&amp; gulp deploy
+</code></pre>
+<p>At least one commit to the repository is required for successful deploy.  The following could be used to commit the changes by Oghliner to the repository:</p>
+<pre><code class="lang-bash">git add . &amp;&amp; git commit -m &quot;Initial version of app&quot;
+</code></pre>
+<h2 id="using-the-tool">Using The Tool</h2>
+<p>To integrate offlining and deployment into your existing app, <code>npm install -g oghliner</code>, then run <code>oghliner offline [root-dir]</code> to offline your app (i.e. regenerate the offline-worker.js script) and <code>oghliner deploy [root-dir]</code> to deploy it.  Both commands take an optional <em>root-dir</em> argument that specifies the directory to offline/deploy. Its default value is the current directory (<code>./</code>).</p>
+<p>The <em>offline</em> command also allows you to specify these options:</p>
+<ul>
+<li><em>--file-globs</em>: a comma-separated list of file globs to offline (default: <code>**/*</code>). The files specified by <em>--file-globs</em> are matched inside <em>root-dir</em>.</li>
+<li><em>--import-scripts</em>: a comma-separated list of additional scripts to import into offline-worker.js. This is useful, for example, when you want to use the <a href="https://developer.mozilla.org/en-US/docs/Web/API/Push_API">Push API</a>.</li>
+</ul>
+<p>Alternately, you can <code>npm install --save oghliner</code> and then add tasks to your <em>gulpfile.js</em> which call <em>oghliner.offline</em> and <em>oghliner.deploy</em>, for example:</p>
+<pre><code class="lang-js">var oghliner = require(&#39;oghliner&#39;);
 
-        <p>Offline Web Apps are web apps that work when your network doesn't. They use Service Workers to cache and serve your app's assets (HTML, JavaScript, CSS, images, etc.) on a user's machine, regardless of the status of its network connection. And they degrade gracefully, so the app works identically in browsers that don't support Service Workers when the machine is online.</p>
+gulp.task(&#39;offline&#39;, function(callback) {
+  oghliner.offline({
+    rootDir: &#39;dist/&#39;,
+    fileGlobs: [
+      &#39;**/*.html&#39;,
+      &#39;js/**/*.js&#39;,
+    ],
+  }, callback);
+});
 
-        <p>For more information about Service Workers, see:</p>
-        <ul>
-          <li><a href="http://www.html5rocks.com/en/tutorials/service-worker/introduction/">Introduction to Service Worker</a></li>
-          <li><a href="https://github.com/slightlyoff/ServiceWorker/blob/master/explainer.md">ServiceWorkers Explained</a></li>
-          <li><a href="https://developer.mozilla.org/en-US/docs/Web/API/Service_Worker_API">Service Worker API</a></li>
-        </ul>
+gulp.task(&#39;deploy&#39;, function(callback) {
+  oghliner.deploy({
+    rootDir: &#39;dist/&#39;,
+  }, callback);
+});
+</code></pre>
+<p>The <em>oghliner.offline</em> task takes a <em>config</em> object and a <em>callback</em>. The properties of the <em>config</em> object are:</p>
+<ul>
+<li><em>rootDir</em>: the directory to offline (default: <code>./</code>);</li>
+<li><em>fileGlobs</em>: an array of file globs to offline (default: <code>[&#39;**/*&#39;]</code>). The files specified by <em>fileGlobs</em> are matched inside <em>rootDir</em>.</li>
+<li><em>importScripts</em>: an array of additional scripts to import into offline-worker.js (default: <code>[]</code>). This is useful, for example, when you want to use the <a href="https://developer.mozilla.org/en-US/docs/Web/API/Push_API">Push API</a>.</li>
+</ul>
+<p><em>oghliner.deploy</em> deploys your files to GitHub Pages. It takes a <em>config</em> object and a <em>callback</em>. The properties of the <em>config</em> object are:</p>
+<ul>
+<li><em>rootDir</em>: the directory to deploy (default: <code>./</code>).</li>
+</ul>
+<p>Finally, in order for offline-worker.js to be evaluated, you need to load the offline manager script in your app by copying it to the location of your other scripts. To do this, use the <em>integrate</em> command (or <em>oghliner.integrate</em> function):</p>
+<pre><code class="lang-bash">oghliner integrate path/to/your/scripts/
+</code></pre>
+<h2 id="automatic-deployment-via-travis">Automatic Deployment Via Travis</h2>
+<p>Oghliner can configure a repository to automatically deploy to GitHub Pages whenever you push to its <em>master</em> branch. Auto-deploy uses <a href="https://travis-ci.org/">Travis CI</a>, a continuous integration service. Oghliner takes care of most of the steps to configure your repository to auto-deploy via Travis.</p>
+<p>If you bootstrapped your app from the template, your repository already has a suitable Travis configuration file (.travis.yml) and a <em>configure</em> task in gulpfile.js. Just <code>gulp configure</code> to configure your repository.</p>
+<p>If you integrated the tool into an existing app, <code>npm install -g oghliner &amp;&amp; oghliner configure</code> to configure your repository.</p>
+<p>Oghliner will prompt you for your GitHub credentials in order to create a token that authorizes Travis to push changes to your repository. The token will give Travis limited access to your GitHub account. Specifically: it will have the <em>public_repo</em> <a href="https://developer.github.com/v3/oauth/#scopes">scope</a>, which gives it &quot;read/write access to code, commit statuses, collaborators, and deployment statuses for public repositories and organizations.&quot;</p>
+<p>After configuring the repository, add and commit the changes to <em>.travis.yml</em> and push the <em>master</em> branch to the <em>origin</em> remote on GitHub to make Travis build and auto-deploy your app:</p>
+<pre><code class="lang-bash">&gt; git commit -m&quot;configure Travis to auto-deploy to GitHub Pages&quot; .travis.yml
+&gt; git push origin master
+</code></pre>
+<p>You can see the status of a build/deployment at <code>https://travis-ci.org/*your-GitHub-username*/*your-repository-name*/builds</code>. For example, the status of builds for <a href="https://github.com/mykmelez/eggtimer/">https://github.com/mykmelez/eggtimer/</a> is at <a href="https://travis-ci.org/mykmelez/eggtimer/builds">https://travis-ci.org/mykmelez/eggtimer/builds</a>.</p>
+<p>If the build was successful, Travis will deploy the site via <code>gulp deploy</code>. Expand the log entry to see details about the deployment:</p>
+<pre><code class="lang-bash">$ [ &quot;${TRAVIS_PULL_REQUEST}&quot; = &quot;false&quot; ] &amp;&amp; [ &quot;${TRAVIS_BRANCH}&quot; = &quot;master&quot; ] &amp;&amp; gulp deploy
+[23:34:13] Using gulpfile ~/build/mykmelez/eggtimer/gulpfile.js
+[23:34:13] Starting &#39;deploy&#39;...
+[23:34:15] Finished &#39;deploy&#39; after 1.96 s
+</code></pre>
 
-        <p>GitHub Pages is a great, simple web host for static sites and apps. If you're reading this page, then you're browsing a GitHub Pages site! For more information about GitHub Pages, see:</p>
 
-        <ul>
-          <li><a href="https://help.github.com/categories/github-pages-basics/">What are GitHub Pages</a></li>
-          <li><a href="https://pages.github.com/">GitHub Pages</a></li>
-          <li><a href="https://help.github.com/categories/github-pages-basics/">GitHub Pages Basics</a></li>
-        </ul>
-
-        <p>To find out the status of browser support for Service Workers, see:
-        <ul>
-          <li><a href="https://mozilla.github.io/platatus/#service-worker">Service Worker status</a></li>
-          <li><a href="https://jakearchibald.github.io/isserviceworkerready/">Is ServiceWorker Ready?</a></li>
-          <li><a href="http://caniuse.com/serviceworkers">Can I use Service Workers?</a></li>
-        </ul>
-
-        <p>To learn how to use Oghliner, see its <a href="https://www.npmjs.com/package/oghliner">NPM registry entry</a> and <a href="https://github.com/mozilla/oghliner">browse the source</a>.</p>
+        <h2>Resources</h2>
+        <div class="links-columns">
+          <div class="column">
+            <h3>About Service Workers</h3>
+            <ul>
+              <li><a href="http://www.html5rocks.com/en/tutorials/service-worker/introduction/">Introduction to Service Worker</a></li>
+              <li><a href="https://github.com/slightlyoff/ServiceWorker/blob/master/explainer.md">ServiceWorkers Explained</a></li>
+              <li><a href="https://developer.mozilla.org/en-US/docs/Web/API/Service_Worker_API">Service Worker API</a></li>
+            </ul>
+          </div>
+          <div class="column">
+            <h3>About GitHub Pages</h3>
+            <ul>
+              <li><a href="https://help.github.com/categories/github-pages-basics/">What are GitHub Pages</a></li>
+              <li><a href="https://pages.github.com/">GitHub Pages</a></li>
+              <li><a href="https://help.github.com/categories/github-pages-basics/">GitHub Pages Basics</a></li>
+            </ul>
+          </div>
+          <div class="column">
+            <h3>ServiceWorker API Status</h3>
+            <ul>
+              <li><a href="https://mozilla.github.io/platatus/#service-worker">Service Worker status</a></li>
+              <li><a href="https://jakearchibald.github.io/isserviceworkerready/">Is ServiceWorker Ready?</a></li>
+              <li><a href="http://caniuse.com/serviceworkers">Can I use Service Workers?</a></li>
+            </ul>
+          </div>
+        </div>
       </section>
     </main>
 
