@@ -46,7 +46,7 @@
     <!-- MAIN CONTENT -->
     <main class="center">
       <h1>Oghliner</h1>
-      <h2>Deploy Offline Web Apps to GitHub Pages</h2>
+      <h2 class="subtitle center-text">Deploy Offline Web Apps to GitHub Pages</h2>
 
       <section class="buttons">
         <a href="https://github.com/mozilla/oghliner" class="button">Fork on GitHub</a>
@@ -54,33 +54,36 @@
       </section>
 
       <section>
-        <p>Oghliner is an experimental template and tool for deploying Offline Web Apps to GitHub Pages. As a template, Oghliner can be used to bootstrap an offline app that deploys to GitHub Pages. As a tool, Oghliner adds offlining and GitHub Pages deployment into your existing app.</p>
+        
+        <%= content %>
 
-        <p>Offline Web Apps are web apps that work when your network doesn't. They use Service Workers to cache and serve your app's assets (HTML, JavaScript, CSS, images, etc.) on a user's machine, regardless of the status of its network connection. And they degrade gracefully, so the app works identically in browsers that don't support Service Workers when the machine is online.</p>
-
-        <p>For more information about Service Workers, see:</p>
-        <ul>
-          <li><a href="http://www.html5rocks.com/en/tutorials/service-worker/introduction/">Introduction to Service Worker</a></li>
-          <li><a href="https://github.com/slightlyoff/ServiceWorker/blob/master/explainer.md">ServiceWorkers Explained</a></li>
-          <li><a href="https://developer.mozilla.org/en-US/docs/Web/API/Service_Worker_API">Service Worker API</a></li>
-        </ul>
-
-        <p>GitHub Pages is a great, simple web host for static sites and apps. If you're reading this page, then you're browsing a GitHub Pages site! For more information about GitHub Pages, see:</p>
-
-        <ul>
-          <li><a href="https://help.github.com/categories/github-pages-basics/">What are GitHub Pages</a></li>
-          <li><a href="https://pages.github.com/">GitHub Pages</a></li>
-          <li><a href="https://help.github.com/categories/github-pages-basics/">GitHub Pages Basics</a></li>
-        </ul>
-
-        <p>To find out the status of browser support for Service Workers, see:
-        <ul>
-          <li><a href="https://mozilla.github.io/platatus/#service-worker">Service Worker status</a></li>
-          <li><a href="https://jakearchibald.github.io/isserviceworkerready/">Is ServiceWorker Ready?</a></li>
-          <li><a href="http://caniuse.com/serviceworkers">Can I use Service Workers?</a></li>
-        </ul>
-
-        <p>To learn how to use Oghliner, see its <a href="https://www.npmjs.com/package/oghliner">NPM registry entry</a> and <a href="https://github.com/mozilla/oghliner">browse the source</a>.</p>
+        <h2>Resources</h2>
+        <div class="links-columns">
+          <div class="column">
+            <h3>About Service Workers</h3>
+            <ul>
+              <li><a href="http://www.html5rocks.com/en/tutorials/service-worker/introduction/">Introduction to Service Worker</a></li>
+              <li><a href="https://github.com/slightlyoff/ServiceWorker/blob/master/explainer.md">ServiceWorkers Explained</a></li>
+              <li><a href="https://developer.mozilla.org/en-US/docs/Web/API/Service_Worker_API">Service Worker API</a></li>
+            </ul>
+          </div>
+          <div class="column">
+            <h3>About GitHub Pages</h3>
+            <ul>
+              <li><a href="https://help.github.com/categories/github-pages-basics/">What are GitHub Pages</a></li>
+              <li><a href="https://pages.github.com/">GitHub Pages</a></li>
+              <li><a href="https://help.github.com/categories/github-pages-basics/">GitHub Pages Basics</a></li>
+            </ul>
+          </div>
+          <div class="column">
+            <h3>ServiceWorker API Status</h3>
+            <ul>
+              <li><a href="https://mozilla.github.io/platatus/#service-worker">Service Worker status</a></li>
+              <li><a href="https://jakearchibald.github.io/isserviceworkerready/">Is ServiceWorker Ready?</a></li>
+              <li><a href="http://caniuse.com/serviceworkers">Can I use Service Workers?</a></li>
+            </ul>
+          </div>
+        </div>
       </section>
     </main>
 
