@@ -280,6 +280,15 @@ describe('Configure', function() {
     .reply(200, {"result":true});
   }
 
+  // I haven't reproduced this live, so I'm not sure if the response code
+  // is really 200, nor even if the "result" will be false, but those seem
+  // like the most likely values.
+  function nockActivateRepoFails() {
+    nock('https://api.travis-ci.org:443')
+    .put('/hooks/5910871', {"hook":{"active":true}})
+    .reply(200, {"result":false});
+  }
+
   function nockGetTravisKey() {
     return nock('https://api.travis-ci.org:443')
     .get('/repos/' + slug + '/key')
@@ -518,10 +527,27 @@ describe('Configure', function() {
 
     return enterUsernamePassword()
     .then(function() {
-      return await('Your repository isn\'t active in Travis yet.  Activating it…');
+      return await('Your repository isn\'t active in Travis yet; activating it… done!');
     })
+    .then(complete);
+  });
+
+  it('activates inactive repository - displays message on failure', function() {
+    nockGetAuthorizations();
+    nockGetTemporaryGitHubToken();
+    nockGetTravisTokenAndUser();
+    nockDeleteTemporaryGitHubToken();
+    nockGetGitHubToken();
+    nockGetHooksRepoIsInactive();
+    nockActivateRepoFails();
+    nockGetTravisUser();
+    nockGetTravisKey();
+
+    configure();
+
+    return enterUsernamePassword()
     .then(function() {
-      return await('Your repository has been activated in Travis!');
+      return await('Travis failed to activate your repository, so you\'ll need to do so');
     })
     .then(complete);
   });
@@ -610,7 +636,7 @@ describe('Configure', function() {
       assert(false, 'Configure should fail.');
     }, function(err) {
       assert(true, 'Configure should fail.');
-      assert.equal(err.message, 'Sync already in progress. Try again later.', 'Configure fails with the error thrown by travis.users.sync.post');
+      assert.equal(err.message, 'repository not found', 'Configure fails with the error thrown by travis.users.sync.post');
     });
   });
 
