@@ -64,7 +64,10 @@ describe('Configure', function() {
   }
 
   function complete() {
-    return await('You\'re ready to auto-deploy using Travis!')
+    return enterRepositoryRemote()
+    .then(function() {
+      return await('You\'re ready to auto-deploy using Travis!')
+    })
     .then(checkTravisYmlFile);
   }
 
@@ -83,7 +86,7 @@ describe('Configure', function() {
     expect(travisYml.after_success[0]).to.equal(
       'echo "travis_fold:end:after_success" && ' +
       '[ "${TRAVIS_PULL_REQUEST}" = "false" ] && [ "${TRAVIS_BRANCH}" = "master" ] && ' +
-      'echo "Deploying…" && gulp deploy'
+      'echo "Deploying…" && gulp deploy --remote origin'
     );
   }
 
@@ -123,6 +126,13 @@ describe('Configure', function() {
     })
     .then(function() {
       emit('password\n');
+    });
+  }
+
+  function enterRepositoryRemote() {
+    return await('Repository remote:')
+    .then(function() {
+      emit('origin\n');
     });
   }
 
@@ -651,6 +661,9 @@ describe('Configure', function() {
 
     return enterUsernamePassword()
     .then(function() {
+      return enterRepositoryRemote();
+    })
+    .then(function() {
       return await('You\'re ready to auto-deploy using Travis!');
     })
     .then(function() {
@@ -674,6 +687,9 @@ describe('Configure', function() {
     });
 
     return enterUsernamePassword()
+    .then(function() {
+      return enterRepositoryRemote();
+    })
     .then(function() {
       return await('You\'re ready to auto-deploy using Travis!');
     })
@@ -701,6 +717,9 @@ describe('Configure', function() {
 
     return enterUsernamePassword()
     .then(function() {
+      return enterRepositoryRemote();
+    })
+    .then(function() {
       return await('You\'re ready to auto-deploy using Travis!');
     })
     .then(function() {
@@ -723,6 +742,9 @@ describe('Configure', function() {
 
     return enterUsernamePassword()
     .then(function() {
+      return enterRepositoryRemote();
+    })
+    .then(function() {
       return await('You\'re ready to auto-deploy using Travis!');
     })
     .then(function() {
@@ -744,6 +766,9 @@ describe('Configure', function() {
     });
 
     return enterUsernamePassword()
+    .then(function() {
+      return enterRepositoryRemote();
+    })
     .then(function() {
       return await('You\'re ready to auto-deploy using Travis!');
     })
