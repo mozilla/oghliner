@@ -697,6 +697,16 @@ describe('Configure', function() {
     .then(complete);
   });
 
+  it('writes configuration to .travis.yml file', function() {
+    nockBasicPostAuthFlow();
+    configure();
+    return enterUsernamePassword()
+    .then(function() {
+      return await('Writing configuration to .travis.yml file… done!');
+    })
+    .then(complete);
+  });
+
   it('does not overwrite "language", "node_js", "install" and "script" in an already existing .travis.yml file', function() {
     nockBasicPostAuthFlow();
     configure();
