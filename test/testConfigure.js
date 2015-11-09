@@ -425,7 +425,12 @@ describe('Configure', function() {
 
   it('prompts you to enter a 2FA code', function() {
     nockGitHubRequires2FACode();
-    nockBasicPostAuthFlow();
+    nockGetTemporaryGitHubToken();
+    nockGetTravisTokenAndUser();
+    nockDeleteTemporaryGitHubToken();
+    nockGetGitHubToken();
+    nockGetHooks();
+    nockGetTravisKey();
     configure();
     return enterUsernamePassword().then(enter2FACode).then(complete);
   });
@@ -520,7 +525,6 @@ describe('Configure', function() {
     nockGetGitHubToken();
     nockGetHooksRepoIsInactive();
     nockActivateRepo();
-    nockGetTravisUser();
     nockGetTravisKey();
 
     configure();
@@ -540,7 +544,6 @@ describe('Configure', function() {
     nockGetGitHubToken();
     nockGetHooksRepoIsInactive();
     nockActivateRepoFails();
-    nockGetTravisUser();
     nockGetTravisKey();
 
     configure();
@@ -636,7 +639,7 @@ describe('Configure', function() {
       assert(false, 'Configure should fail.');
     }, function(err) {
       assert(true, 'Configure should fail.');
-      assert.equal(err.message, 'repository not found', 'Configure fails with the error thrown by travis.users.sync.post');
+      assert.equal(err.message, 'Sync already in progress. Try again later.', 'Configure fails with the error thrown by travis.users.sync.post');
     });
   });
 
@@ -803,6 +806,9 @@ describe('Configure', function() {
   afterEach(function() {
     process.chdir(oldWd);
     temp.cleanupSync();
+    if (!nock.isDone()) {
+      throw new Error("test finished with pending mocks: " + nock.pendingMocks());
+    }
   });
 
   after(function() {
