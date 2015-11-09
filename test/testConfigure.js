@@ -796,6 +796,28 @@ describe('Configure', function() {
     });
   });
 
+  it('uses upstream as the default remote if it exists', function() {
+    nockBasicPostAuthFlow();
+    configure();
+
+    childProcess.execSync('git remote add upstream https://github.com/mozilla/oghliner.git');
+
+    return enterUsernamePassword()
+    .then(function() {
+      return await('Repository remote [default: upstream]:');
+    })
+    .then(function() {
+      emit('\n');
+    })
+    .then(function() {
+      return await('You\'re ready to auto-deploy using Travis!');
+    })
+    .then(function() {
+      var travisYml = readYaml.sync('.travis.yml');
+      expect(travisYml.after_success[0]).to.contain('gulp deploy --remote upstream');
+    });
+  });
+
   afterEach(function() {
     process.chdir(oldWd);
     temp.cleanupSync();
