@@ -43,10 +43,12 @@ program
   .description('configure repository to auto-deploy to GitHub Pages using Travis CI')
   .action(function(env, options) {
     configure()
-    .catch(function(err) {
+    .then(function() {
+      process.exit(0);
+    }, function(err) {
       gutil.log(gutil.colors.red.bold(err));
-    })
-    .then(process.exit);
+      process.exit(1);
+    });
   });
 
 program
@@ -84,6 +86,7 @@ program
     })
     .catch(function(err) {
       gutil.log(gutil.colors.red.bold(err));
+      process.exit(1);
     });
   });
 
@@ -100,6 +103,7 @@ program
     })
     .catch(function(err) {
       gutil.log(gutil.colors.red.bold(err));
+      process.exit(1);
     });
   });
 
@@ -112,6 +116,7 @@ program
     })
     .catch(function(err) {
       gutil.log(gutil.colors.red.bold(err));
+      process.exit(1);
     });
   });
 
@@ -124,6 +129,7 @@ program
       })
       .catch(function(err) {
         gutil.log(gutil.colors.red.bold(err));
+        process.exit(1);
       });
     });
 
