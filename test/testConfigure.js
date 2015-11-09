@@ -64,10 +64,7 @@ describe('Configure', function() {
   }
 
   function complete() {
-    return enterRepositoryRemote()
-    .then(function() {
-      return await('You\'re ready to auto-deploy using Travis!')
-    })
+    return await('You\'re ready to auto-deploy using Travis!')
     .then(checkTravisYmlFile);
   }
 
@@ -126,13 +123,6 @@ describe('Configure', function() {
     })
     .then(function() {
       emit('password\n');
-    });
-  }
-
-  function enterRepositoryRemote(remote) {
-    return await('Repository remote [default: origin]:')
-    .then(function() {
-      emit((remote || 'origin') + '\n');
     });
   }
 
@@ -661,9 +651,6 @@ describe('Configure', function() {
 
     return enterUsernamePassword()
     .then(function() {
-      return enterRepositoryRemote();
-    })
-    .then(function() {
       return await('You\'re ready to auto-deploy using Travis!');
     })
     .then(function() {
@@ -687,9 +674,6 @@ describe('Configure', function() {
     });
 
     return enterUsernamePassword()
-    .then(function() {
-      return enterRepositoryRemote();
-    })
     .then(function() {
       return await('You\'re ready to auto-deploy using Travis!');
     })
@@ -717,9 +701,6 @@ describe('Configure', function() {
 
     return enterUsernamePassword()
     .then(function() {
-      return enterRepositoryRemote();
-    })
-    .then(function() {
       return await('You\'re ready to auto-deploy using Travis!');
     })
     .then(function() {
@@ -741,9 +722,6 @@ describe('Configure', function() {
     });
 
     return enterUsernamePassword()
-    .then(function() {
-      return enterRepositoryRemote();
-    })
     .then(function() {
       return await('You\'re ready to auto-deploy using Travis!');
     })
@@ -767,9 +745,6 @@ describe('Configure', function() {
 
     return enterUsernamePassword()
     .then(function() {
-      return enterRepositoryRemote();
-    })
-    .then(function() {
       return await('You\'re ready to auto-deploy using Travis!');
     })
     .then(function() {
@@ -783,17 +758,16 @@ describe('Configure', function() {
     nockBasicPostAuthFlow();
     configure();
 
+    childProcess.execSync('git remote add upstream https://github.com/mozilla/oghliner.git');
+
     return enterUsernamePassword()
     .then(function() {
-      return enterRepositoryRemote('asd');
+      return await('Repository remote [default: upstream]:');
     })
     .then(function() {
-      return await('You\'re ready to auto-deploy using Travis!');
+      emit('origin\n');
     })
-    .then(function() {
-      var travisYml = readYaml.sync('.travis.yml');
-      expect(travisYml.after_success[0]).to.contain('gulp deploy --remote asd');
-    });
+    .then(complete);
   });
 
   it('uses upstream as the default remote if it exists', function() {
