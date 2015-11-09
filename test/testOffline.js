@@ -73,6 +73,7 @@ describe('Offline', function() {
 
   it('should use importScript in the service worker if the importScripts option is defined', function() {
     var dir = temp.mkdirSync('oghliner');
+    fs.writeFileSync(path.join(dir, 'a-script.js'), 'data');
 
     return offline({
       rootDir: dir,
@@ -80,6 +81,33 @@ describe('Offline', function() {
     }).then(function() {
       var content = fs.readFileSync(path.join(dir, 'offline-worker.js'), 'utf8');
       assert.notEqual(content.indexOf('importScripts("a-script.js");'), -1);
+    });
+  });
+
+  it('should fail if an entry in importScript is a directory', function() {
+    var dir = temp.mkdirSync('oghliner');
+    fs.mkdirSync(path.join(dir, 'subDir'));
+
+    return offline({
+      rootDir: dir,
+      importScripts: [ 'subDir', ],
+    }).then(function() {
+      assert(false);
+    }, function() {
+      assert(true);
+    });
+  });
+
+  it('should fail if a file in importScript doesn\'t exist', function() {
+    var dir = temp.mkdirSync('oghliner');
+
+    return offline({
+      rootDir: dir,
+      importScripts: [ 'a-script.js', ],
+    }).then(function() {
+      assert(false);
+    }, function() {
+      assert(true);
     });
   });
 

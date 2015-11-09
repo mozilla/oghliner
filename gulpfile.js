@@ -21,14 +21,25 @@ var gulp = require('gulp');
 var mocha = require('gulp-mocha');
 var istanbul = require('gulp-istanbul');
 var eslint = require('gulp-eslint');
+var template = require('gulp-template');
+var marked = require('marked');
 var argv = require('yargs').argv;
+
 var oghliner = require('./index.js');
 
 gulp.task('default', ['build', 'offline']);
 
-gulp.task('build', ['copy-files', 'build-tabzilla']);
+gulp.task('build', ['build-app', 'build-tabzilla']);
 
-gulp.task('copy-files', function(callback) {
+gulp.task('build-app', ['copy-files'], function() {
+  return gulp.src('dist/index.html')
+    .pipe(template({
+      content: marked(require('fs').readFileSync('README.md', 'utf8'))
+    }))
+    .pipe(gulp.dest('dist'));
+});
+
+gulp.task('copy-files', function() {
   return gulp.src('app/**').pipe(gulp.dest('dist'));
 });
 
