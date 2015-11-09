@@ -130,7 +130,7 @@ describe('Configure', function() {
   }
 
   function enterRepositoryRemote(remote) {
-    return await('Repository remote:')
+    return await('Repository remote [default: origin]:')
     .then(function() {
       emit((remote || 'origin') + '\n');
     });
