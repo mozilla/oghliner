@@ -5,44 +5,98 @@
     <meta charset="utf-8">
     <title>Oghliner</title>
     <meta name="description" content="Oghliner : template and tool for deploying Offline Web Apps to GitHub Pages">
-    <link rel="stylesheet" type="text/css" media="screen" href="styles/stylesheet.css">
+
+    <link rel="shortcut icon" href="favicon.ico" type="image/x-icon"/>
+    <link rel="apple-touch-icon-precomposed" sizes="57x57" href="images/apple-touch-icon-57x57.png" />
+    <link rel="apple-touch-icon-precomposed" sizes="114x114" href="images/apple-touch-icon-114x114.png" />
+    <link rel="apple-touch-icon-precomposed" sizes="72x72" href="images/apple-touch-icon-72x72.png" />
+    <link rel="apple-touch-icon-precomposed" sizes="144x144" href="images/apple-touch-icon-144x144.png" />
+    <link rel="apple-touch-icon-precomposed" sizes="60x60" href="images/apple-touch-icon-60x60.png" />
+    <link rel="apple-touch-icon-precomposed" sizes="120x120" href="images/apple-touch-icon-120x120.png" />
+    <link rel="apple-touch-icon-precomposed" sizes="76x76" href="images/apple-touch-icon-76x76.png" />
+    <link rel="apple-touch-icon-precomposed" sizes="152x152" href="images/apple-touch-icon-152x152.png" />
+    <link rel="icon" type="image/png" href="images/favicon-196x196.png" sizes="196x196" />
+    <link rel="icon" type="image/png" href="images/favicon-96x96.png" sizes="96x96" />
+    <link rel="icon" type="image/png" href="images/favicon-32x32.png" sizes="32x32" />
+    <link rel="icon" type="image/png" href="images/favicon-16x16.png" sizes="16x16" />
+    <link rel="icon" type="image/png" href="images/favicon-128x128.png" sizes="128x128" />
+    <meta name="application-name" content="&nbsp;"/>
+    <meta name="msapplication-TileColor" content="#FFFFFF" />
+    <meta name="msapplication-TileImage" content="images/mstile-144x144.png" />
+    <meta name="msapplication-square70x70logo" content="images/mstile-70x70.png" />
+    <meta name="msapplication-square150x150logo" content="images/mstile-150x150.png" />
+    <meta name="msapplication-wide310x150logo" content="images/mstile-310x150.png" />
+    <meta name="msapplication-square310x310logo" content="images/mstile-310x310.png" />
+    
+    <link rel="stylesheet" type="text/css" media="all" href="styles/stylesheet.css">
+    <link rel="stylesheet" type="text/css" media="all" href="styles/tabzilla/css/tabzilla.css">
     <script src="scripts/offline-manager.js"></script>
   </head>
 
   <body>
 
-<a href="https://github.com/mozilla/oghliner"><img style="position: absolute; top: 0; right: 0; border: 0; padding: 0; margin: 0; box-shadow: none;" src="https://camo.githubusercontent.com/52760788cde945287fbb584134c4cbc2bc36f904/68747470733a2f2f73332e616d617a6f6e6177732e636f6d2f6769746875622f726962626f6e732f666f726b6d655f72696768745f77686974655f6666666666662e706e67" alt="Fork me on GitHub" data-canonical-src="https://s3.amazonaws.com/github/ribbons/forkme_right_white_ffffff.png"></a>
+    <div class="wrapper">
 
-    <!-- HEADER -->
-    <div id="header_wrap" class="outer">
-        <header class="inner">
-          <h1 id="project_title">Oghliner</h1>
-          <h2 id="project_tagline">deploy Offline Web Apps to GitHub Pages</h2>
-        </header>
+    <div class="center">
+      <div id="tabzilla">
+        <a href="https://www.mozilla.org/">Mozilla</a>
+      </div>
     </div>
 
     <!-- MAIN CONTENT -->
-    <div id="main_content_wrap" class="outer">
-      <section id="main_content" class="inner">
-        <p>Oghliner is an experimental template and tool for deploying Offline Web Apps to GitHub Pages. As a template, Oghliner can be used to bootstrap an offline app that deploys to GitHub Pages. As a tool, Oghliner adds offlining and GitHub Pages deployment into your existing app.</p>
+    <main class="center">
+      <h1>Oghliner</h1>
+      <h2 class="subtitle center-text">Deploy Offline Web Apps to GitHub Pages</h2>
 
-        <p>Offline Web Apps are web apps that work when your network doesn't. They use Service Workers to cache and serve your app's assets (HTML, JavaScript, CSS, images, etc.) on a user's machine, regardless of the status of its network connection. And they degrade gracefully, so the app works identically in browsers that don't support Service Workers when the machine is online.</p>
-
-        <p>For more information about Service Workers, see <a href="http://www.html5rocks.com/en/tutorials/service-worker/introduction/">Introduction to Service Worker</a>, <a href="https://github.com/slightlyoff/ServiceWorker/blob/master/explainer.md">ServiceWorkers Explained</a>, and <a href="https://developer.mozilla.org/en-US/docs/Web/API/Service_Worker_API">Service Worker API</a>.
-
-        <p>GitHub Pages is a great, simple web host for static sites and apps. If you're reading this page, then you're browsing a GitHub Pages site! For more information about GitHub Pages, see <a href="https://help.github.com/categories/github-pages-basics/">What are GitHub Pages</a>, <a href="https://pages.github.com/">GitHub Pages</a>, and <a href="https://help.github.com/categories/github-pages-basics/">GitHub Pages Basics</a>.
-
-        <p>To find out the status of browser support for Service Workers, see <a href="https://jakearchibald.github.io/isserviceworkerready/">Is ServiceWorker Ready?</a> and <a href="http://caniuse.com/serviceworkers">Can I use Service Workers?</a></p>
-
-        <p>To learn how to use Oghliner, see its <a href="https://www.npmjs.com/package/oghliner">NPM registry entry</a> and <a href="https://github.com/mozilla/oghliner">browse the source</a>.</p>
+      <section class="buttons">
+        <a href="https://github.com/mozilla/oghliner" class="button">Fork on GitHub</a>
+        <a href="https://www.npmjs.com/package/oghliner" class="button">Discover on npm</a>
       </section>
+
+      <section>
+        
+        <%= content %>
+
+        <h2>Resources</h2>
+        <div class="links-columns">
+          <div class="column">
+            <h3>About Service Workers</h3>
+            <ul>
+              <li><a href="http://www.html5rocks.com/en/tutorials/service-worker/introduction/">Introduction to Service Worker</a></li>
+              <li><a href="https://github.com/slightlyoff/ServiceWorker/blob/master/explainer.md">ServiceWorkers Explained</a></li>
+              <li><a href="https://developer.mozilla.org/en-US/docs/Web/API/Service_Worker_API">Service Worker API</a></li>
+            </ul>
+          </div>
+          <div class="column">
+            <h3>About GitHub Pages</h3>
+            <ul>
+              <li><a href="https://help.github.com/categories/github-pages-basics/">What are GitHub Pages</a></li>
+              <li><a href="https://pages.github.com/">GitHub Pages</a></li>
+              <li><a href="https://help.github.com/categories/github-pages-basics/">GitHub Pages Basics</a></li>
+            </ul>
+          </div>
+          <div class="column">
+            <h3>ServiceWorker API Status</h3>
+            <ul>
+              <li><a href="https://mozilla.github.io/platatus/#service-worker">Service Worker status</a></li>
+              <li><a href="https://jakearchibald.github.io/isserviceworkerready/">Is ServiceWorker Ready?</a></li>
+              <li><a href="http://caniuse.com/serviceworkers">Can I use Service Workers?</a></li>
+            </ul>
+          </div>
+        </div>
+      </section>
+    </main>
+
     </div>
 
     <!-- FOOTER  -->
-    <div id="footer_wrap" class="outer">
-      <footer class="inner">
-        <p class="copyright">Oghliner is a <a href="https://github.com/mozilla">Mozilla</a> project.
-      </footer>
-    </div>
+    <footer class="inner">
+      <p>
+        <span class="copyright">Oghliner is a <a href="https://github.com/mozilla">Mozilla</a> project.</span>
+        &bull;
+        <a href="https://github.com/mozilla/oghliner">Oghliner on GitHub</a>
+      </p>
+    </footer>
+
   </body>
 </html>
