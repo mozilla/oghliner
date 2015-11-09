@@ -129,10 +129,10 @@ describe('Configure', function() {
     });
   }
 
-  function enterRepositoryRemote() {
+  function enterRepositoryRemote(remote) {
     return await('Repository remote:')
     .then(function() {
-      emit('origin\n');
+      emit((remote || 'origin') + '\n');
     });
   }
 
@@ -776,6 +776,23 @@ describe('Configure', function() {
       var travisYml = readYaml.sync('.travis.yml');
       expect(travisYml.after_success).to.have.length.above(1);
       expect(travisYml.after_success).to.include('a_command');
+    });
+  });
+
+  it('configures auto-deploy for a custom remote', function() {
+    nockBasicPostAuthFlow();
+    configure();
+
+    return enterUsernamePassword()
+    .then(function() {
+      return enterRepositoryRemote('asd');
+    })
+    .then(function() {
+      return await('You\'re ready to auto-deploy using Travis!');
+    })
+    .then(function() {
+      var travisYml = readYaml.sync('.travis.yml');
+      expect(travisYml.after_success[0]).to.contain('gulp deploy --remote asd');
     });
   });
 
