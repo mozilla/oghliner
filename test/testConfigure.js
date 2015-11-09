@@ -687,6 +687,16 @@ describe('Configure', function() {
     .then(complete);
   });
 
+  it('encrypts permanent GitHub token', function() {
+    nockBasicPostAuthFlow();
+    configure();
+    return enterUsernamePassword()
+    .then(function() {
+      return await('Encrypting permanent GitHub token… done!');
+    })
+    .then(complete);
+  });
+
   it('does not overwrite "language", "node_js", "install" and "script" in an already existing .travis.yml file', function() {
     nockBasicPostAuthFlow();
     configure();
