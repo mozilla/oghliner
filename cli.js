@@ -114,7 +114,9 @@ program
     bootstrap({
       rootDir: dir,
     })
-    .catch(function(err) {
+    .then(function() {
+      process.exit(0);
+    }, function(err) {
       gutil.log(gutil.colors.red.bold(err));
       process.exit(1);
     });

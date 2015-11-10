@@ -14,7 +14,7 @@ if (!username || !password) {
   return;
 }
 
-describe('CLI interface, oghliner as a tool', function() {
+describe('CLI interface, oghliner as a template', function() {
   this.timeout(0);
 
   var oldWD = process.cwd();
@@ -45,17 +45,36 @@ describe('CLI interface, oghliner as a tool', function() {
   });
 
   it('should work', function() {
-    return liveUtils.createRepo(true)
+    return liveUtils.createRepo(false)
     .then(liveUtils.spawn.bind(null, 'git', ['clone', 'https://' + username + ':' + liveUtils.githubToken + '@github.com/' + username + '/' + liveUtils.repoName]))
     .then(process.chdir.bind(null, liveUtils.repoName))
     .then(liveUtils.spawn.bind(null, 'npm', ['install', path.dirname(__dirname)]))
+    .then(liveUtils.spawn.bind(null, path.join('node_modules', '.bin', 'oghliner'), ['bootstrap', '.'], [
+      {
+        q: 'Would you like to change any of the above configuration values?',
+        r: 'n',
+      }
+    ]))
+    // Overwrite the oghliner version installed by bootstrap with the development one from the top directory.
+    .then(liveUtils.spawn.bind(null, 'npm', ['install', path.dirname(__dirname)]))
     .then(function() {
-      fse.mkdirSync('dist');
+      assert.doesNotThrow(fse.statSync.bind(fse, 'README.md'));
+      assert.doesNotThrow(fse.statSync.bind(fse, 'app'));
+      var packageJson = JSON.parse(fse.readFileSync('package.json', 'utf8'));
+      expect(packageJson.name).to.equal('oghliner-template-app');
+      expect(packageJson.license).to.equal('Apache-2.0');
+      expect(packageJson).to.include.keys('version');
+      expect(packageJson).to.include.keys('description');
+      expect(packageJson).to.include.keys('repository');
+      expect(packageJson).to.include.keys('dependencies');
     })
-    .then(fse.writeFileSync.bind(fse, 'dist/index.html', '<html></html>'))
-    .then(liveUtils.spawn.bind(null, path.join('node_modules', '.bin', 'oghliner'), ['offline', 'dist']))
-    .then(liveUtils.spawn.bind(null, path.join('node_modules', '.bin', 'oghliner'), ['integrate', 'dist']))
-    .then(liveUtils.spawn.bind(null, path.join('node_modules', '.bin', 'oghliner'), ['deploy', 'dist']))
+    .then(liveUtils.spawn.bind(null, 'git', ['add', '*']))
+    .then(liveUtils.spawn.bind(null, 'git', ['commit', '-m', 'First commit']))
+    .then(liveUtils.spawn.bind(null, path.join('node_modules', '.bin', 'gulp'), []))
+    .then(function() {
+      assert.doesNotThrow(fse.statSync.bind(fse, 'dist'));
+    })
+    .then(liveUtils.spawn.bind(null, path.join('node_modules', '.bin', 'gulp'), ['deploy']))
     .then(function() {
       return liveUtils.getBranch(username)
       .catch(liveUtils.getBranch.bind(null, username))
@@ -103,18 +122,8 @@ describe('CLI interface, oghliner as a tool', function() {
     .then(liveUtils.spawn.bind(null, 'git', ['checkout', '-b', 'gh-pages']))
     .then(liveUtils.spawn.bind(null, 'git', ['pull', 'origin', 'gh-pages']))
     .then(function() {
-      assert.doesNotThrow(fse.statSync.bind(fse, 'offline-manager.js'));
+      assert.doesNotThrow(fse.statSync.bind(fse, 'index.html'));
       assert.doesNotThrow(fse.statSync.bind(fse, 'offline-worker.js'));
     });
-  });
-
-  it('the CLI program should have an exit code != 0 if deploy fails', function() {
-    return liveUtils.spawn('npm', ['install', path.dirname(__dirname)])
-    .then(liveUtils.spawn.bind(null, path.join('node_modules', '.bin', 'oghliner'), ['deploy']))
-    .then(function() {
-      assert(false);
-    }, function(err) {
-      assert(true);
-    })
   });
 });
