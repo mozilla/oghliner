@@ -105,6 +105,10 @@ describe('CLI interface, oghliner as a tool', function() {
     .then(function() {
       assert.doesNotThrow(fse.statSync.bind(fse, 'offline-manager.js'));
       assert.doesNotThrow(fse.statSync.bind(fse, 'offline-worker.js'));
+    })
+    .catch(function(err) {
+      console.log('Error: ' + err);
+      throw err;
     });
   });
 
