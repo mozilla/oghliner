@@ -109,8 +109,8 @@ describe('CLI interface, oghliner as a tool', function() {
   });
 
   it('the CLI program should have an exit code != 0 if deploy fails', function() {
-    return spawn('npm', ['install', path.dirname(__dirname)])
-    .then(spawn.bind(null, path.join('node_modules', '.bin', 'oghliner'), ['deploy']))
+    return liveUtils.spawn('npm', ['install', path.dirname(__dirname)])
+    .then(liveUtils.spawn.bind(null, path.join('node_modules', '.bin', 'oghliner'), ['deploy']))
     .then(function() {
       assert(false);
     }, function(err) {
