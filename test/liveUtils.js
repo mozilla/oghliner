@@ -19,9 +19,9 @@ var github = new GitHub({
 });
 
 var liveUtils = {
-  repoName: 'test_oghliner_live' + process.version + process.pid,
-  githubNote: 'test' + process.version + process.pid,
-  githubNoteURL: 'http://www.test.org/' + process.version + process.pid,
+  repoName: 'test_oghliner_live_' + process.version + '_' + process.pid,
+  githubNote: 'test' + process.version + '_' + process.pid,
+  githubNoteURL: 'http://www.test.org/' + process.version + '_' + process.pid,
   githubToken: null,
   getTokenId: getTokenId,
   createAuthorization: createAuthorization,
