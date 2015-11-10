@@ -462,7 +462,7 @@ describe('Configure', function() {
     configure();
     return enterUsernamePassword()
     .then(function() {
-      return await('You already have that token; deleting it… done!');
+      return await('You had an existing token for this app, so we deleted and recreated it.');
     })
     .then(complete);
   });
