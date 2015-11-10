@@ -33,7 +33,7 @@
   "dependencies": {
     "commander": "^2.8.1",
     "fs-extra": "^0.26.0",
-    "gh-pages": "^0.5.0",
+    "gh-pages": "https://github.com/marco-c/gh-pages/tarball/817ee16441d72a0c1d33ce109cddf9c1963991d8",
     "gitconfiglocal": "^1.0.0",
     "github": "^0.2.4",
     "github-slug": "^1.0.0",
@@ -55,6 +55,7 @@
     "temp": "^0.8.3",
     "through2": "^2.0.0",
     "travis-ci": "^2.0.3",
+    "yargs": "^3.27.0",
     "travis-encrypt": "^1.1.2",
     "write-yaml": "^0.2.1"
   },
@@ -68,8 +69,7 @@
     "nock": "^2.15.0",
     "readline-sync": "^1.2.21",
     "rewire": "^2.3.4",
-    "simple-git": "^1.11.0",
-    "yargs": "^3.27.0"
+    "simple-git": "^1.11.0"
   },
   "engines": {
     "node": ">= 0.12"

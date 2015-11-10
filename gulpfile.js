@@ -52,6 +52,7 @@ gulp.task('configure', oghliner.configure);
 gulp.task('deploy', function() {
   return oghliner.deploy({
     rootDir: 'dist',
+    remote: argv.remote,
   });
 });
 

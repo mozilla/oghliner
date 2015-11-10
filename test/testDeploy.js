@@ -50,6 +50,41 @@ describe('Deploy', function() {
     });
   });
 
+  it('should create a gh-pages branch in the upstream repo and publish files to it', function(done) {
+    var dir = temp.mkdirSync('oghliner');
+
+    var simpleGit = require('simple-git')(dir);
+
+    simpleGit.init(function() {
+      fs.writeFileSync(path.join(dir, 'file'), 'data');
+
+      return simpleGit.add('file')
+                      .commit('Initial commit')
+                      .addRemote('upstream', dir, function() {
+        process.chdir(dir);
+
+        return deploy({
+          cloneDir: '.gh-pages-cache',
+          remote: 'upstream',
+        }).then(function() {
+          process.chdir(oldWD);
+
+          return simpleGit.checkout('gh-pages').log(function(err, log) {
+            try {
+              assert.equal(log.total, 1, '1 commit');
+              assert.equal(fs.readFileSync(path.join(dir, 'file'), 'utf8'), 'data');
+              done();
+            } catch (e) {
+              done(e);
+            }
+          });
+        }, function() {
+          assert(false, 'Deploy\'s promise should be resolved');
+        }).catch(done);
+      });
+    });
+  });
+
   it('should create a gh-pages branch in the origin repo and publish only the specified files to it', function(done) {
     var dir = temp.mkdirSync('oghliner');
 

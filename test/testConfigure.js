@@ -83,7 +83,7 @@ describe('Configure', function() {
     expect(travisYml.after_success[0]).to.equal(
       'echo "travis_fold:end:after_success" && ' +
       '[ "${TRAVIS_PULL_REQUEST}" = "false" ] && [ "${TRAVIS_BRANCH}" = "master" ] && ' +
-      'echo "Deploying…" && gulp deploy'
+      'echo "Deploying…" && gulp deploy --remote origin'
     );
   }
 
@@ -751,6 +751,44 @@ describe('Configure', function() {
       var travisYml = readYaml.sync('.travis.yml');
       expect(travisYml.after_success).to.have.length.above(1);
       expect(travisYml.after_success).to.include('a_command');
+    });
+  });
+
+  it('configures auto-deploy for a custom remote', function() {
+    nockBasicPostAuthFlow();
+    configure();
+
+    childProcess.execSync('git remote add upstream https://github.com/mozilla/oghliner.git');
+
+    return enterUsernamePassword()
+    .then(function() {
+      return await('Repository remote [default: upstream]:');
+    })
+    .then(function() {
+      emit('origin\n');
+    })
+    .then(complete);
+  });
+
+  it('uses upstream as the default remote if it exists', function() {
+    nockBasicPostAuthFlow();
+    configure();
+
+    childProcess.execSync('git remote add upstream https://github.com/mozilla/oghliner.git');
+
+    return enterUsernamePassword()
+    .then(function() {
+      return await('Repository remote [default: upstream]:');
+    })
+    .then(function() {
+      emit('\n');
+    })
+    .then(function() {
+      return await('You\'re ready to auto-deploy using Travis!');
+    })
+    .then(function() {
+      var travisYml = readYaml.sync('.travis.yml');
+      expect(travisYml.after_success[0]).to.contain('gulp deploy --remote upstream');
     });
   });
 
