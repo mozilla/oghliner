@@ -43,10 +43,12 @@ program
   .description('configure repository to auto-deploy to GitHub Pages using Travis CI')
   .action(function(env, options) {
     configure()
-    .catch(function(err) {
+    .then(function() {
+      process.exit(0);
+    }, function(err) {
       gutil.log(gutil.colors.red.bold(err));
-    })
-    .then(process.exit);
+      process.exit(1);
+    });
   });
 
 program
@@ -66,7 +68,7 @@ program
 
       fs.access('.gitignore', function(err) {
         if (err) {
-          gutil.log('.gh-pages-cache is a temporary repository that we use to push changes to your gh-pages branch. We suggest you add it to your .gitignore.');
+          gutil.log(gutil.colors.blue.bold('.gh-pages-cache is a temporary repository that we use to push changes to your gh-pages branch. We suggest you add it to your .gitignore.'));
           return;
         }
 
@@ -84,6 +86,7 @@ program
     })
     .catch(function(err) {
       gutil.log(gutil.colors.red.bold(err));
+      process.exit(1);
     });
   });
 
@@ -100,6 +103,7 @@ program
     })
     .catch(function(err) {
       gutil.log(gutil.colors.red.bold(err));
+      process.exit(1);
     });
   });
 
@@ -110,10 +114,12 @@ program
     bootstrap({
       rootDir: dir,
     })
-    .catch(function(err) {
+    .then(function() {
+      process.exit(0);
+    }, function(err) {
       gutil.log(gutil.colors.red.bold(err));
-    })
-    .then(process.exit);
+      process.exit(1);
+    });
   });
 
   program
@@ -125,6 +131,7 @@ program
       })
       .catch(function(err) {
         gutil.log(gutil.colors.red.bold(err));
+        process.exit(1);
       });
     });
 
