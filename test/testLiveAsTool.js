@@ -88,7 +88,7 @@ describe('CLI interface, oghliner as a tool', function() {
       expect(travisYml.after_success[0]).to.equal(
         'echo "travis_fold:end:after_success" && ' +
         '[ "${TRAVIS_PULL_REQUEST}" = "false" ] && [ "${TRAVIS_BRANCH}" = "master" ] && ' +
-        'echo "Deploying…" && gulp deploy'
+        'echo "Deploying…" && gulp deploy --remote origin'
       );
     })
     .then(function() {
