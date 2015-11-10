@@ -387,23 +387,21 @@ describe('Configure', function() {
     nockGetTravisKey();
   }
 
-  it('tells you what it\'s going to do', function() {
+  it('completes basic flow', function() {
     nockBasicPostAuthFlow();
     configure();
-
-    // We don't chain this to the promise we return, even though it happens
-    // after the message we await, because the configure flow would race it
-    // if we chained it to that message.
-    enterUsernamePassword();
-
     return await('Configuring Travis to auto-deploy ' + slug + ' to GitHub Pages…')
+    .then(enterUsernamePassword)
+    .then(Promise.all([
+        await('Creating temporary GitHub token for getting Travis token… done!'),
+        await('Getting Travis token… done!'),
+        await('Deleting temporary GitHub token for getting Travis token… done!'),
+        await('Creating permanent GitHub token for Travis to push to the repository… done!'),
+        await('Good news, your repository is already active in Travis!'),
+        await('Encrypting permanent GitHub token… done!'),
+        await('Writing configuration to .travis.yml file… done!'),
+      ]))
     .then(complete);
-  });
-
-  it('prompts you to enter a username/password', function() {
-    nockBasicPostAuthFlow();
-    configure();
-    return enterUsernamePassword().then(complete);
   });
 
   it('prompts you to re-enter an incorrect username/password', function() {
@@ -463,56 +461,6 @@ describe('Configure', function() {
     return enterUsernamePassword()
     .then(function() {
       return await('You had an existing token for this app, so we deleted and recreated it.');
-    })
-    .then(complete);
-  });
-
-  it('creates temporary GitHub token', function() {
-    nockBasicPostAuthFlow();
-    configure();
-    return enterUsernamePassword()
-    .then(function() {
-      return await('Creating temporary GitHub token for getting Travis token… done!');
-    })
-    .then(complete);
-  });
-
-  it('gets Travis token', function() {
-    nockBasicPostAuthFlow();
-    configure();
-    return enterUsernamePassword()
-    .then(function() {
-      return await('Getting Travis token… done!');
-    })
-    .then(complete);
-  });
-
-  it('deletes temporary GitHub token', function() {
-    nockBasicPostAuthFlow();
-    configure();
-    return enterUsernamePassword()
-    .then(function() {
-      return await('Deleting temporary GitHub token for getting Travis token… done!');
-    })
-    .then(complete);
-  });
-
-  it('creates permanent GitHub token', function() {
-    nockBasicPostAuthFlow();
-    configure();
-    return enterUsernamePassword()
-    .then(function() {
-      return await('Creating permanent GitHub token for Travis to push to the repository… done!');
-    })
-    .then(complete);
-  });
-
-  it('confirms active repository', function() {
-    nockBasicPostAuthFlow();
-    configure();
-    return enterUsernamePassword()
-    .then(function() {
-      return await('Good news, your repository is already active in Travis!');
     })
     .then(complete);
   });
@@ -684,26 +632,6 @@ describe('Configure', function() {
     configure();
 
     return enterUsernamePassword()
-    .then(complete);
-  });
-
-  it('encrypts permanent GitHub token', function() {
-    nockBasicPostAuthFlow();
-    configure();
-    return enterUsernamePassword()
-    .then(function() {
-      return await('Encrypting permanent GitHub token… done!');
-    })
-    .then(complete);
-  });
-
-  it('writes configuration to .travis.yml file', function() {
-    nockBasicPostAuthFlow();
-    configure();
-    return enterUsernamePassword()
-    .then(function() {
-      return await('Writing configuration to .travis.yml file… done!');
-    })
     .then(complete);
   });
 
