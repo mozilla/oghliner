@@ -48,7 +48,6 @@
     "gulp-install": "https://github.com/marco-c/gulp-install/tarball/56f8ebf87f14651f586d6377dea75c2f3d1b1691",
     "gulp-rename": "^1.2.2",
     "gulp-template": "^3.0.0",
-    "gulp-util": "^3.0.6",
     "mozilla-tabzilla": "^0.5.1",
     "promisified-promptly": "^1.0.0",
     "promisify-node": "^0.2.1",
