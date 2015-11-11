@@ -45,7 +45,7 @@
     "gulp-conflict": "^0.4.0",
     "gulp-connect": "^2.2.0",
     "gulp-gh-pages": "^0.5.2",
-    "gulp-install": "^0.6.0",
+    "gulp-install": "https://github.com/marco-c/gulp-install/tarball/0095bf1e9b41201dfebd384e6239758a49f061bf",
     "gulp-rename": "^1.2.2",
     "gulp-template": "^3.0.0",
     "gulp-util": "^3.0.6",
