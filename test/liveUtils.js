@@ -105,6 +105,7 @@ function getTokenId(username, password, note, noteURL, page) {
 
       if (res.length === 0) {
         reject(new Error('Token not found'));
+        return;
       }
 
       for (var i = 0; i < res.length; i++) {
