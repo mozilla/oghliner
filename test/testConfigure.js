@@ -427,6 +427,8 @@ describe('Configure', function() {
   });
 
   it('prompts you to re-enter an incorrect username/password', function() {
+    // Pretend the user enters bad credentials twice to ensure the command
+    // repeatedly prompts for credentials until the user gets them right.
     nockGitHubGetAuthorizationsErrorBadCredentials();
     nockGitHubGetAuthorizationsErrorBadCredentials();
     nockBasicPostAuthFlow();
