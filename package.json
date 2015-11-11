@@ -32,6 +32,7 @@
   ],
   "dependencies": {
     "chalk": "^1.1.1",
+    "change-case": "^2.3.0",
     "cli": "^0.11.1",
     "commander": "^2.8.1",
     "fs-extra": "^0.26.0",
@@ -44,7 +45,7 @@
     "gulp-conflict": "^0.4.0",
     "gulp-connect": "^2.2.0",
     "gulp-gh-pages": "^0.5.2",
-    "gulp-install": "^0.6.0",
+    "gulp-install": "https://github.com/marco-c/gulp-install/tarball/56f8ebf87f14651f586d6377dea75c2f3d1b1691",
     "gulp-rename": "^1.2.2",
     "gulp-template": "^3.0.0",
     "gulp-util": "^3.0.6",
