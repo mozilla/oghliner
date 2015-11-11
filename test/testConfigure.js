@@ -762,7 +762,7 @@ describe('Configure', function() {
 
     return enterUsernamePassword()
     .then(function() {
-      return await('Repository remote [default: upstream]:');
+      return await('Remote repository [default: upstream]:');
     })
     .then(function() {
       emit('origin\n');
@@ -778,7 +778,7 @@ describe('Configure', function() {
 
     return enterUsernamePassword()
     .then(function() {
-      return await('Repository remote [default: upstream]:');
+      return await('Remote repository [default: upstream]:');
     })
     .then(function() {
       emit('\n');
