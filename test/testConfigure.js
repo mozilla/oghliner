@@ -419,7 +419,7 @@ describe('Configure', function() {
         await('Getting Travis token… done!'),
         await('Deleting temporary GitHub token for getting Travis token… done!'),
         await('Creating permanent GitHub token for Travis to push to the repository… done!'),
-        await('Good news, your repository is already active in Travis!'),
+        await('Good news, your repository is active in Travis!'),
         await('Encrypting permanent GitHub token… done!'),
         await('Writing configuration to .travis.yml file… done!'),
       ]))
@@ -568,6 +568,29 @@ describe('Configure', function() {
     .then(complete);
   });
 
+  it('syncs Travis with GitHub, but repository still isn\'t found', function() {
+    nockGetAuthorizations();
+    nockGetTemporaryGitHubToken();
+    nockGetTravisTokenAndUser();
+    nockDeleteTemporaryGitHubToken();
+    nockGetGitHubToken();
+    nockGetHooksIsMissingRepo();
+    nockRequestSync();
+    nockGetTravisUserIsSyncing();
+    nockGetHooksIsMissingRepo();
+    nockGetTravisUser();
+
+    enterUsernamePassword();
+
+    return configure()
+    .then(function() {
+      assert(false, 'Configure should fail.');
+    }, function(err) {
+      assert(true, 'Configure should fail.');
+      assert.equal(err.message, 'repository not found', 'Configure fails with the error thrown by ensureActiveInTravis');
+    });
+  });
+
   it('syncs Travis with GitHub, but sync was already in progress', function() {
     nockGetAuthorizations();
     nockGetTemporaryGitHubToken();
@@ -663,8 +686,6 @@ describe('Configure', function() {
     nockGetGitHubToken();
     nockGetHooksIsMissingRepo();
     nockRequestSyncButSyncAlreadyInProgress();
-    nockGetTravisUser();
-    nockGetHooks();
     nockGetTravisUser();
     nockGetHooks();
     nockGetTravisKey();
