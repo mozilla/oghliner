@@ -189,6 +189,19 @@ describe('Configure', function() {
     });
   }
 
+  function nockGitHubGetTokenRequiresNew2FACode() {
+    return nock('https://api.github.com:443')
+    .post('/authorizations', {
+      "scopes":["public_repo"],
+      "note":"Oghliner token for " + slug,
+      "note_url":"https://github.com/mozilla/oghliner"
+    })
+    .reply(401, {
+      "message":"Must specify two-factor authentication OTP code.",
+      "documentation_url":"https://developer.github.com/v3/auth#working-with-two-factor-authentication"
+    });
+  }
+
   function nockGetTemporaryGitHubToken() {
     return nock('https://api.github.com:443')
     .post('/authorizations', {
@@ -431,6 +444,25 @@ describe('Configure', function() {
     nockGetTravisKey();
     configure();
     return enterUsernamePassword().then(enter2FACode).then(complete);
+  });
+
+  it('prompts you to re-enter a 2FA code', function() {
+    nockGitHubRequires2FACode();
+    nockGetTemporaryGitHubToken();
+    nockGetTravisTokenAndUser();
+    nockDeleteTemporaryGitHubToken();
+    nockGitHubGetTokenRequiresNew2FACode();
+    nockGetGitHubToken();
+    nockGetHooks();
+    nockGetTravisKey();
+    configure();
+    return enterUsernamePassword()
+    .then(enter2FACode)
+    .then(function() {
+      return await('Your authentication code is incorrect or has expired; please try again.');
+    })
+    .then(enter2FACode)
+    .then(complete);
   });
 
   it('recreates existing GitHub token', function() {
