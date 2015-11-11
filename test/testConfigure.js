@@ -792,6 +792,28 @@ describe('Configure', function() {
     });
   });
 
+  it('uses origin as the default remote if there is more than one remote (but no upstream)', function() {
+    nockBasicPostAuthFlow();
+    configure();
+
+    childProcess.execSync('git remote add another_remote https://github.com/mozilla/oghliner.git');
+
+    return enterUsernamePassword()
+    .then(function() {
+      return await('Remote repository [default: origin]:');
+    })
+    .then(function() {
+      emit('\n');
+    })
+    .then(function() {
+      return await('You\'re ready to auto-deploy using Travis!');
+    })
+    .then(function() {
+      var travisYml = readYaml.sync('.travis.yml');
+      expect(travisYml.after_success[0]).to.contain('gulp deploy --remote origin');
+    });
+  });
+
   afterEach(function() {
     process.chdir(oldWd);
     temp.cleanupSync();
