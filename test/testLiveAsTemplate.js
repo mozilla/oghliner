@@ -124,10 +124,6 @@ describe('CLI interface, oghliner as a template', function() {
     .then(function() {
       assert.doesNotThrow(fse.statSync.bind(fse, 'index.html'));
       assert.doesNotThrow(fse.statSync.bind(fse, 'offline-worker.js'));
-    })
-    .catch(function(err) {
-      console.log('Error: ' + err);
-      throw err;
     });
   });
 });
