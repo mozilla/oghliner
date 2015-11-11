@@ -805,13 +805,7 @@ describe('Configure', function() {
     .then(function() {
       emit('\n');
     })
-    .then(function() {
-      return await('You\'re ready to auto-deploy using Travis!');
-    })
-    .then(function() {
-      var travisYml = readYaml.sync('.travis.yml');
-      expect(travisYml.after_success[0]).to.contain('gulp deploy --remote origin');
-    });
+    .then(complete);
   });
 
   afterEach(function() {
