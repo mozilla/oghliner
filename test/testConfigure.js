@@ -520,10 +520,7 @@ describe('Configure', function() {
 
     return enterUsernamePassword()
     .then(function() {
-      return await('I didn\'t find your repository in Travis.  Syncing Travis with GitHub…');
-    })
-    .then(function() {
-      return await('Waiting for Travis to finish syncing…');
+      return await('I didn\'t find your repository in Travis; syncing Travis with GitHub… done!');
     })
     .then(complete);
   });
