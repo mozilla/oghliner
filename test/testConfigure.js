@@ -459,7 +459,7 @@ describe('Configure', function() {
     return enterUsernamePassword()
     .then(enter2FACode)
     .then(function() {
-      return await('Your authentication code is incorrect or has expired; please try again.');
+      return await('Your authentication code is incorrect or has expired; please re-enter it.');
     })
     .then(enter2FACode)
     .then(complete);
