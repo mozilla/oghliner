@@ -139,6 +139,15 @@ describe('Configure', function() {
     .reply(200, []);
   }
 
+  function nockGitHubGetAuthorizationsErrorBadCredentials() {
+    return nock('https://api.github.com:443')
+    .get('/authorizations')
+    .reply(401, {
+      "message":"Bad credentials",
+      "documentation_url":"https://developer.github.com/v3"
+    });
+  }
+
   function nockGitHubRequires2FACode() {
     return nock('https://api.github.com:443')
     .get('/authorizations')
@@ -418,24 +427,25 @@ describe('Configure', function() {
   });
 
   it('prompts you to re-enter an incorrect username/password', function() {
-    nock('https://api.github.com:443')
-    .post('/authorizations', {
-      "scopes":["public_repo"],
-      "note":"Oghliner token for " + slug,
-      "note_url":"https://github.com/mozilla/oghliner"
-    })
-    .reply(401, {
-      "message":"Bad credentials",
-      "documentation_url":"https://developer.github.com/v3"
-    });
-
+    nockGitHubGetAuthorizationsErrorBadCredentials();
+    nockGitHubGetAuthorizationsErrorBadCredentials();
     nockBasicPostAuthFlow();
     configure();
-    return enterUsernamePassword().then(enterUsernamePassword).then(complete);
+    return enterUsernamePassword()
+    .then(function() {
+      return await('The username and/or password you entered is incorrect; please re-enter them.');
+    })
+    .then(enterUsernamePassword)
+    .then(function() {
+      return await('The username and/or password you entered is incorrect; please re-enter them.');
+    })
+    .then(enterUsernamePassword)
+    .then(complete);
   });
 
   it('prompts you to enter a 2FA code', function() {
     nockGitHubRequires2FACode();
+    nockGetAuthorizations();
     nockGetTemporaryGitHubToken();
     nockGetTravisTokenAndUser();
     nockDeleteTemporaryGitHubToken();
@@ -448,6 +458,7 @@ describe('Configure', function() {
 
   it('prompts you to re-enter a 2FA code', function() {
     nockGitHubRequires2FACode();
+    nockGetAuthorizations();
     nockGetTemporaryGitHubToken();
     nockGetTravisTokenAndUser();
     nockDeleteTemporaryGitHubToken();
