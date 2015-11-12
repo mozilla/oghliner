@@ -26,7 +26,7 @@ var program = require('commander');
 var rimraf = promisify(require('rimraf'));
 var promptly = require('promisified-promptly');
 var fs = require('fs');
-var gutil = require('gulp-util');
+var chalk = require('chalk');
 
 // The scripts that implement the various commands/tasks we expose.
 var configure = require('./lib/configure');
@@ -46,7 +46,7 @@ program
     .then(function() {
       process.exit(0);
     }, function(err) {
-      gutil.log(gutil.colors.red.bold(err));
+      console.log(chalk.red.bold(err));
       process.exit(1);
     });
   });
@@ -68,7 +68,7 @@ program
 
       fs.access('.gitignore', function(err) {
         if (err) {
-          gutil.log(gutil.colors.blue.bold('.gh-pages-cache is a temporary repository that we use to push changes to your gh-pages branch. We suggest you add it to your .gitignore.'));
+          console.log(chalk.blue.bold('.gh-pages-cache is a temporary repository that we use to push changes to your gh-pages branch. We suggest you add it to your .gitignore.'));
           return;
         }
 
@@ -85,7 +85,7 @@ program
       });
     })
     .catch(function(err) {
-      gutil.log(gutil.colors.red.bold(err));
+      console.log(chalk.red.bold(err));
       process.exit(1);
     });
   });
@@ -102,7 +102,7 @@ program
       importScripts: options.importScripts ? options.importScripts.split(',') : null,
     })
     .catch(function(err) {
-      gutil.log(gutil.colors.red.bold(err));
+      console.log(chalk.red.bold(err));
       process.exit(1);
     });
   });
@@ -117,7 +117,7 @@ program
     .then(function() {
       process.exit(0);
     }, function(err) {
-      gutil.log(gutil.colors.red.bold(err));
+      console.log(chalk.red.bold(err));
       process.exit(1);
     });
   });
@@ -130,7 +130,7 @@ program
         dir: dir,
       })
       .catch(function(err) {
-        gutil.log(gutil.colors.red.bold(err));
+        console.log(chalk.red.bold(err));
         process.exit(1);
       });
     });
