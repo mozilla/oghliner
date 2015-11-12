@@ -103,6 +103,11 @@ function getTokenId(username, password, note, noteURL, page) {
         return;
       }
 
+      if (res.length === 0) {
+        reject(new Error('Token not found'));
+        return;
+      }
+
       for (var i = 0; i < res.length; i++) {
         if (res[i].note === note && res[i].note_url === noteURL) {
           resolve(res[i].id);

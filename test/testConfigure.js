@@ -510,6 +510,29 @@ describe('Configure', function() {
     .then(complete);
   });
 
+  it('fails if it can\'t find an existing GitHub token', function() {
+    nockGetTokenFailureExists()
+    .get('/authorizations')
+    .query({"page":"1"})
+    .reply(200, []);
+
+    nockGetAuthorizations();
+    nockGetTemporaryGitHubToken();
+    nockGetTravisTokenAndUser();
+    nockDeleteTemporaryGitHubToken();
+    var promise = configure()
+    .then(function() {
+      assert(false, "Promise rejected");
+    }, function(err) {
+      assert(true, "Promise rejected");
+      assert.equal(err.message, "Token not found");
+    });
+
+    enterUsernamePassword();
+
+    return promise;
+  });
+
   it('activates inactive repository', function() {
     nockGetAuthorizations();
     nockGetTemporaryGitHubToken();
