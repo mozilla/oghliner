@@ -17,7 +17,7 @@ describe('Deploy', function() {
   });
 
   it('should create a gh-pages branch in the origin repo and publish files to it', function(done) {
-    var dir = temp.mkdirSync('oghliner');
+    var dir = temp.mkdirSync('offline-github-pages');
 
     var simpleGit = require('simple-git')(dir);
 
@@ -51,7 +51,7 @@ describe('Deploy', function() {
   });
 
   it('should create a gh-pages branch in the origin repo and publish only the specified files to it', function(done) {
-    var dir = temp.mkdirSync('oghliner');
+    var dir = temp.mkdirSync('offline-github-pages');
 
     var simpleGit = require('simple-git')(dir);
 
@@ -90,7 +90,7 @@ describe('Deploy', function() {
   });
 
   it('should update the gh-pages branch in the origin repo and publish files to it', function(done) {
-    var dir = temp.mkdirSync('oghliner');
+    var dir = temp.mkdirSync('offline-github-pages');
 
     var simpleGit = require('simple-git')(dir);
 
@@ -131,12 +131,12 @@ describe('Deploy', function() {
 
   function deployDifferentRepoURL(done, repoURL) {
     ghPages.publish = function(dir, config, callback) {
-      assert.equal(config.repo, 'https://oghliner@github.com/mozilla/oghliner.git');
+      assert.equal(config.repo, 'https://offline-github-pages@github.com/mozilla/offline-github-pages.git');
       callback();
     };
-    process.env.GH_TOKEN = 'oghliner';
+    process.env.GH_TOKEN = 'offline-github-pages';
 
-    var dir = temp.mkdirSync('oghliner');
+    var dir = temp.mkdirSync('offline-github-pages');
 
     var simpleGit = require('simple-git')(dir);
 
@@ -161,15 +161,15 @@ describe('Deploy', function() {
   }
 
   it('should try to publish with a different repo URL (HTTPS)', function(done) {
-    deployDifferentRepoURL(done, 'https://github.com/mozilla/oghliner.git');
+    deployDifferentRepoURL(done, 'https://github.com/mozilla/offline-github-pages.git');
   });
 
   it('should try to publish with a different repo URL (SSH)', function(done) {
-    deployDifferentRepoURL(done, 'git@github.com:mozilla/oghliner.git');
+    deployDifferentRepoURL(done, 'git@github.com:mozilla/offline-github-pages.git');
   });
 
   function deployNoOriginRemote(done) {
-    var dir = temp.mkdirSync('oghliner');
+    var dir = temp.mkdirSync('offline-github-pages');
 
     var simpleGit = require('simple-git')(dir);
 
@@ -194,12 +194,12 @@ describe('Deploy', function() {
   it('should fail if there is no origin remote', deployNoOriginRemote);
 
   it('should fail if there is no origin remote', function(done) {
-    process.env.GH_TOKEN = 'oghliner';
+    process.env.GH_TOKEN = 'offline-github-pages';
     deployNoOriginRemote(done);
   });
 
   function deployOutsideRepo(message) {
-    var dir = temp.mkdirSync('oghliner');
+    var dir = temp.mkdirSync('offline-github-pages');
 
     process.chdir(dir);
 
@@ -221,16 +221,16 @@ describe('Deploy', function() {
   });
 
   it('should fail if called outside of a git repository (on Travis) with no commit message', function() {
-    process.env.GH_TOKEN = 'oghliner';
+    process.env.GH_TOKEN = 'offline-github-pages';
     return deployOutsideRepo();
   });
   it('should fail if called outside of a git repository (on Travis) with commit message', function() {
-    process.env.GH_TOKEN = 'oghliner';
+    process.env.GH_TOKEN = 'offline-github-pages';
     return deployOutsideRepo('message');
   });
 
   it('should succeed if there\'s a node_modules directory in the rootDir', function(done) {
-    var dir = temp.mkdirSync('oghliner');
+    var dir = temp.mkdirSync('offline-github-pages');
 
     var simpleGit = require('simple-git')(dir);
 

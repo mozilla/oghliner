@@ -13,11 +13,11 @@ describe('Bootstrap', function() {
   var oldWd;
   before(function() {
     temp.track();
-    return temp.mkdir('oghliner').then(function(dirPath) {
+    return temp.mkdir('offline-github-pages').then(function(dirPath) {
       oldWd = process.cwd();
       process.chdir(dirPath);
       childProcess.execSync('git init');
-      childProcess.execSync('git remote add upstream https://github.com/mozilla/oghliner.git');
+      childProcess.execSync('git remote add upstream https://github.com/mozilla/offline-github-pages.git');
       return bootstrap({
         template: {
           name: appName

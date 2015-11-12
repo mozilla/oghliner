@@ -1,5 +1,5 @@
 {
-  "name": "oghliner",
+  "name": "offline-github-pages",
   "version": "0.10.1",
   "description": "template and tool for deploying Offline Web Apps to GitHub Pages",
   "main": "index.js",
@@ -8,10 +8,10 @@
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/mozilla/oghliner/"
+    "url": "https://github.com/mozilla/offline-github-pages/"
   },
   "author": "Myk Melez <myk@mykzilla.org>",
-  "bin": "./cli.js",
+  "bin" : { "oghp" : "./cli.js" },
   "license": "Apache-2.0",
   "keywords": [
     "offline",

@@ -14,7 +14,7 @@ if (!username || !password) {
   return;
 }
 
-describe('CLI interface, oghliner as a template', function() {
+describe('CLI interface, offline-github-pages as a template', function() {
   this.timeout(0);
 
   var oldWD = process.cwd();
@@ -28,7 +28,7 @@ describe('CLI interface, oghliner as a template', function() {
   });
 
   beforeEach(function() {
-    process.chdir(temp.mkdirSync('oghliner'));
+    process.chdir(temp.mkdirSync('offline-github-pages'));
 
     process.env.GH_TOKEN = username + ':' + liveUtils.githubToken;
 
@@ -49,19 +49,19 @@ describe('CLI interface, oghliner as a template', function() {
     .then(liveUtils.spawn.bind(null, 'git', ['clone', 'https://' + username + ':' + liveUtils.githubToken + '@github.com/' + username + '/' + liveUtils.repoName]))
     .then(process.chdir.bind(null, liveUtils.repoName))
     .then(liveUtils.spawn.bind(null, 'npm', ['install', path.dirname(__dirname)]))
-    .then(liveUtils.spawn.bind(null, path.join('node_modules', '.bin', 'oghliner'), ['bootstrap', '.'], [
+    .then(liveUtils.spawn.bind(null, path.join('node_modules', '.bin', 'offline-github-pages'), ['bootstrap', '.'], [
       {
         q: 'Would you like to change its configuration (y/N)?',
         r: 'n',
       }
     ]))
-    // Overwrite the oghliner version installed by bootstrap with the development one from the top directory.
+    // Overwrite the offline-github-pages version installed by bootstrap with the development one from the top directory.
     .then(liveUtils.spawn.bind(null, 'npm', ['install', path.dirname(__dirname)]))
     .then(function() {
       assert.doesNotThrow(fse.statSync.bind(fse, 'README.md'));
       assert.doesNotThrow(fse.statSync.bind(fse, 'app'));
       var packageJson = JSON.parse(fse.readFileSync('package.json', 'utf8'));
-      expect(packageJson.name).to.equal('oghliner-template-app');
+      expect(packageJson.name).to.equal('offline-github-pages-template-app');
       expect(packageJson.license).to.equal('Apache-2.0');
       expect(packageJson).to.include.keys('version');
       expect(packageJson).to.include.keys('description');
@@ -80,7 +80,7 @@ describe('CLI interface, oghliner as a template', function() {
       .catch(liveUtils.getBranch.bind(null, username))
       .catch(liveUtils.getBranch.bind(null, username))
     })
-    .then(liveUtils.spawn.bind(null, path.join('node_modules', '.bin', 'oghliner'), ['configure'], [
+    .then(liveUtils.spawn.bind(null, path.join('node_modules', '.bin', 'offline-github-pages'), ['configure'], [
       {
         q: 'Username: ',
         r: username,

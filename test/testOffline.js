@@ -49,7 +49,7 @@ describe('Offline', function() {
   });
 
   it('should create offline-worker.js in the destination directory', function() {
-    var dir = temp.mkdirSync('oghliner');
+    var dir = temp.mkdirSync('offline-github-pages');
 
     return offline({
       rootDir: dir,
@@ -59,7 +59,7 @@ describe('Offline', function() {
   });
 
   it('should not fail if the destination directory already contains a offline-worker.js file', function() {
-    var dir = temp.mkdirSync('oghliner');
+    var dir = temp.mkdirSync('offline-github-pages');
 
     fs.writeFileSync(path.join(dir, 'offline-worker.js'), 'something');
 
@@ -72,7 +72,7 @@ describe('Offline', function() {
   });
 
   it('should use importScript in the service worker if the importScripts option is defined', function() {
-    var dir = temp.mkdirSync('oghliner');
+    var dir = temp.mkdirSync('offline-github-pages');
     fs.writeFileSync(path.join(dir, 'a-script.js'), 'data');
 
     return offline({
@@ -85,7 +85,7 @@ describe('Offline', function() {
   });
 
   it('should fail if an entry in importScript is a directory', function() {
-    var dir = temp.mkdirSync('oghliner');
+    var dir = temp.mkdirSync('offline-github-pages');
     fs.mkdirSync(path.join(dir, 'subDir'));
 
     return offline({
@@ -99,7 +99,7 @@ describe('Offline', function() {
   });
 
   it('should fail if a file in importScript doesn\'t exist', function() {
-    var dir = temp.mkdirSync('oghliner');
+    var dir = temp.mkdirSync('offline-github-pages');
 
     return offline({
       rootDir: dir,
@@ -112,13 +112,13 @@ describe('Offline', function() {
   });
 
   it('should use the GitHub slug as the cache ID if it is available', function() {
-    var rootDir = temp.mkdirSync('oghliner');
+    var rootDir = temp.mkdirSync('offline-github-pages');
     var dir = path.join(rootDir, 'dist');
     fs.mkdirSync(dir);
 
     offline.__set__('ghslug', function(path) {
       return new Promise(function(resolve, reject) {
-        resolve('mozilla/oghliner');
+        resolve('mozilla/offline-github-pages');
       });
     });
 
@@ -128,12 +128,12 @@ describe('Offline', function() {
       rootDir: dir,
     }).then(function() {
       var content = fs.readFileSync(path.join(dir, 'offline-worker.js'), 'utf8');
-      assert.notEqual(content.indexOf('mozilla/oghliner'), -1);
+      assert.notEqual(content.indexOf('mozilla/offline-github-pages'), -1);
     });
   });
 
   it('should use the app name from package.json as the cache ID if the GitHub slug is not available', function() {
-    var rootDir = temp.mkdirSync('oghliner');
+    var rootDir = temp.mkdirSync('offline-github-pages');
     var dir = path.join(rootDir, 'dist');
     fs.mkdirSync(dir);
 
@@ -152,7 +152,7 @@ describe('Offline', function() {
   });
 
   it('should not fail if both the GitHub slug and package.json are not available', function() {
-    var rootDir = temp.mkdirSync('oghliner');
+    var rootDir = temp.mkdirSync('offline-github-pages');
     var dir = path.join(rootDir, 'dist');
     fs.mkdirSync(dir);
 
@@ -166,7 +166,7 @@ describe('Offline', function() {
   });
 
   it('should cache files in rootDir', function() {
-    var rootDir = temp.mkdirSync('oghliner');
+    var rootDir = temp.mkdirSync('offline-github-pages');
     var dir = path.join(rootDir, 'dist');
     fs.mkdirSync(dir);
 
@@ -187,7 +187,7 @@ describe('Offline', function() {
   });
 
   it('should not cache files in rootDir that do not match fileGlobs', function() {
-    var rootDir = temp.mkdirSync('oghliner');
+    var rootDir = temp.mkdirSync('offline-github-pages');
     var dir = path.join(rootDir, 'dist');
     fs.mkdirSync(dir);
 
@@ -212,7 +212,7 @@ describe('Offline', function() {
   });
 
   it('should cache files in a subdirectory of rootDir', function() {
-    var rootDir = temp.mkdirSync('oghliner');
+    var rootDir = temp.mkdirSync('offline-github-pages');
     var dir = path.join(rootDir, 'dist');
     fs.mkdirSync(dir);
     var subDir = path.join(dir, 'subdir');
@@ -235,7 +235,7 @@ describe('Offline', function() {
   });
 
   it('should cache large files', function() {
-    var rootDir = temp.mkdirSync('oghliner');
+    var rootDir = temp.mkdirSync('offline-github-pages');
     var dir = path.join(rootDir, 'dist');
     fs.mkdirSync(dir);
 
@@ -266,7 +266,7 @@ describe('Offline', function() {
   });
 
   it('should not cache excluded files', function() {
-    var rootDir = temp.mkdirSync('oghliner');
+    var rootDir = temp.mkdirSync('offline-github-pages');
     var dir = path.join(rootDir, 'dist');
     fs.mkdirSync(dir);
 
@@ -301,7 +301,7 @@ describe('Offline', function() {
   });
 
   it('should not warn about explicitly included files', function() {
-    var rootDir = temp.mkdirSync('oghliner');
+    var rootDir = temp.mkdirSync('offline-github-pages');
     var dir = path.join(rootDir, 'dist');
     fs.mkdirSync(dir);
 
