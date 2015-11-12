@@ -522,11 +522,8 @@ describe('Configure', function() {
     nockDeleteTemporaryGitHubToken();
     var promise = configure()
     .then(function() {
-      console.log('asd');
       assert(false, "Promise rejected");
     }, function(err) {
-      console.log('ERROR');
-      console.log(err);
       assert(true, "Promise rejected");
       assert.equal(err.message, "Token not found");
     });
