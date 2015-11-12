@@ -412,7 +412,7 @@ describe('Configure', function() {
   it('completes basic flow', function() {
     nockBasicPostAuthFlow();
     configure();
-    return await('Configuring Travis to auto-deploy ' + slug + ' to GitHub Pages…')
+    return await('Configuring Travis to auto-deploy to GitHub Pages…')
     .then(enterUsernamePassword)
     .then(Promise.all([
         await('Creating temporary GitHub token for getting Travis token… done!'),
@@ -815,50 +815,44 @@ describe('Configure', function() {
   });
 
   it('configures auto-deploy for a custom remote', function() {
+    childProcess.execSync('git remote add upstream https://github.com/mozilla/oghliner.git');
+
     nockBasicPostAuthFlow();
     configure();
 
-    childProcess.execSync('git remote add upstream https://github.com/mozilla/oghliner.git');
-
-    return enterUsernamePassword()
-    .then(function() {
-      return await('Remote repository [default: upstream]:');
-    })
+    return await('Remote [default: upstream]:')
     .then(function() {
       emit('origin\n');
     })
+    .then(enterUsernamePassword)
     .then(complete);
   });
 
   it('uses upstream as the default remote if it exists', function() {
+    childProcess.execSync('git remote add upstream https://github.com/mozilla/oghliner.git');
+
     nockBasicPostAuthFlow();
     configure();
 
-    childProcess.execSync('git remote add upstream https://github.com/mozilla/oghliner.git');
-
-    return enterUsernamePassword()
-    .then(function() {
-      return await('Remote repository [default: upstream]:');
-    })
+    return await('Remote [default: upstream]:')
     .then(function() {
       emit('\n');
     })
+    .then(enterUsernamePassword)
     .then(complete);
   });
 
   it('uses origin as the default remote if there is more than one remote (but no upstream)', function() {
+    childProcess.execSync('git remote add another_remote https://github.com/mozilla/oghliner.git');
+
     nockBasicPostAuthFlow();
     configure();
 
-    childProcess.execSync('git remote add another_remote https://github.com/mozilla/oghliner.git');
-
-    return enterUsernamePassword()
-    .then(function() {
-      return await('Remote repository [default: origin]:');
-    })
+    return await('Remote [default: origin]:')
     .then(function() {
       emit('\n');
     })
+    .then(enterUsernamePassword)
     .then(complete);
   });
 
