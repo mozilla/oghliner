@@ -83,7 +83,7 @@ describe('Configure', function() {
     expect(travisYml.after_success[0]).to.equal(
       'echo "travis_fold:end:after_success" && ' +
       '[ "${TRAVIS_PULL_REQUEST}" = "false" ] && [ "${TRAVIS_BRANCH}" = "master" ] && ' +
-      'echo "Deploying…" && gulp deploy --remote origin'
+      'echo "Deploying…" && gulp deploy'
     );
   }
 
@@ -843,13 +843,7 @@ describe('Configure', function() {
     .then(function() {
       emit('\n');
     })
-    .then(function() {
-      return await('You\'re ready to auto-deploy using Travis!');
-    })
-    .then(function() {
-      var travisYml = readYaml.sync('.travis.yml');
-      expect(travisYml.after_success[0]).to.contain('gulp deploy --remote upstream');
-    });
+    .then(complete);
   });
 
   it('uses origin as the default remote if there is more than one remote (but no upstream)', function() {
