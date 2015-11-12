@@ -51,7 +51,7 @@ describe('CLI interface, oghliner as a template', function() {
     .then(liveUtils.spawn.bind(null, 'npm', ['install', path.dirname(__dirname)]))
     .then(liveUtils.spawn.bind(null, path.join('node_modules', '.bin', 'oghliner'), ['bootstrap', '.'], [
       {
-        q: 'Would you like to change any of the above configuration values?',
+        q: 'Would you like to change its configuration (y/N)?',
         r: 'n',
       }
     ]))
