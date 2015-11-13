@@ -5,6 +5,7 @@ var path = require('path');
 var temp = require('temp').track();
 var ghPages = require('gh-pages');
 var deploy = require('../lib/deploy');
+var childProcess = require('child_process');
 
 describe('Deploy', function() {
   var oldWD = process.cwd();
@@ -288,5 +289,48 @@ describe('Deploy', function() {
         }).catch(done);
       });
     });
+  });
+
+  function checkCommitMessage(message, expected) {
+    return new Promise(function(resolve, reject) {
+      var dir = temp.mkdirSync('oghliner');
+
+      process.chdir(dir);
+
+      childProcess.execSync('git init');
+      fs.writeFileSync('file', 'data');
+      childProcess.execSync('git add file');
+      childProcess.execSync('git commit -m "' + message + '"');
+
+      var output = '';
+      var write = process.stdout.write;
+      process.stdout.write = function(chunk, encoding, fd) {
+        write.apply(process.stdout, arguments);
+        output += chunk;
+
+        if (output.indexOf('Deploying "' + expected + '" to GitHub Pages…') !== -1) {
+          process.stdout.write = write;
+          resolve();
+        }
+      };
+    });
+  }
+
+  it('should print the commit message', function() {
+    return Promise.all([
+      checkCommitMessage('Do. Or do not.', 'Do. Or do not.'),
+      deploy({
+        cloneDir: '.gh-pages-cache',
+      }).catch(function() {}),
+    ]);
+  });
+
+  it('should print only the first line of a multiline commit', function() {
+    return Promise.all([
+      checkCommitMessage('Do. Or do not.\nThere is no try.', 'Do. Or do not.'),
+      deploy({
+        cloneDir: '.gh-pages-cache',
+      }).catch(function() {}),
+    ]);
   });
 });
