@@ -14,7 +14,7 @@ var temp = promisify(require('temp').track());
 var configure = require('../lib/configure');
 
 describe('Configure', function() {
-  var slug = 'mozilla/oghliner', user = 'mozilla', repo = 'oghliner';
+  var slug, user, repo;
 
   var write = process.stdout.write;
   var output;
@@ -99,6 +99,8 @@ describe('Configure', function() {
 
   var oldWd;
   beforeEach(function() {
+    slug = 'mozilla/oghliner', user = 'mozilla', repo = 'oghliner';
+
     return temp.mkdir('oghliner').then(function(dirPath) {
       oldWd = process.cwd();
       process.chdir(dirPath);
@@ -412,7 +414,7 @@ describe('Configure', function() {
   it('completes basic flow', function() {
     nockBasicPostAuthFlow();
     configure();
-    return await('Configuring Travis to auto-deploy ' + slug + ' to GitHub Pages…')
+    return await('Configuring Travis to auto-deploy to GitHub Pages…')
     .then(enterUsernamePassword)
     .then(Promise.all([
         await('Creating temporary GitHub token for getting Travis token… done!'),
@@ -835,6 +837,61 @@ describe('Configure', function() {
       expect(travisYml.after_success).to.have.length.above(1);
       expect(travisYml.after_success).to.include('a_command');
     });
+  });
+
+  it('configures auto-deploy for a custom remote', function() {
+    childProcess.execSync('git remote add upstream https://github.com/mozilla/oghliner.git');
+
+    nockBasicPostAuthFlow();
+    configure();
+
+    return await('Remote [default: upstream]:')
+    .then(function() {
+      emit('origin\n');
+    })
+    .then(function() {
+      return await('Ok, I\'ll configure Travis to auto-deploy the origin remote (mozilla/oghliner).');
+    })
+    .then(enterUsernamePassword)
+    .then(complete);
+  });
+
+  it('uses upstream as the default remote if it exists', function() {
+    childProcess.execSync('git remote add upstream https://github.com/up/stream.git');
+
+    slug = 'up/stream';
+    user = 'up';
+    repo = 'stream';
+
+    nockBasicPostAuthFlow();
+    configure();
+
+    return await('Remote [default: upstream]:')
+    .then(function() {
+      emit('\n');
+    })
+    .then(function() {
+      return await('Ok, I\'ll configure Travis to auto-deploy the upstream remote (up/stream).');
+    })
+    .then(enterUsernamePassword)
+    .then(complete);
+  });
+
+  it('uses origin as the default remote if there is more than one remote (but no upstream)', function() {
+    childProcess.execSync('git remote add another_remote https://github.com/anot/her.git');
+
+    nockBasicPostAuthFlow();
+    configure();
+
+    return await('Remote [default: origin]:')
+    .then(function() {
+      emit('\n');
+    })
+    .then(function() {
+      return await('Ok, I\'ll configure Travis to auto-deploy the origin remote (mozilla/oghliner).');
+    })
+    .then(enterUsernamePassword)
+    .then(complete);
   });
 
   afterEach(function() {
