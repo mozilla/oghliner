@@ -1,8 +1,8 @@
 /* Any copyright is dedicated to the Public Domain.
  * http://creativecommons.org/publicdomain/zero/1.0/ */
 
-<% importScripts.forEach(function (importAndHash) {
-%>importScripts('<%- importAndHash.path %>'); /* <%- importAndHash.hash %> */;
+<% importScripts.forEach(function (filepath) {
+%>importScripts('<%- filepath %>');
 <% }); %>
 (function (self) {
   'use strict';
@@ -29,7 +29,12 @@
 
   // Retrieves the request following oghliner strategy.
   self.addEventListener('fetch', function (event) {
-    event.respondWith(oghliner.get(event.request));
+    if (event.request.method === 'GET') {
+      event.respondWith(oghliner.get(event.request));
+    }
+    else {
+      event.respondWith(self.fetch(event.request));
+    }
   });
 
   var oghliner = self.oghliner = {
@@ -46,16 +51,35 @@
     RESOURCES: [
       '/',
 <% resources.forEach(function (pathAndHash) {
-%>      '<%- pathAndHash.path %>', /* <%- pathAndHash.hash %> */
+%>      '<%- pathAndHash.path %>', // <%- pathAndHash.hash %>
 <% }); %>
     ],
 
     // Adds the resources to the cache controlled by this worker.
     cacheResources: function () {
       var _this = this;
+      var now = Date.now();
+      var baseUrl = self.location;
       return _this.openCache()
         .then(function (cache) {
-          return cache.addAll(_this.RESOURCES);
+          return Promise.all(_this.RESOURCES.map(function (resource) {
+            // Bust the request to get a fresh response
+            var url = new URL(resource, baseUrl);
+            var bustParameter = (url.search ? '&' : '') + '__bust=' + now;
+            var bustedUrl = new URL(url.toString());
+            bustedUrl.search += bustParameter;
+
+            // But cache the response for the original request
+            var requestConfig = { credentials: 'same-origin' };
+            var originalRequest = new Request(url.toString(), requestConfig);
+            var bustedRequest = new Request(bustedUrl.toString(), requestConfig);
+            return fetch(bustedRequest).then(function (response) {
+              if (response.ok) {
+                return cache.put(originalRequest, response);
+              }
+              console.error('Error fetching ' + url + ', status was ' + response.status);
+            });
+          }));
         });
     },
 
