@@ -18,9 +18,6 @@
 
 'use strict';
 
-// Import this first so we can use it to wrap other modules we import.
-var promisify = require("promisify-node");
-
 var packageJson = require('./package.json');
 var program = require('commander');
 var promptly = require('promisified-promptly');
