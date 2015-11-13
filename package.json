@@ -38,7 +38,6 @@
     "fs-extra": "^0.26.0",
     "gh-pages": "https://github.com/marco-c/gh-pages/tarball/817ee16441d72a0c1d33ce109cddf9c1963991d8",
     "git-remote-url": "0.0.2",
-    "gitconfiglocal": "^1.0.0",
     "github": "^0.2.4",
     "github-slug": "^1.0.0",
     "github-url-from-git": "^1.4.0",
