@@ -23,7 +23,6 @@ var promisify = require("promisify-node");
 
 var packageJson = require('./package.json');
 var program = require('commander');
-var rimraf = promisify(require('rimraf'));
 var promptly = require('promisified-promptly');
 var fs = require('fs');
 var chalk = require('chalk');
@@ -64,7 +63,7 @@ program
     .then(function() {
       // For perf, don't delete the repository.  This means users will have to
       // add .gh-pages-cache to their .gitignore file to hide its `git status`.
-      // return rimraf('.gh-pages-cache');
+      // return fse.removeSync('.gh-pages-cache');
 
       fs.access('.gitignore', function(err) {
         if (err) {
