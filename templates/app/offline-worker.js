@@ -13,13 +13,13 @@
 
   // On activation, delete old caches and start controlling the clients
   // without waiting for them to reload.
-  self.addeventlistener('activate', function (event) {
+  self.addEventListener('activate', function (event) {
     var claim = self.clients.claim.bind(self.clients);
-    event.waituntil(oghliner.cleanothercaches().then(claim));
+    event.waitUntil(oghliner.clearOtherCaches().then(claim));
   });
 
   // Retrieves the request following oghliner strategy.
-  self.addeventlistener('fetch', function (event) {
+  self.addEventListener('fetch', function (event) {
     event.respondWith(oghliner.get(event.request));
   });
 
@@ -30,8 +30,9 @@
 
     // This is a list of resources that will be cached.
     RESOURCES: [
+      '/',
 <% resources.forEach(function (pathAndHash) {
-    %>'<%- pathAndHash.path %>', /* <%- pathAndHash.hash %> */
+%>      '<%- pathAndHash.path %>', /* <%- pathAndHash.hash %> */
 <% }); %>
     ],
 
@@ -67,7 +68,9 @@
           return cache.match(request);
         })
         .then(function (response) {
-          if (response) { return response; }
+          if (response) {
+            return response;
+          }
           return self.fetch(request);
         });
     },
