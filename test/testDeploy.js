@@ -281,7 +281,7 @@ describe('Deploy', function() {
     });
   }
 
-  it('should prasd', function() {
+  it('should print the commit message', function() {
     return Promise.all([
       checkCommitMessage('Do. Or do not.', 'Do. Or do not.'),
       deploy({
