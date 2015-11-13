@@ -14,12 +14,12 @@ var github = new GitHub({
   version: '3.0.0',
   protocol: 'https',
   headers: {
-    'user-agent': 'Oghliner',
+    'user-agent': 'offline-github-pages',
   },
 });
 
 var liveUtils = {
-  repoName: 'test_oghliner_live_' + process.version + '_' + process.pid,
+  repoName: 'test_offline-github-pages_live_' + process.version + '_' + process.pid,
   githubNote: 'test' + process.version + '_' + process.pid,
   githubNoteURL: 'http://www.test.org/' + process.version + '_' + process.pid,
   githubToken: null,
@@ -215,7 +215,7 @@ function cleanup(username, password) {
       .catch(function() {
         // Ignore error if the authorization doesn't exist.
       }),
-      getTokenId(username, password, 'Oghliner token for ' + username + '/' + liveUtils.repoName, 'https://github.com/mozilla/oghliner')
+      getTokenId(username, password, 'offline-github-pages token for ' + username + '/' + liveUtils.repoName, 'https://github.com/mozilla/offline-github-pages')
       .then(deleteAuthorization)
       .catch(function() {
         // Ignore error if the authorization doesn't exist.

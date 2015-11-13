@@ -14,7 +14,7 @@ var temp = promisify(require('temp').track());
 var configure = require('../lib/configure');
 
 describe('Configure', function() {
-  var slug = 'mozilla/oghliner', user = 'mozilla', repo = 'oghliner';
+  var slug = 'mozilla/offline-github-pages', user = 'mozilla', repo = 'offline-github-pages';
 
   var write = process.stdout.write;
   var output;
@@ -99,11 +99,11 @@ describe('Configure', function() {
 
   var oldWd;
   beforeEach(function() {
-    return temp.mkdir('oghliner').then(function(dirPath) {
+    return temp.mkdir('offline-github-pages').then(function(dirPath) {
       oldWd = process.cwd();
       process.chdir(dirPath);
       childProcess.execSync('git init');
-      childProcess.execSync('git remote add origin https://github.com/mozilla/oghliner.git');
+      childProcess.execSync('git remote add origin https://github.com/mozilla/offline-github-pages.git');
       output = '';
       waitingArr = [];
     });
@@ -161,8 +161,8 @@ describe('Configure', function() {
     return nock('https://api.github.com:443')
     .post('/authorizations', {
       "scopes":["public_repo"],
-      "note":"Oghliner token for " + slug,
-      "note_url":"https://github.com/mozilla/oghliner"
+      "note":"offline-github-pages token for " + slug,
+      "note_url":"https://github.com/mozilla/offline-github-pages"
     })
     .reply(422, {
       "message":"Validation Failed",
@@ -175,22 +175,22 @@ describe('Configure', function() {
     return nock('https://api.github.com:443')
     .post('/authorizations', {
       "scopes":["public_repo"],
-      "note":"Oghliner token for " + slug,
-      "note_url":"https://github.com/mozilla/oghliner"
+      "note":"offline-github-pages token for " + slug,
+      "note_url":"https://github.com/mozilla/offline-github-pages"
     })
     .reply(201, {
       "id":23157724,
       "url":"https://api.github.com/authorizations/23157724",
       "app":{
-        "name":"Oghliner token for " + slug,
-        "url":"https://github.com/mozilla/oghliner",
+        "name":"offline-github-pages token for " + slug,
+        "url":"https://github.com/mozilla/offline-github-pages",
         "client_id":"00000000000000000000"
       },
       "token":"0000000000000000000000000000000000000000", // removed
       "hashed_token":"0000000000000000000000000000000000000000000000000000000000000000", // removed
       "token_last_eight":"00000000", // removed
-      "note":"Oghliner token for mykmelez/oghliner",
-      "note_url":"https://github.com/mozilla/oghliner",
+      "note":"offline-github-pages token for mykmelez/offline-github-pages",
+      "note_url":"https://github.com/mozilla/offline-github-pages",
       "created_at":"2015-10-12T21:42:59Z",
       "updated_at":"2015-10-12T21:42:59Z",
       "scopes":["public_repo"],
@@ -202,8 +202,8 @@ describe('Configure', function() {
     return nock('https://api.github.com:443')
     .post('/authorizations', {
       "scopes":["public_repo"],
-      "note":"Oghliner token for " + slug,
-      "note_url":"https://github.com/mozilla/oghliner"
+      "note":"offline-github-pages token for " + slug,
+      "note_url":"https://github.com/mozilla/offline-github-pages"
     })
     .reply(401, {
       "message":"Must specify two-factor authentication OTP code.",
@@ -215,20 +215,20 @@ describe('Configure', function() {
     return nock('https://api.github.com:443')
     .post('/authorizations', {
       "scopes":["read:org","user:email","repo_deployment","repo:status","write:repo_hook"],
-      "note":"temporary Oghliner token to get Travis token for " + slug,
-      "note_url":"https://github.com/mozilla/oghliner"
+      "note":"temporary offline-github-pages token to get Travis token for " + slug,
+      "note_url":"https://github.com/mozilla/offline-github-pages"
     })
     .reply(201, {
       "id":23157726,
       "url":"https://api.github.com/authorizations/23157726",
-      "app":{"name":"temporary Oghliner token to get Travis token for " + slug,
-      "url":"https://github.com/mozilla/oghliner",
+      "app":{"name":"temporary offline-github-pages token to get Travis token for " + slug,
+      "url":"https://github.com/mozilla/offline-github-pages",
       "client_id":"00000000000000000000"},
       "token":"1111111111111111111111111111111111111111",
       "hashed_token":"1111111111111111111111111111111111111111111111111111111111111111",
       "token_last_eight":"11111111",
-      "note":"temporary Oghliner token to get Travis token for " + slug,
-      "note_url":"https://github.com/mozilla/oghliner",
+      "note":"temporary offline-github-pages token to get Travis token for " + slug,
+      "note_url":"https://github.com/mozilla/offline-github-pages",
       "created_at":"2015-10-12T21:43:00Z",
       "updated_at":"2015-10-12T21:43:00Z",
       "scopes":["read:org","user:email","repo_deployment","repo:status","write:repo_hook"],
@@ -485,14 +485,14 @@ describe('Configure', function() {
     .reply(200, [{
       "id":22200031,
       "url":"https://api.github.com/authorizations/22200031",
-      "app":{"name":"Oghliner token for " + slug,
-      "url":"https://github.com/mozilla/oghliner",
+      "app":{"name":"offline-github-pages token for " + slug,
+      "url":"https://github.com/mozilla/offline-github-pages",
       "client_id":"00000000000000000000"},
       "token":"",
       "hashed_token":"0000000000000000000000000000000000000000000000000000000000000000", // removed
       "token_last_eight":"00000000", // removed
-      "note":"Oghliner token for " + slug,
-      "note_url":"https://github.com/mozilla/oghliner",
+      "note":"offline-github-pages token for " + slug,
+      "note_url":"https://github.com/mozilla/offline-github-pages",
       "created_at":"2015-09-16T20:08:41Z",
       "updated_at":"2015-09-16T20:08:41Z",
       "scopes":["public_repo"],

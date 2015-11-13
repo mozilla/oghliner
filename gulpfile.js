@@ -25,7 +25,7 @@ var template = require('gulp-template');
 var marked = require('marked');
 var argv = require('yargs').argv;
 
-var oghliner = require('./index.js');
+var oghp = require('./index.js');
 
 gulp.task('default', ['build', 'offline']);
 
@@ -47,16 +47,16 @@ gulp.task('build-tabzilla', ['copy-files'], function() {
   return gulp.src('node_modules/mozilla-tabzilla/**/*.{css,png}').pipe(gulp.dest('dist/styles/tabzilla'));
 });
 
-gulp.task('configure', oghliner.configure);
+gulp.task('configure', oghp.configure);
 
 gulp.task('deploy', function() {
-  return oghliner.deploy({
+  return oghp.deploy({
     rootDir: 'dist',
   });
 });
 
 gulp.task('offline', ['build'], function() {
-  return oghliner.offline({
+  return oghp.offline({
     rootDir: 'dist/',
     fileGlobs: [
       'images/**',

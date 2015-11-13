@@ -14,7 +14,7 @@ if (!username || !password) {
   return;
 }
 
-describe('CLI interface, oghliner as a tool', function() {
+describe('CLI interface, offline-github-pages as a tool', function() {
   this.timeout(0);
 
   var oldWD = process.cwd();
@@ -28,7 +28,7 @@ describe('CLI interface, oghliner as a tool', function() {
   });
 
   beforeEach(function() {
-    process.chdir(temp.mkdirSync('oghliner'));
+    process.chdir(temp.mkdirSync('offline-github-pages'));
 
     process.env.GH_TOKEN = username + ':' + liveUtils.githubToken;
 
@@ -53,15 +53,15 @@ describe('CLI interface, oghliner as a tool', function() {
       fse.mkdirSync('dist');
     })
     .then(fse.writeFileSync.bind(fse, 'dist/index.html', '<html></html>'))
-    .then(liveUtils.spawn.bind(null, path.join('node_modules', '.bin', 'oghliner'), ['offline', 'dist']))
-    .then(liveUtils.spawn.bind(null, path.join('node_modules', '.bin', 'oghliner'), ['integrate', 'dist']))
-    .then(liveUtils.spawn.bind(null, path.join('node_modules', '.bin', 'oghliner'), ['deploy', 'dist']))
+    .then(liveUtils.spawn.bind(null, path.join('node_modules', '.bin', 'offline-github-pages'), ['offline', 'dist']))
+    .then(liveUtils.spawn.bind(null, path.join('node_modules', '.bin', 'offline-github-pages'), ['integrate', 'dist']))
+    .then(liveUtils.spawn.bind(null, path.join('node_modules', '.bin', 'offline-github-pages'), ['deploy', 'dist']))
     .then(function() {
       return liveUtils.getBranch(username)
       .catch(liveUtils.getBranch.bind(null, username))
       .catch(liveUtils.getBranch.bind(null, username))
     })
-    .then(liveUtils.spawn.bind(null, path.join('node_modules', '.bin', 'oghliner'), ['configure'], [
+    .then(liveUtils.spawn.bind(null, path.join('node_modules', '.bin', 'offline-github-pages'), ['configure'], [
       {
         q: 'Username: ',
         r: username,
@@ -110,7 +110,7 @@ describe('CLI interface, oghliner as a tool', function() {
 
   it('the CLI program should have an exit code != 0 if deploy fails', function() {
     return liveUtils.spawn('npm', ['install', path.dirname(__dirname)])
-    .then(liveUtils.spawn.bind(null, path.join('node_modules', '.bin', 'oghliner'), ['deploy']))
+    .then(liveUtils.spawn.bind(null, path.join('node_modules', '.bin', 'offline-github-pages'), ['deploy']))
     .then(function() {
       assert(false);
     }, function(err) {
