@@ -55,7 +55,7 @@
     "rimraf": "^2.4.3",
     "sw-precache": "^2.0.0",
     "temp": "^0.8.3",
-    "through2": "^2.0.0",
+    "through2": "https://github.com/marco-c/gulp-install/tarball/6d4f30bd6ee803524c5a5f5b71afa15a59678775",
     "travis-ci": "^2.0.3",
     "travis-encrypt": "^1.1.2",
     "write-yaml": "^0.2.1"
