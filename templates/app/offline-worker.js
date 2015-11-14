@@ -49,7 +49,7 @@
 
     // This is a list of resources that will be cached.
     RESOURCES: [
-      '/',
+      './', // cache always the current root to make the default page available
 <% resources.forEach(function (pathAndHash) {
 %>      '<%- pathAndHash.path %>', // <%- pathAndHash.hash %>
 <% }); %>
@@ -57,42 +57,40 @@
 
     // Adds the resources to the cache controlled by this worker.
     cacheResources: function () {
-      var _this = this;
       var now = Date.now();
       var baseUrl = self.location;
-      return _this.openCache()
-        .then(function (cache) {
-          return Promise.all(_this.RESOURCES.map(function (resource) {
-            // Bust the request to get a fresh response
-            var url = new URL(resource, baseUrl);
-            var bustParameter = (url.search ? '&' : '') + '__bust=' + now;
-            var bustedUrl = new URL(url.toString());
-            bustedUrl.search += bustParameter;
+      return this.prepareCache()
+      .then(function (cache) {
+        return Promise.all(this.RESOURCES.map(function (resource) {
+          // Bust the request to get a fresh response
+          var url = new URL(resource, baseUrl);
+          var bustParameter = (url.search ? '&' : '') + '__bust=' + now;
+          var bustedUrl = new URL(url.toString());
+          bustedUrl.search += bustParameter;
 
-            // But cache the response for the original request
-            var requestConfig = { credentials: 'same-origin' };
-            var originalRequest = new Request(url.toString(), requestConfig);
-            var bustedRequest = new Request(bustedUrl.toString(), requestConfig);
-            return fetch(bustedRequest).then(function (response) {
-              if (response.ok) {
-                return cache.put(originalRequest, response);
-              }
-              console.error('Error fetching ' + url + ', status was ' + response.status);
-            });
-          }));
-        });
+          // But cache the response for the original request
+          var requestConfig = { credentials: 'same-origin' };
+          var originalRequest = new Request(url.toString(), requestConfig);
+          var bustedRequest = new Request(bustedUrl.toString(), requestConfig);
+          return fetch(bustedRequest).then(function (response) {
+            if (response.ok) {
+              return cache.put(originalRequest, response);
+            }
+            console.error('Error fetching ' + url + ', status was ' + response.status);
+          });
+        }));
+      }.bind(this));
     },
 
-    // Remove the offline caches non controlled by this worker.
+    // Remove the offline caches not controlled by this worker.
     clearOtherCaches: function () {
-      var _this = this;
       return self.caches.keys()
-        .then(function (cacheNames) {
-          return Promise.all(cacheNames.map(deleteIfNotCurrent));
-        });
+      .then(function (cacheNames) {
+        return Promise.all(cacheNames.map(deleteIfNotCurrent.bind(this)));
+      }.bind(this));
 
       function deleteIfNotCurrent(cacheName) {
-        if (cacheName.indexOf(_this.CACHE_PREFIX) !== 0 || cacheName === _this.CACHE_NAME) {
+        if (cacheName.indexOf(this.CACHE_PREFIX) !== 0 || cacheName === this.CACHE_NAME) {
           return Promise.resolve();
         }
         return self.caches.delete(cacheName);
@@ -102,15 +100,20 @@
     // Get a response from the current offline cache or from the network.
     get: function (request) {
       return this.openCache()
-        .then(function (cache) {
-          return cache.match(request);
-        })
-        .then(function (response) {
-          if (response) {
-            return response;
-          }
-          return self.fetch(request);
-        });
+      .then(function (cache) {
+        return cache.match(request);
+      })
+      .then(function (response) {
+        if (response) {
+          return response;
+        }
+        return self.fetch(request);
+      });
+    },
+
+    // Prepare the cache for installation, deleting it before if it already exists.
+    prepareCache: function () {
+      return self.caches.delete(this.CACHE_NAME).then(this.openCache.bind(this));
     },
 
     // Open and cache the offline cache promise to improve the performance when

@@ -251,7 +251,7 @@ describe('Offline', function() {
       'test_file_1.js is bigger than 2 MiB',
       'test_file_2.js is bigger than 2 MiB',
       'test_file_3.js is bigger than 2 MiB',
-    ], [], 'Total precache size');
+    ], [], 'Total cache size');
 
     var offlinePromise = offline({
       rootDir: dir,
@@ -283,7 +283,7 @@ describe('Offline', function() {
       'test_file_3.js is bigger than 2 MiB',
     ], [
       'test_file_1.js is bigger than 2 MiB',
-    ], 'Total precache size');
+    ], 'Total cache size');
 
     var offlinePromise = offline({
       rootDir: dir,
@@ -318,7 +318,7 @@ describe('Offline', function() {
       'test_file_3.js is bigger than 2 MiB',
     ], [
       'test_file_1.js is bigger than 2 MiB',
-    ], 'Total precache size');
+    ], 'Total cache size');
 
     var offlinePromise = offline({
       rootDir: dir,
