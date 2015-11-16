@@ -28,7 +28,9 @@
     "lib/offline.js",
     "lib/bootstrap.js",
     "lib/integrate.js",
-    "templates/"
+    "templates/",
+    "README.md",
+    "LICENSE"
   ],
   "dependencies": {
     "chalk": "^1.1.1",
