@@ -80,7 +80,7 @@ describe('CLI interface, oghliner as a tool', function() {
       expect(travisYml.language).to.equal('node_js');
       expect(travisYml.node_js).to.deep.equal(['0.12']);
       expect(travisYml.install).to.equal('npm install');
-      expect(travisYml.script).to.equal('gulp');
+      expect(travisYml.script).to.equal('gulp build && gulp offline');
       expect(travisYml).to.include.keys('env');
       expect(travisYml.env).to.include.keys('global');
       expect(travisYml.env.global).to.have.length(1);

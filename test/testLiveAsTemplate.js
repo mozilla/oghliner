@@ -70,7 +70,8 @@ describe('CLI interface, oghliner as a template', function() {
     })
     .then(liveUtils.spawn.bind(null, 'git', ['add', '*']))
     .then(liveUtils.spawn.bind(null, 'git', ['commit', '-m', 'First commit']))
-    .then(liveUtils.spawn.bind(null, path.join('node_modules', '.bin', 'gulp'), []))
+    .then(liveUtils.spawn.bind(null, path.join('node_modules', '.bin', 'gulp'), ['build']))
+    .then(liveUtils.spawn.bind(null, path.join('node_modules', '.bin', 'gulp'), ['offline']))
     .then(function() {
       assert.doesNotThrow(fse.statSync.bind(fse, 'dist'));
     })
@@ -99,7 +100,7 @@ describe('CLI interface, oghliner as a template', function() {
       expect(travisYml.language).to.equal('node_js');
       expect(travisYml.node_js).to.deep.equal(['0.12']);
       expect(travisYml.install).to.equal('npm install');
-      expect(travisYml.script).to.equal('gulp');
+      expect(travisYml.script).to.equal('gulp build && gulp offline');
       expect(travisYml).to.include.keys('env');
       expect(travisYml.env).to.include.keys('global');
       expect(travisYml.env.global).to.have.length(1);
