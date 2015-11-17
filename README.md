@@ -315,20 +315,20 @@ Then require the module in your build script and call its *offline* function, pa
 ```js
 var oghliner = require('oghliner');
 
-gulp.task('offline', function(callback) {
-  oghliner.offline({
+gulp.task('offline', function() {
+  return oghliner.offline({
     rootDir: 'dist/',
     fileGlobs: [
       '**/*.html',
       'js/**/*.js',
     ],
-  }, callback);
+  });
 });
 
-gulp.task('deploy', function(callback) {
-  oghliner.deploy({
+gulp.task('deploy', function() {
+  return oghliner.deploy({
     rootDir: 'dist/',
-  }, callback);
+  });
 });
 ```
 
