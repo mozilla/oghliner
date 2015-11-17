@@ -481,6 +481,8 @@ describe('Configure', function() {
   });
 
   it('recreates existing GitHub token', function() {
+    nockGetAuthorizations();
+
     nockGetTokenFailureExists()
     .get('/authorizations')
     .query({"page":"1"})
@@ -503,7 +505,13 @@ describe('Configure', function() {
     .delete('/authorizations/22200031')
     .reply(204, "");
 
-    nockBasicPostAuthFlow();
+    nockGetTemporaryGitHubToken();
+    nockGetTravisTokenAndUser();
+    nockDeleteTemporaryGitHubToken();
+    nockGetGitHubToken();
+    nockGetHooks();
+    nockGetTravisKey();
+
     configure();
     return enterUsernamePassword()
     .then(function() {
@@ -513,12 +521,13 @@ describe('Configure', function() {
   });
 
   it('fails if it can\'t find an existing GitHub token', function() {
+    nockGetAuthorizations();
+
     nockGetTokenFailureExists()
     .get('/authorizations')
     .query({"page":"1"})
     .reply(200, []);
 
-    nockGetAuthorizations();
     nockGetTemporaryGitHubToken();
     nockGetTravisTokenAndUser();
     nockDeleteTemporaryGitHubToken();
