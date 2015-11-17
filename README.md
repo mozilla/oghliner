@@ -342,8 +342,8 @@ If you used Oghliner to bootstrap your app, then it already has a gulpfile.js wi
 npm install --global gulp
 ```
 
-Then invoke `gulp` to build and offline your app and `gulp deploy` to deploy it:
+Then invoke `gulp build && gulp offline && gulp deploy` to build, offline, and deploy your app:
 
 ```
-gulp && gulp deploy
+gulp build && gulp offline && gulp deploy
 ```
