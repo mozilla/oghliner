@@ -55,84 +55,247 @@
 
       <section>
         
-        <p>Oghliner is an experimental template and tool for deploying Offline Web Apps to GitHub Pages. As a template, Oghliner can be used to bootstrap an offline app that deploys to GitHub Pages. As a tool, Oghliner adds offlining and GitHub Pages deployment into your existing app.</p>
-<p>Offline Web Apps are web apps that work when your network doesn&#39;t. They use Service Workers to cache and serve your app&#39;s assets (HTML, JavaScript, CSS, images, etc.) on a user&#39;s machine, regardless of the status of its network connection. And they degrade gracefully, so the app works identically in browsers that don&#39;t support Service Workers when the machine is online.</p>
-<p><a href="https://travis-ci.org/mozilla/oghliner"><img src="https://travis-ci.org/mozilla/oghliner.svg?branch=master" alt="Build Status"></a>
+        <p><a href="https://travis-ci.org/mozilla/oghliner"><img src="https://travis-ci.org/mozilla/oghliner.svg?branch=master" alt="Build Status"></a>
 <a href="https://david-dm.org/mozilla/oghliner"><img src="https://david-dm.org/mozilla/oghliner.svg" alt="dependencies"></a>
 <a href="https://david-dm.org/mozilla/oghliner#info=devDependencies"><img src="https://david-dm.org/mozilla/oghliner/dev-status.svg" alt="devdependencies"></a></p>
-<h2 id="using-the-template">Using The Template</h2>
-<p>To bootstrap an offline web app, create a repository on GitHub and then clone to your local machine.</p>
-<pre><code class="lang-bash">git clone git@github.com:mykmelez/test-app.git
-cd test-app
+<h1 id="oghliner">Oghliner</h1>
+<p>Oghliner is a Node tool to deploy Offline Web Apps to GitHub Pages.</p>
+<p>Offline Web Apps are web apps that cache their files (HTML, JavaScript, CSS, images, etc.) on the client, so they work even when your network doesn&#39;t. <a href="https://pages.github.com/">GitHub Pages</a> is a simple host for static files.</p>
+<p>Oghliner offlines an app by generating a <a href="https://github.com/slightlyoff/ServiceWorker/blob/master/explainer.md">Service Worker</a> for it. It deploys the app by committing it to the <em>gh-pages</em> branch of the repository being deployed.</p>
+<p>Oghliner includes commands for bootstrapping an app from scratch or integrating its functionality into your existing app. It can also configure <a href="https://travis-ci.org">Travis CI</a> to automatically deploy your app when you merge changes to its master branch.</p>
+<p>Oghliner has both command-line and module interfaces and provides five commands: <em>bootstrap</em>, <em>integrate</em>, <em>offline</em>, <em>deploy</em>, and <em>configure</em>. All commands are available via both interfaces, but the CLI is more appropriate for the <em>bootstrap</em>, <em>integrate</em>, and <em>configure</em> commands, which you&#39;ll invoke at most once per app; while the module is more appropriate for the <em>offline</em> and <em>deploy</em> commands, which you&#39;ll call each time you change your app and rebuild it.</p>
+<h2 id="getting-started">Getting Started</h2>
+<p>To use the CLI, install Oghliner globally:</p>
+<pre><code>npm install --global oghliner
+</code></pre><p>To use the module, install Oghliner locally and save it to your <em>dependencies</em>:</p>
+<pre><code>npm install --save oghliner
+</code></pre><p>Then <em>require</em> it in your script(s):</p>
+<pre><code class="lang-js">var oghliner = require(&#39;oghliner&#39;);
 </code></pre>
-<p>If you haven&#39;t already, install gulp and oghliner.</p>
-<pre><code class="lang-bash">npm install -g gulp oghliner
+<h2 id="bootstrap">Bootstrap</h2>
+<p>The <em>bootstrap</em> command creates an initial set of directories and files for a new app. To use it, first <a href="https://github.com/new">create a repository on GitHub</a> and clone it to your local machine:</p>
+<pre><code>git clone git@github.com:mykmelez/offline-app.git
+</code></pre><p>Then change to its working directory and invoke <code>oghliner bootstrap</code>:</p>
+<pre><code>cd offline-app/
+oghliner bootstrap
+</code></pre><p>Oghliner will bootstrap your app by copying files from its app template to the current directory:</p>
+<pre><code>Bootstrapping current directory as Oghliner app…
+
+Your app&#39;s configuration is:
+
+Name: offline-app
+Repository: git@github.com:mykmelez/offline-app.git
+Description: A template app bootstrapped with oghliner.
+License: Apache-2.0
+
+Would you like to change its configuration (y/N)? n
+
+Creating files…
+✓ Creating README.md
+✓ Creating app
+✓ Creating .gitignore
+✓ Creating gulpfile.js
+✓ Creating package.json
+✓ Creating app/favicon.ico
+✓ Creating app/fonts
+✓ Creating app/images
+✓ Creating app/index.html
+✓ Creating app/robots.txt
+✓ Creating app/scripts
+✓ Creating app/styles
+✓ Creating app/images/apple-touch-icon-114x114.png
+✓ Creating app/images/apple-touch-icon-120x120.png
+✓ Creating app/images/apple-touch-icon-144x144.png
+✓ Creating app/images/apple-touch-icon-152x152.png
+✓ Creating app/images/apple-touch-icon-57x57.png
+✓ Creating app/images/apple-touch-icon-60x60.png
+✓ Creating app/images/apple-touch-icon-72x72.png
+✓ Creating app/images/apple-touch-icon-76x76.png
+✓ Creating app/images/favicon-128x128.png
+✓ Creating app/images/favicon-16x16.png
+✓ Creating app/images/favicon-196x196.png
+✓ Creating app/images/favicon-32x32.png
+✓ Creating app/images/favicon-96x96.png
+✓ Creating app/images/mstile-144x144.png
+✓ Creating app/images/mstile-150x150.png
+✓ Creating app/images/mstile-310x150.png
+✓ Creating app/images/mstile-310x310.png
+✓ Creating app/images/mstile-70x70.png
+✓ Creating app/scripts/main.js
+✓ Creating app/scripts/offline-manager.js
+✓ Creating app/styles/stylesheet.css
+
+✓ Creating files… done!
+✓ Installing npm dependencies… done!
+
+Your app has been bootstrapped! Just commit the changes and push the commit
+to the origin/master branch:
+
+git add --all &amp;&amp; git commit -m&quot;initial version of Oghliner app&quot;
+git push origin master
+
+Then you can build, offline, and deploy the app using gulp commands.
+
+ℹ For more information about building, offlining and deployment, see:
+    https://mozilla.github.io/oghliner/
+</code></pre><p>Then just commit the changes and push the commit to the origin/master branch:</p>
+<pre><code>git add --all &amp;&amp; git commit -m&quot;initial version of Oghliner app&quot;
+git push origin master
+</code></pre><p>Note: To bootstrap an app into a different directory than the current one, specify its path when invoking <em>bootstrap</em>:</p>
+<pre><code>oghliner bootstrap path/to/another/clone/
+</code></pre><h2 id="integrate">Integrate</h2>
+<p>The <em>integrate</em> command adds Oghliner functionality into an existing app. To use it, invoke <code>oghliner integrate</code>, passing it the path to the directory containing your app&#39;s scripts:</p>
+<pre><code>oghliner integrate app/scripts/
+</code></pre><p>Oghliner will copy the <em>offline-manager.js</em> script to that directory:</p>
+<pre><code>Integrating Oghliner into the app in the current directory…
+
+✓ Copying offline-manager.js to app/scripts/… done!
+
+Oghliner has been integrated into the app!
+
+The app needs to load the script offline-manager.js in order to register
+the service worker that offlines the app. To load the script, add this line
+to the app&#39;s HTML page(s)/template(s):
+
+&lt;script src=&quot;app/scripts/offline-manager.js&quot;&gt;&lt;/script&gt;
+
+And commit the changes and push the commit to the origin/master branch:
+
+git commit -m&quot;integrate Oghliner&quot; --all
+git push origin master
+
+Then you can offline and deploy the app using the offline and deploy commands.
+
+ℹ For more information about offlining and deployment, see:
+    https://mozilla.github.io/oghliner/
+</code></pre><p>Then add a &lt;script&gt; tag referencing that script to your app&#39;s HTML page(s)/template(s). Oghliner will suggest one, but it doesn&#39;t necessarily know your app&#39;s directory structure, so make sure it contains the correct path to the file!</p>
+<h2 id="offline">Offline</h2>
+<p>The <em>offline</em> command generates a service worker that caches your app&#39;s files on the client.</p>
+<p>To use it via the command line, invoke <code>oghliner offline</code>, passing it a <em>rootDir</em> argument specifying the directory containing the files to offline:</p>
+<pre><code>oghliner offline dist/
+</code></pre><p>To use it via the module, call <code>oghliner.offline</code>, passing it an <em>options</em> object with a <em>rootDir</em> property specifying the directory containing the files to offline:</p>
+<pre><code class="lang-js">var promise = oghliner.offline({
+  rootDir: &#39;dist/&#39;,
+});
 </code></pre>
-<p>Then bootstrap your app with the bootstrap command which puts assets in <em>app/</em> and includes a simple <em>gulpfile.js</em> that builds to <em>dist/</em>, but you can modify the build any way you like.</p>
-<pre><code class="lang-bash">oghliner bootstrap
-</code></pre>
-<p>Invoke <code>gulp</code> to rebuild your app and regenerate the script that offlines it. Invoke <code>gulp deploy</code> to publish it to GitHub Pages.</p>
-<pre><code class="lang-bash">gulp &amp;&amp; gulp deploy
-</code></pre>
-<p>At least one commit to the repository is required for successful deploy.  The following could be used to commit the changes by Oghliner to the repository:</p>
-<pre><code class="lang-bash">git add . &amp;&amp; git commit -m &quot;Initial version of app&quot;
-</code></pre>
-<h2 id="using-the-tool">Using The Tool</h2>
-<p>To integrate offlining and deployment into your existing app, <code>npm install -g oghliner</code>, then run <code>oghliner offline [root-dir]</code> to offline your app (i.e. regenerate the offline-worker.js script) and <code>oghliner deploy [root-dir]</code> to deploy it.  Both commands take an optional <em>root-dir</em> argument that specifies the directory to offline/deploy. Its default value is the current directory (<code>./</code>).</p>
-<p>The <em>offline</em> command also allows you to specify these options:</p>
+<p>The call returns a Promise that resolves once Oghliner finishes generating the service worker. If left unspecified, the default value of <em>rootDir</em> is <code>./</code>, i.e. the current directory.</p>
+<p>Note: <em>rootDir</em> should be the <em>target</em> directory containing the output of your build process, not the <em>source</em> directory containing the original files. For example, if your source files are in <em>app/</em>, and your build process outputs into <em>dist/</em>, then you should specify the <em>dist/</em> directory.</p>
+<h3 id="options">Options</h3>
+<p>The <em>offline</em> command takes the following options:</p>
 <ul>
-<li><em>--file-globs</em>: a comma-separated list of file globs to offline (default: <code>**/*</code>). The files specified by <em>--file-globs</em> are matched inside <em>root-dir</em>.</li>
-<li><em>--import-scripts</em>: a comma-separated list of additional scripts to import into offline-worker.js. This is useful, for example, when you want to use the <a href="https://developer.mozilla.org/en-US/docs/Web/API/Push_API">Push API</a>.</li>
+<li><code>--file-globs glob,…</code> or <code>fileGlobs: [&#39;glob&#39;, …]</code> - a comma-separated list of globs identifying the files to offline (default: <code>**/*</code>). The globs are matched inside <em>rootDir</em>.</li>
+<li><code>--import-scripts script,…</code> or <code>importScripts: [&#39;script&#39;, …]</code> - a comma-separated list of additional scripts to evaluate in the service worker (no default value). This is useful, for example, when you want to use the <a href="https://developer.mozilla.org/en-US/docs/Web/API/Push_API">Push API</a>.</li>
 </ul>
-<p>Alternately, you can <code>npm install --save oghliner</code> and then add tasks to your <em>gulpfile.js</em> which call <em>oghliner.offline</em> and <em>oghliner.deploy</em>, for example:</p>
+<h2 id="deploy">Deploy</h2>
+<p>The <em>deploy</em> command deploys your app to GitHub Pages by committing its files to the <em>gh-pages</em> branch of the repository and pushing the commit to GitHub.</p>
+<p>To use it via the command line, invoke <code>oghliner deploy</code>, passing it a <em>rootDir</em> argument specifying the directory containing the files to deploy:</p>
+<pre><code>oghliner deploy dist/
+</code></pre><p>To use it via the module, call <code>oghliner.deploy</code>, passing it an <em>options</em> object with a <em>rootDir</em> property specifying the directory containing the files to deploy:</p>
+<pre><code class="lang-js">var promise = oghliner.deploy({
+  rootDir: &#39;dist/&#39;,
+});
+</code></pre>
+<p>The call returns a Promise that resolves once Oghliner finishes deploying the app. If left unspecified, the default value of <em>rootDir</em> is <code>./</code>, i.e. the current directory.</p>
+<p>Note: <em>rootDir</em> should be the <em>target</em> directory containing the output of your build process, not the <em>source</em> directory containing the original files. For example, if your source files are in <em>app/</em>, and your build process outputs into <em>dist/</em>, then you should specify the <em>dist/</em> directory.</p>
+<h3 id="options">Options</h3>
+<p>The <em>deploy</em> command takes the following options via both the CLI and the module:</p>
+<ul>
+<li><code>-m, --message message</code> or <code>message: &#39;message&#39;</code> - the message for the commit to the <em>gh-pages</em> branch</li>
+</ul>
+<p>The <em>deploy</em> command takes the following options via the module only:</p>
+<ul>
+<li><code>cloneDir: &#39;dir&#39;</code> - the directory into which Oghliner will create a temporary clone of the repository while deploying the app (default is implementation detail). This is mostly useful internally, for implementation of the CLI.</li>
+<li><code>fileGlobs: [&#39;glob&#39;, …]</code> - a comma-separated list of globs identifying the files to offline (default: <code>**/*</code>). The globs are matched inside <em>rootDir</em>.</li>
+<li><code>remote: &#39;remote&#39;</code> - the Git remote to which to push the <em>gh-pages</em> branch (default: <code>origin</code>).</li>
+</ul>
+<h2 id="configure">Configure</h2>
+<p>The <em>configure</em> command configures Travis to automatically deploy an app to GitHub Pages when you push to its <em>master</em> branch.</p>
+<p>To use it, invoke <code>oghliner configure</code> within your local working directory:</p>
+<pre><code>oghliner configure
+</code></pre><p>Oghliner will create a GitHub token that authorizes Travis to push changes to your repository, then configure Travis to use the token to deploy changes.</p>
+<pre><code>Configuring Travis to auto-deploy to GitHub Pages…
+
+Your repository has a single remote, origin.
+Ok, I&#39;ll configure Travis to auto-deploy the origin remote (mykmelez/offline-app).
+
+To check the status of your repository in Travis and authorize Travis to push
+to it, I&#39;ll create GitHub personal access tokens, for which I need your GitHub
+username and password (and two-factor authentication code, if appropriate).
+
+ℹ For more information about GitHub personal access tokens, see:
+    https://github.com/settings/tokens
+
+Username: mykmelez
+Password:
+
+× Checking credentials… error!
+
+You&#39;re using two-factor authentication with GitHub.
+Please enter the code provided by your authentication software.
+
+Auth Code: 123456
+
+✓ Checking credentials… done!
+✓ Creating temporary GitHub token for getting Travis token… done!
+✓ Getting Travis token… done!
+✓ Deleting temporary GitHub token for getting Travis token… done!
+✓ Creating permanent GitHub token for Travis to push to the repository… done!
+✓ Checking the status of your repository in Travis… done!
+✓ I didn&#39;t find your repository in Travis; syncing Travis with GitHub… done!
+✓ Checking the status of your repository in Travis… done!
+✓ Your repository isn&#39;t active in Travis yet; activating it… done!
+✓ Encrypting permanent GitHub token… done!
+✓ Writing configuration to .travis.yml file… done!
+
+⚠ You didn&#39;t already have a .travis.yml file, so I created one for you.
+  For more information about the file, see:
+    http://docs.travis-ci.com/user/customizing-the-build/
+
+You&#39;re ready to auto-deploy using Travis!  Just commit the changes
+in .travis.yml and push the commit to the origin/master branch:
+
+git add .travis.yml
+git commit -m&quot;configure Travis to auto-deploy to GitHub Pages&quot; .travis.yml
+git push origin master
+
+Then visit https://travis-ci.org/mykmelez/offline-app/builds to see the build status.
+</code></pre><p>After configuring the repository, add and commit the changes to <em>.travis.yml</em> and push the <em>master</em> branch to the <em>origin</em> remote on GitHub to make Travis build and auto-deploy your app:</p>
+<pre><code>git add .travis.yml
+git commit -m&quot;configure Travis to auto-deploy to GitHub Pages&quot; .travis.yml
+git push origin master
+</code></pre><p>You can see the status of a build/deployment at <code>https://travis-ci.org/USERNAME/REPOSITORY/builds</code>. For example, the status of builds for <a href="https://github.com/mykmelez/eggtimer/">https://github.com/mykmelez/eggtimer/</a> is at <a href="https://travis-ci.org/mykmelez/eggtimer/builds">https://travis-ci.org/mykmelez/eggtimer/builds</a>.</p>
+<p>Once configured, Travis deploys successful builds via <code>gulp deploy</code>. You can change the deploy command by editing your .travis.yml file.</p>
+<p>Note: Oghliner needs your GitHub credentials to create the token, and the token gives Travis limited access to your GitHub account. Specifically, the token provides the <em>public_repo</em> <a href="https://developer.github.com/v3/oauth/#scopes">scope</a>, which gives Travis &quot;read/write access to code, commit statuses, collaborators, and deployment statuses for public repositories and organizations.&quot; For more information about personal access tokens, see <a href="https://help.github.com/articles/creating-an-access-token-for-command-line-use/">Creating an access token for command-line use</a>.</p>
+<h2 id="build-process-integration">Build Process Integration</h2>
+<p>You can integrate Oghliner into your Node-based build process via its module interface. This is particularly helpful for the <em>offline</em> and <em>deploy</em> commands, which you&#39;ll call each time you change your app and rebuild it.</p>
+<p>To do so, first install Oghliner locally and save it to your <em>dependencies</em>:</p>
+<pre><code>npm install --save oghliner
+</code></pre><p>Then require the module in your build script and call its <em>offline</em> function, passing <em>options</em> to configure its behavior. For example, if you use Gulp to build your app, you could add code like this to your gulpfile.js:</p>
 <pre><code class="lang-js">var oghliner = require(&#39;oghliner&#39;);
 
-gulp.task(&#39;offline&#39;, function(callback) {
-  oghliner.offline({
+gulp.task(&#39;offline&#39;, function() {
+  return oghliner.offline({
     rootDir: &#39;dist/&#39;,
     fileGlobs: [
       &#39;**/*.html&#39;,
       &#39;js/**/*.js&#39;,
     ],
-  }, callback);
+  });
 });
 
-gulp.task(&#39;deploy&#39;, function(callback) {
-  oghliner.deploy({
+gulp.task(&#39;deploy&#39;, function() {
+  return oghliner.deploy({
     rootDir: &#39;dist/&#39;,
-  }, callback);
+  });
 });
 </code></pre>
-<p>The <em>oghliner.offline</em> task takes a <em>config</em> object and a <em>callback</em>. The properties of the <em>config</em> object are:</p>
-<ul>
-<li><em>rootDir</em>: the directory to offline (default: <code>./</code>);</li>
-<li><em>fileGlobs</em>: an array of file globs to offline (default: <code>[&#39;**/*&#39;]</code>). The files specified by <em>fileGlobs</em> are matched inside <em>rootDir</em>.</li>
-<li><em>importScripts</em>: an array of additional scripts to import into offline-worker.js (default: <code>[]</code>). This is useful, for example, when you want to use the <a href="https://developer.mozilla.org/en-US/docs/Web/API/Push_API">Push API</a>.</li>
-</ul>
-<p><em>oghliner.deploy</em> deploys your files to GitHub Pages. It takes a <em>config</em> object and a <em>callback</em>. The properties of the <em>config</em> object are:</p>
-<ul>
-<li><em>rootDir</em>: the directory to deploy (default: <code>./</code>).</li>
-</ul>
-<p>Finally, in order for offline-worker.js to be evaluated, you need to load the offline manager script in your app by copying it to the location of your other scripts. To do this, use the <em>integrate</em> command (or <em>oghliner.integrate</em> function):</p>
-<pre><code class="lang-bash">oghliner integrate path/to/your/scripts/
+<p>Then you could invoke <code>gulp offline &amp;&amp; gulp deploy</code> to offline and deploy your app.</p>
+<h2 id="gulp-integration">Gulp Integration</h2>
+<p>If you used Oghliner to bootstrap your app, then it already has a gulpfile.js with tasks for building, offlining, and deploying your app.  To use it, install Gulp globally:</p>
+<pre><code>npm install --global gulp
+</code></pre><p>Then invoke <code>gulp build &amp;&amp; gulp offline &amp;&amp; gulp deploy</code> to build, offline, and deploy your app:</p>
+<pre><code>gulp build &amp;&amp; gulp offline &amp;&amp; gulp deploy
 </code></pre>
-<h2 id="automatic-deployment-via-travis">Automatic Deployment Via Travis</h2>
-<p>Oghliner can configure a repository to automatically deploy to GitHub Pages whenever you push to its <em>master</em> branch. Auto-deploy uses <a href="https://travis-ci.org/">Travis CI</a>, a continuous integration service. Oghliner takes care of most of the steps to configure your repository to auto-deploy via Travis.</p>
-<p>If you bootstrapped your app from the template, your repository already has a suitable Travis configuration file (.travis.yml) and a <em>configure</em> task in gulpfile.js. Just <code>gulp configure</code> to configure your repository.</p>
-<p>If you integrated the tool into an existing app, <code>npm install -g oghliner &amp;&amp; oghliner configure</code> to configure your repository.</p>
-<p>Oghliner will prompt you for your GitHub credentials in order to create a token that authorizes Travis to push changes to your repository. The token will give Travis limited access to your GitHub account. Specifically: it will have the <em>public_repo</em> <a href="https://developer.github.com/v3/oauth/#scopes">scope</a>, which gives it &quot;read/write access to code, commit statuses, collaborators, and deployment statuses for public repositories and organizations.&quot;</p>
-<p>After configuring the repository, add and commit the changes to <em>.travis.yml</em> and push the <em>master</em> branch to the <em>origin</em> remote on GitHub to make Travis build and auto-deploy your app:</p>
-<pre><code class="lang-bash">&gt; git commit -m&quot;configure Travis to auto-deploy to GitHub Pages&quot; .travis.yml
-&gt; git push origin master
-</code></pre>
-<p>You can see the status of a build/deployment at <code>https://travis-ci.org/*your-GitHub-username*/*your-repository-name*/builds</code>. For example, the status of builds for <a href="https://github.com/mykmelez/eggtimer/">https://github.com/mykmelez/eggtimer/</a> is at <a href="https://travis-ci.org/mykmelez/eggtimer/builds">https://travis-ci.org/mykmelez/eggtimer/builds</a>.</p>
-<p>If the build was successful, Travis will deploy the site via <code>gulp deploy</code>. Expand the log entry to see details about the deployment:</p>
-<pre><code class="lang-bash">$ [ &quot;${TRAVIS_PULL_REQUEST}&quot; = &quot;false&quot; ] &amp;&amp; [ &quot;${TRAVIS_BRANCH}&quot; = &quot;master&quot; ] &amp;&amp; gulp deploy
-[23:34:13] Using gulpfile ~/build/mykmelez/eggtimer/gulpfile.js
-[23:34:13] Starting &#39;deploy&#39;...
-[23:34:15] Finished &#39;deploy&#39; after 1.96 s
-</code></pre>
-
 
         <h2>Resources</h2>
         <div class="links-columns">
