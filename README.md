@@ -175,12 +175,12 @@ oghliner offline dist/
 To use it via the module, call `oghliner.offline`, passing it an *options* object with a *rootDir* property specifying the directory containing the files to offline:
 
 ```js
-oghliner.offline({
+var promise = oghliner.offline({
   rootDir: 'dist/',
 });
 ```
 
-If left unspecified, the default value of *rootDir* is `./`, i.e. the current directory.
+The call returns a Promise that resolves once Oghliner finishes generating the service worker. If left unspecified, the default value of *rootDir* is `./`, i.e. the current directory.
 
 Note: *rootDir* should be the *target* directory containing the output of your build process, not the *source* directory containing the original files. For example, if your source files are in *app/*, and your build process outputs into *dist/*, then you should specify the *dist/* directory.
 
@@ -204,12 +204,12 @@ oghliner deploy dist/
 To use it via the module, call `oghliner.deploy`, passing it an *options* object with a *rootDir* property specifying the directory containing the files to deploy:
 
 ```js
-oghliner.deploy({
+var promise = oghliner.deploy({
   rootDir: 'dist/',
 });
 ```
 
-If left unspecified, the default value of *rootDir* is `./`, i.e. the current directory.
+The call returns a Promise that resolves once Oghliner finishes deploying the app. If left unspecified, the default value of *rootDir* is `./`, i.e. the current directory.
 
 Note: *rootDir* should be the *target* directory containing the output of your build process, not the *source* directory containing the original files. For example, if your source files are in *app/*, and your build process outputs into *dist/*, then you should specify the *dist/* directory.
 
