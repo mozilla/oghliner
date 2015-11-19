@@ -11,9 +11,7 @@
   // wait for clients to be closed before becoming active.
   self.addEventListener('install', function (event) {
     event.waitUntil(oghliner.cacheResources().then(function () {
-      if (typeof self.skipWaiting === 'function') {
-        return self.skipWaiting();
-      }
+      return self.skipWaiting();
     }));
   });
 
@@ -21,9 +19,7 @@
   // without waiting for them to reload.
   self.addEventListener('activate', function (event) {
     event.waitUntil(oghliner.clearOtherCaches().then(function () {
-      if (self.clients && typeof self.clients.claim === "function") {
-        return self.clients.claim();
-      }
+      return self.clients.claim();
     }));
   });
 
@@ -31,8 +27,7 @@
   self.addEventListener('fetch', function (event) {
     if (event.request.method === 'GET') {
       event.respondWith(oghliner.get(event.request));
-    }
-    else {
+    } else {
       event.respondWith(self.fetch(event.request));
     }
   });
@@ -84,17 +79,18 @@
 
     // Remove the offline caches not controlled by this worker.
     clearOtherCaches: function () {
-      return self.caches.keys()
-      .then(function (cacheNames) {
-        return Promise.all(cacheNames.map(deleteIfNotCurrent.bind(this)));
-      }.bind(this));
-
-      function deleteIfNotCurrent(cacheName) {
+      var deleteIfNotCurrent = function (cacheName) {
         if (cacheName.indexOf(this.CACHE_PREFIX) !== 0 || cacheName === this.CACHE_NAME) {
           return Promise.resolve();
         }
         return self.caches.delete(cacheName);
-      }
+      }.bind(self);
+
+      return self.caches.keys()
+      .then(function (cacheNames) {
+        return Promise.all(cacheNames.map(deleteIfNotCurrent));
+      });
+
     },
 
     // Get a response from the current offline cache or from the network.
