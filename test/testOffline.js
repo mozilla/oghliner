@@ -71,7 +71,7 @@ describe('Offline', function() {
     });
   });
 
-  it('should use importScript in the service worker if the importScripts option is defined', function() {
+  it('should use importScripts in the service worker if the importScripts option is defined', function() {
     var dir = temp.mkdirSync('oghliner');
     fs.writeFileSync(path.join(dir, 'a-script.js'), 'data');
 
@@ -80,7 +80,7 @@ describe('Offline', function() {
       importScripts: [ 'a-script.js', ],
     }).then(function() {
       var content = fs.readFileSync(path.join(dir, 'offline-worker.js'), 'utf8');
-      assert.notEqual(content.indexOf('importScripts("a-script.js");'), -1);
+      assert.notEqual(content.indexOf('importScripts(\'a-script.js\');'), -1);
     });
   });
 
@@ -251,7 +251,7 @@ describe('Offline', function() {
       'test_file_1.js is bigger than 2 MiB',
       'test_file_2.js is bigger than 2 MiB',
       'test_file_3.js is bigger than 2 MiB',
-    ], [], 'Total precache size');
+    ], [], 'Total cache size');
 
     var offlinePromise = offline({
       rootDir: dir,
@@ -283,7 +283,7 @@ describe('Offline', function() {
       'test_file_3.js is bigger than 2 MiB',
     ], [
       'test_file_1.js is bigger than 2 MiB',
-    ], 'Total precache size');
+    ], 'Total cache size');
 
     var offlinePromise = offline({
       rootDir: dir,
@@ -318,7 +318,7 @@ describe('Offline', function() {
       'test_file_3.js is bigger than 2 MiB',
     ], [
       'test_file_1.js is bigger than 2 MiB',
-    ], 'Total precache size');
+    ], 'Total cache size');
 
     var offlinePromise = offline({
       rootDir: dir,
