@@ -42,7 +42,7 @@ program
     .then(function() {
       process.exit(0);
     }, function(err) {
-      console.log(chalk.red.bold(err));
+      process.stderr.write(chalk.red.bold(err) + '\n');
       process.exit(1);
     });
   });
@@ -64,7 +64,10 @@ program
 
       fs.access('.gitignore', function(err) {
         if (err) {
-          console.log(chalk.blue.bold('.gh-pages-cache is a temporary repository that we use to push changes to your gh-pages branch. We suggest you add it to your .gitignore.'));
+          process.stdout.write(chalk.blue.bold(
+            'ℹ .gh-pages-cache is a temporary repository that we use to push changes\n' +
+            '  to your gh-pages branch. We suggest you add it to your .gitignore.\n'
+          ));
           return;
         }
 
@@ -81,7 +84,7 @@ program
       });
     })
     .catch(function(err) {
-      console.log(chalk.red.bold(err));
+      process.stderr.write(chalk.red.bold(err) + '\n');
       process.exit(1);
     });
   });
@@ -98,7 +101,7 @@ program
       importScripts: options.importScripts ? options.importScripts.split(',') : null,
     })
     .catch(function(err) {
-      console.log(chalk.red.bold(err));
+      process.stderr.write(chalk.red.bold(err) + '\n');
       process.exit(1);
     });
   });
@@ -113,7 +116,7 @@ program
     .then(function() {
       process.exit(0);
     }, function(err) {
-      console.log(chalk.red.bold(err));
+      process.stderr.write(chalk.red.bold(err) + '\n');
       process.exit(1);
     });
   });
@@ -126,7 +129,7 @@ program
         dir: dir,
       })
       .catch(function(err) {
-        console.log(chalk.red.bold(err));
+        process.stderr.write(chalk.red.bold(err) + '\n');
         process.exit(1);
       });
     });
