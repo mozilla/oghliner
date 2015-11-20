@@ -253,7 +253,7 @@ username and password (and two-factor authentication code, if appropriate).
 Username: mykmelez
 Password:
 
-× Checking credentials… error!
+✗ Checking credentials… error!
 
 You're using two-factor authentication with GitHub.
 Please enter the code provided by your authentication software.
