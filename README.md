@@ -143,7 +143,7 @@ Integrating Oghliner into the app in the current directory…
 
 Oghliner has been integrated into the app!
 
-The app needs to load the script offline-manager.js in order to register
+The app needs to load the offline-manager.js script in order to register
 the service worker that offlines the app. To load the script, add this line
 to the app's HTML page(s)/template(s):
 
