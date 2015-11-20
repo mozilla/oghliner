@@ -135,13 +135,13 @@ describe('Configure', function() {
     });
   }
 
-  function nockGitHubGetAuthorizations() {
+  function nock_GitHub_GetAuthorizations() {
     return nock('https://api.github.com:443')
     .get('/authorizations')
     .reply(200, []);
   }
 
-  function nockGitHubGetAuthorizationsErrorBadCredentials() {
+  function nock_GitHub_GetAuthorizations_BadCredentials() {
     return nock('https://api.github.com:443')
     .get('/authorizations')
     .reply(401, {
@@ -150,7 +150,7 @@ describe('Configure', function() {
     });
   }
 
-  function nockGitHubGetAuthorizationsRequires2FACode() {
+  function nock_GitHub_GetAuthorizations_Need2FACode() {
     return nock('https://api.github.com:443')
     .get('/authorizations')
     .reply(401, {
@@ -159,7 +159,7 @@ describe('Configure', function() {
     });
   }
 
-  function nockGitHubGetPermanentTokenErrorAlreadyExists() {
+  function nock_GitHub_GetPermanentToken_AlreadyExists() {
     return nock('https://api.github.com:443')
     .post('/authorizations', {
       "scopes":["public_repo"],
@@ -173,7 +173,7 @@ describe('Configure', function() {
     });
   }
 
-  function nockGitHubGetPermanentToken() {
+  function nock_GitHub_GetPermanentToken() {
     return nock('https://api.github.com:443')
     .post('/authorizations', {
       "scopes":["public_repo"],
@@ -200,7 +200,7 @@ describe('Configure', function() {
     });
   }
 
-  function nockGitHubGetPermanentTokenRequiresNew2FACode() {
+  function nock_GitHub_GetPermanentToken_Need2FACode() {
     return nock('https://api.github.com:443')
     .post('/authorizations', {
       "scopes":["public_repo"],
@@ -213,7 +213,7 @@ describe('Configure', function() {
     });
   }
 
-  function nockGitHubGetTemporaryToken() {
+  function nock_GitHub_GetTemporaryToken() {
     return nock('https://api.github.com:443')
     .post('/authorizations', {
       "scopes":["read:org","user:email","repo_deployment","repo:status","write:repo_hook"],
@@ -238,7 +238,7 @@ describe('Configure', function() {
     });
   }
 
-  function nockTravisGetTokenAndUser() {
+  function nock_Travis_GetTokenAndUser() {
     return nock('https://api.travis-ci.org:443')
     .post('/auth/github', {"github_token":"1111111111111111111111111111111111111111"})
     .reply(200, {"access_token":"2222222222222222222222"})
@@ -260,13 +260,13 @@ describe('Configure', function() {
     });
   }
 
-  function nockGitHubDeleteTemporaryToken() {
+  function nock_GitHub_DeleteTemporaryToken() {
     return nock('https://api.github.com:443')
     .delete('/authorizations/23157726')
     .reply(204, "");
   }
 
-  function nockTravisGetHooks() {
+  function nock_Travis_GetHooks() {
     return nock('https://api.travis-ci.org:443')
     .get('/hooks')
     .reply(200, {
@@ -282,7 +282,7 @@ describe('Configure', function() {
     });
   }
 
-  function nockTravisGetHooksRepoIsInactive() {
+  function nock_Travis_GetHooks_RepoInactive() {
     return nock('https://api.travis-ci.org:443')
     .get('/hooks')
     .reply(200, {
@@ -298,7 +298,7 @@ describe('Configure', function() {
     });
   }
 
-  function nockTravisActivateRepo() {
+  function nock_Travis_ActivateRepo() {
     nock('https://api.travis-ci.org:443')
     .put('/hooks/5910871', {"hook":{"active":true}})
     .reply(200, {"result":true});
@@ -307,13 +307,13 @@ describe('Configure', function() {
   // I haven't reproduced this live, so I'm not sure if the response code
   // is really 200, nor even if the "result" will be false, but those seem
   // like the most likely values.
-  function nockTravisActivateRepoFails() {
+  function nock_Travis_ActivateRepo_Failure() {
     nock('https://api.travis-ci.org:443')
     .put('/hooks/5910871', {"hook":{"active":true}})
     .reply(200, {"result":false});
   }
 
-  function nockTravisGetKey() {
+  function nock_Travis_GetKey() {
     return nock('https://api.travis-ci.org:443')
     .get('/repos/' + slug + '/key')
     .reply(200, {
@@ -335,7 +335,7 @@ describe('Configure', function() {
     });
   }
 
-  function nockTravisGetHooksIsMissingRepo() {
+  function nock_Travis_GetHooks_RepoMissing() {
     return nock('https://api.travis-ci.org:443')
     .get('/hooks')
     .reply(200, {
@@ -343,25 +343,25 @@ describe('Configure', function() {
     });
   }
 
-  function nockTravisRequestSync() {
+  function nock_Travis_RequestSync() {
     return nock('https://api.travis-ci.org:443')
     .post('/users/sync')
     .reply(200, {"result":true});
   }
 
-  function nockTravisRequestSyncButSyncAlreadyInProgress() {
+  function nock_Travis_RequestSync_AlreadyInProgress() {
     return nock('https://api.travis-ci.org:443')
     .post('/users/sync')
     .reply(409, {"message":"Sync already in progress. Try again later."});
   }
 
-  function nockTravisRequestSyncFakeError() {
+  function nock_Travis_RequestSync_FakeError() {
     return nock('https://api.travis-ci.org:443')
     .post('/users/sync')
     .reply(500, {"message":"This error was made up for testing purposes."});
   }
 
-  function nockTravisGetUser() {
+  function nock_Travis_GetUser() {
     return nock('https://api.travis-ci.org:443')
     .get('/users')
     .reply(200, {
@@ -381,7 +381,7 @@ describe('Configure', function() {
     });
   }
 
-  function nockTravisGetUserIsSyncing() {
+  function nock_Travis_GetUser_Syncing() {
     nock('https://api.travis-ci.org:443')
     .get('/users')
     .reply(200, {
@@ -402,13 +402,13 @@ describe('Configure', function() {
   }
 
   function nockBasicPostAuthFlow() {
-    nockGitHubGetAuthorizations();
-    nockGitHubGetTemporaryToken();
-    nockTravisGetTokenAndUser();
-    nockGitHubDeleteTemporaryToken();
-    nockGitHubGetPermanentToken();
-    nockTravisGetHooks();
-    nockTravisGetKey();
+    nock_GitHub_GetAuthorizations();
+    nock_GitHub_GetTemporaryToken();
+    nock_Travis_GetTokenAndUser();
+    nock_GitHub_DeleteTemporaryToken();
+    nock_GitHub_GetPermanentToken();
+    nock_Travis_GetHooks();
+    nock_Travis_GetKey();
   }
 
   it('completes basic flow', function() {
@@ -431,8 +431,8 @@ describe('Configure', function() {
   it('prompts you to re-enter an incorrect username/password', function() {
     // Pretend the user enters bad credentials twice to ensure the command
     // repeatedly prompts for credentials until the user gets them right.
-    nockGitHubGetAuthorizationsErrorBadCredentials();
-    nockGitHubGetAuthorizationsErrorBadCredentials();
+    nock_GitHub_GetAuthorizations_BadCredentials();
+    nock_GitHub_GetAuthorizations_BadCredentials();
     nockBasicPostAuthFlow();
     configure();
     return enterUsernamePassword()
@@ -448,28 +448,28 @@ describe('Configure', function() {
   });
 
   it('prompts you to enter a 2FA code', function() {
-    nockGitHubGetAuthorizationsRequires2FACode();
-    nockGitHubGetAuthorizations();
-    nockGitHubGetTemporaryToken();
-    nockTravisGetTokenAndUser();
-    nockGitHubDeleteTemporaryToken();
-    nockGitHubGetPermanentToken();
-    nockTravisGetHooks();
-    nockTravisGetKey();
+    nock_GitHub_GetAuthorizations_Need2FACode();
+    nock_GitHub_GetAuthorizations();
+    nock_GitHub_GetTemporaryToken();
+    nock_Travis_GetTokenAndUser();
+    nock_GitHub_DeleteTemporaryToken();
+    nock_GitHub_GetPermanentToken();
+    nock_Travis_GetHooks();
+    nock_Travis_GetKey();
     configure();
     return enterUsernamePassword().then(enter2FACode).then(complete);
   });
 
   it('prompts you to re-enter a 2FA code', function() {
-    nockGitHubGetAuthorizationsRequires2FACode();
-    nockGitHubGetAuthorizations();
-    nockGitHubGetTemporaryToken();
-    nockTravisGetTokenAndUser();
-    nockGitHubDeleteTemporaryToken();
-    nockGitHubGetPermanentTokenRequiresNew2FACode();
-    nockGitHubGetPermanentToken();
-    nockTravisGetHooks();
-    nockTravisGetKey();
+    nock_GitHub_GetAuthorizations_Need2FACode();
+    nock_GitHub_GetAuthorizations();
+    nock_GitHub_GetTemporaryToken();
+    nock_Travis_GetTokenAndUser();
+    nock_GitHub_DeleteTemporaryToken();
+    nock_GitHub_GetPermanentToken_Need2FACode();
+    nock_GitHub_GetPermanentToken();
+    nock_Travis_GetHooks();
+    nock_Travis_GetKey();
     configure();
     return enterUsernamePassword()
     .then(enter2FACode)
@@ -481,9 +481,9 @@ describe('Configure', function() {
   });
 
   it('recreates existing GitHub token', function() {
-    nockGitHubGetAuthorizations();
+    nock_GitHub_GetAuthorizations();
 
-    nockGitHubGetPermanentTokenErrorAlreadyExists()
+    nock_GitHub_GetPermanentToken_AlreadyExists()
     .get('/authorizations')
     .query({"page":"1"})
     .reply(200, [{
@@ -505,12 +505,12 @@ describe('Configure', function() {
     .delete('/authorizations/22200031')
     .reply(204, "");
 
-    nockGitHubGetTemporaryToken();
-    nockTravisGetTokenAndUser();
-    nockGitHubDeleteTemporaryToken();
-    nockGitHubGetPermanentToken();
-    nockTravisGetHooks();
-    nockTravisGetKey();
+    nock_GitHub_GetTemporaryToken();
+    nock_Travis_GetTokenAndUser();
+    nock_GitHub_DeleteTemporaryToken();
+    nock_GitHub_GetPermanentToken();
+    nock_Travis_GetHooks();
+    nock_Travis_GetKey();
 
     configure();
     return enterUsernamePassword()
@@ -521,16 +521,16 @@ describe('Configure', function() {
   });
 
   it('fails if it can\'t find an existing GitHub token', function() {
-    nockGitHubGetAuthorizations();
+    nock_GitHub_GetAuthorizations();
 
-    nockGitHubGetPermanentTokenErrorAlreadyExists()
+    nock_GitHub_GetPermanentToken_AlreadyExists()
     .get('/authorizations')
     .query({"page":"1"})
     .reply(200, []);
 
-    nockGitHubGetTemporaryToken();
-    nockTravisGetTokenAndUser();
-    nockGitHubDeleteTemporaryToken();
+    nock_GitHub_GetTemporaryToken();
+    nock_Travis_GetTokenAndUser();
+    nock_GitHub_DeleteTemporaryToken();
     var promise = configure()
     .then(function() {
       assert(false, "Promise rejected");
@@ -545,14 +545,14 @@ describe('Configure', function() {
   });
 
   it('activates inactive repository', function() {
-    nockGitHubGetAuthorizations();
-    nockGitHubGetTemporaryToken();
-    nockTravisGetTokenAndUser();
-    nockGitHubDeleteTemporaryToken();
-    nockGitHubGetPermanentToken();
-    nockTravisGetHooksRepoIsInactive();
-    nockTravisActivateRepo();
-    nockTravisGetKey();
+    nock_GitHub_GetAuthorizations();
+    nock_GitHub_GetTemporaryToken();
+    nock_Travis_GetTokenAndUser();
+    nock_GitHub_DeleteTemporaryToken();
+    nock_GitHub_GetPermanentToken();
+    nock_Travis_GetHooks_RepoInactive();
+    nock_Travis_ActivateRepo();
+    nock_Travis_GetKey();
 
     configure();
 
@@ -564,14 +564,14 @@ describe('Configure', function() {
   });
 
   it('activates inactive repository - displays message on failure', function() {
-    nockGitHubGetAuthorizations();
-    nockGitHubGetTemporaryToken();
-    nockTravisGetTokenAndUser();
-    nockGitHubDeleteTemporaryToken();
-    nockGitHubGetPermanentToken();
-    nockTravisGetHooksRepoIsInactive();
-    nockTravisActivateRepoFails();
-    nockTravisGetKey();
+    nock_GitHub_GetAuthorizations();
+    nock_GitHub_GetTemporaryToken();
+    nock_Travis_GetTokenAndUser();
+    nock_GitHub_DeleteTemporaryToken();
+    nock_GitHub_GetPermanentToken();
+    nock_Travis_GetHooks_RepoInactive();
+    nock_Travis_ActivateRepo_Failure();
+    nock_Travis_GetKey();
 
     configure();
 
@@ -583,17 +583,17 @@ describe('Configure', function() {
   });
 
   it('syncs Travis with GitHub', function() {
-    nockGitHubGetAuthorizations();
-    nockGitHubGetTemporaryToken();
-    nockTravisGetTokenAndUser();
-    nockGitHubDeleteTemporaryToken();
-    nockGitHubGetPermanentToken();
-    nockTravisGetHooksIsMissingRepo();
-    nockTravisRequestSync();
-    nockTravisGetUserIsSyncing();
-    nockTravisGetHooks();
-    nockTravisGetUser();
-    nockTravisGetKey();
+    nock_GitHub_GetAuthorizations();
+    nock_GitHub_GetTemporaryToken();
+    nock_Travis_GetTokenAndUser();
+    nock_GitHub_DeleteTemporaryToken();
+    nock_GitHub_GetPermanentToken();
+    nock_Travis_GetHooks_RepoMissing();
+    nock_Travis_RequestSync();
+    nock_Travis_GetUser_Syncing();
+    nock_Travis_GetHooks();
+    nock_Travis_GetUser();
+    nock_Travis_GetKey();
 
     configure();
 
@@ -605,16 +605,16 @@ describe('Configure', function() {
   });
 
   it('syncs Travis with GitHub, but repository still isn\'t found', function() {
-    nockGitHubGetAuthorizations();
-    nockGitHubGetTemporaryToken();
-    nockTravisGetTokenAndUser();
-    nockGitHubDeleteTemporaryToken();
-    nockGitHubGetPermanentToken();
-    nockTravisGetHooksIsMissingRepo();
-    nockTravisRequestSync();
-    nockTravisGetUserIsSyncing();
-    nockTravisGetHooksIsMissingRepo();
-    nockTravisGetUser();
+    nock_GitHub_GetAuthorizations();
+    nock_GitHub_GetTemporaryToken();
+    nock_Travis_GetTokenAndUser();
+    nock_GitHub_DeleteTemporaryToken();
+    nock_GitHub_GetPermanentToken();
+    nock_Travis_GetHooks_RepoMissing();
+    nock_Travis_RequestSync();
+    nock_Travis_GetUser_Syncing();
+    nock_Travis_GetHooks_RepoMissing();
+    nock_Travis_GetUser();
 
     enterUsernamePassword();
 
@@ -628,17 +628,17 @@ describe('Configure', function() {
   });
 
   it('syncs Travis with GitHub, but sync was already in progress', function() {
-    nockGitHubGetAuthorizations();
-    nockGitHubGetTemporaryToken();
-    nockTravisGetTokenAndUser();
-    nockGitHubDeleteTemporaryToken();
-    nockGitHubGetPermanentToken();
-    nockTravisGetHooksIsMissingRepo();
-    nockTravisRequestSyncButSyncAlreadyInProgress();
-    nockTravisGetUserIsSyncing();
-    nockTravisGetUser();
-    nockTravisGetHooks();
-    nockTravisGetKey();
+    nock_GitHub_GetAuthorizations();
+    nock_GitHub_GetTemporaryToken();
+    nock_Travis_GetTokenAndUser();
+    nock_GitHub_DeleteTemporaryToken();
+    nock_GitHub_GetPermanentToken();
+    nock_Travis_GetHooks_RepoMissing();
+    nock_Travis_RequestSync_AlreadyInProgress();
+    nock_Travis_GetUser_Syncing();
+    nock_Travis_GetUser();
+    nock_Travis_GetHooks();
+    nock_Travis_GetKey();
 
     configure();
 
@@ -647,18 +647,18 @@ describe('Configure', function() {
   });
 
   it('syncs Travis with GitHub, but sync was already in progress and is taking some time', function() {
-    nockGitHubGetAuthorizations();
-    nockGitHubGetTemporaryToken();
-    nockTravisGetTokenAndUser();
-    nockGitHubDeleteTemporaryToken();
-    nockGitHubGetPermanentToken();
-    nockTravisGetHooksIsMissingRepo();
-    nockTravisRequestSyncButSyncAlreadyInProgress();
-    nockTravisGetUserIsSyncing();
-    nockTravisGetUserIsSyncing();
-    nockTravisGetUser();
-    nockTravisGetHooks();
-    nockTravisGetKey();
+    nock_GitHub_GetAuthorizations();
+    nock_GitHub_GetTemporaryToken();
+    nock_Travis_GetTokenAndUser();
+    nock_GitHub_DeleteTemporaryToken();
+    nock_GitHub_GetPermanentToken();
+    nock_Travis_GetHooks_RepoMissing();
+    nock_Travis_RequestSync_AlreadyInProgress();
+    nock_Travis_GetUser_Syncing();
+    nock_Travis_GetUser_Syncing();
+    nock_Travis_GetUser();
+    nock_Travis_GetHooks();
+    nock_Travis_GetKey();
 
     configure();
 
@@ -667,15 +667,15 @@ describe('Configure', function() {
   });
 
   it('syncs Travis with GitHub, sync was already in progress but finished before we checked and the repo is not found', function() {
-    nockGitHubGetAuthorizations();
-    nockGitHubGetTemporaryToken();
-    nockTravisGetTokenAndUser();
-    nockGitHubDeleteTemporaryToken();
-    nockGitHubGetPermanentToken();
-    nockTravisGetHooksIsMissingRepo();
-    nockTravisRequestSyncButSyncAlreadyInProgress();
-    nockTravisGetUser();
-    nockTravisGetHooksIsMissingRepo();
+    nock_GitHub_GetAuthorizations();
+    nock_GitHub_GetTemporaryToken();
+    nock_Travis_GetTokenAndUser();
+    nock_GitHub_DeleteTemporaryToken();
+    nock_GitHub_GetPermanentToken();
+    nock_Travis_GetHooks_RepoMissing();
+    nock_Travis_RequestSync_AlreadyInProgress();
+    nock_Travis_GetUser();
+    nock_Travis_GetHooks_RepoMissing();
 
     var promise = configure();
 
@@ -691,15 +691,15 @@ describe('Configure', function() {
   });
 
   it('generic error while syncing with Travis', function() {
-    nockGitHubGetAuthorizations();
-    nockGitHubGetTemporaryToken();
-    nockTravisGetTokenAndUser();
-    nockGitHubDeleteTemporaryToken();
-    nockGitHubGetPermanentToken();
-    nockTravisGetHooksIsMissingRepo();
-    nockTravisRequestSyncFakeError();
-    nockTravisGetUser();
-    nockTravisGetHooksIsMissingRepo();
+    nock_GitHub_GetAuthorizations();
+    nock_GitHub_GetTemporaryToken();
+    nock_Travis_GetTokenAndUser();
+    nock_GitHub_DeleteTemporaryToken();
+    nock_GitHub_GetPermanentToken();
+    nock_Travis_GetHooks_RepoMissing();
+    nock_Travis_RequestSync_FakeError();
+    nock_Travis_GetUser();
+    nock_Travis_GetHooks_RepoMissing();
 
     var promise = configure();
 
@@ -715,16 +715,16 @@ describe('Configure', function() {
   });
 
   it('syncs Travis with GitHub, sync was already in progress but finished before we checked and the repo is found', function() {
-    nockGitHubGetAuthorizations();
-    nockGitHubGetTemporaryToken();
-    nockTravisGetTokenAndUser();
-    nockGitHubDeleteTemporaryToken();
-    nockGitHubGetPermanentToken();
-    nockTravisGetHooksIsMissingRepo();
-    nockTravisRequestSyncButSyncAlreadyInProgress();
-    nockTravisGetUser();
-    nockTravisGetHooks();
-    nockTravisGetKey();
+    nock_GitHub_GetAuthorizations();
+    nock_GitHub_GetTemporaryToken();
+    nock_Travis_GetTokenAndUser();
+    nock_GitHub_DeleteTemporaryToken();
+    nock_GitHub_GetPermanentToken();
+    nock_Travis_GetHooks_RepoMissing();
+    nock_Travis_RequestSync_AlreadyInProgress();
+    nock_Travis_GetUser();
+    nock_Travis_GetHooks();
+    nock_Travis_GetKey();
 
     configure();
 
