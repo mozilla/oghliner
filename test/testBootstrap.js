@@ -43,6 +43,12 @@ describe('Bootstrap', function() {
     expect(package.name).to.equal(appName);
   });
 
+  it('should use the latest oghliner version', function() {
+    var package = JSON.parse(fs.readFileSync('package.json'));
+    var oghlinerPackage = JSON.parse(fs.readFileSync(__dirname + '/../package.json'));
+    expect(package.dependencies.oghliner).to.equal('^' + oghlinerPackage.version);
+  });
+
   after(function() {
     process.chdir(oldWd);
     temp.cleanupSync();
