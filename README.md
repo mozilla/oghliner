@@ -149,7 +149,7 @@ to the app's HTML page(s)/template(s):
 
 <script src="app/scripts/offline-manager.js"></script>
 
-And commit the changes and push the commit to the origin/master branch:
+Then commit the changes and push the commit to the origin/master branch:
 
 git commit -m"integrate Oghliner" --all
 git push origin master
