@@ -159,6 +159,59 @@ describe('Configure', function() {
     });
   }
 
+  function nock_GitHub_GetTemporaryToken() {
+    return nock('https://api.github.com:443')
+    .post('/authorizations', {
+      "scopes":["read:org","user:email","repo_deployment","repo:status","write:repo_hook"],
+      "note":"temporary Oghliner token to get Travis token for " + slug,
+      "note_url":"https://github.com/mozilla/oghliner"
+    })
+    .reply(201, {
+      "id":23157726,
+      "url":"https://api.github.com/authorizations/23157726",
+      "app":{"name":"temporary Oghliner token to get Travis token for " + slug,
+      "url":"https://github.com/mozilla/oghliner",
+      "client_id":"00000000000000000000"},
+      "token":"1111111111111111111111111111111111111111",
+      "hashed_token":"1111111111111111111111111111111111111111111111111111111111111111",
+      "token_last_eight":"11111111",
+      "note":"temporary Oghliner token to get Travis token for " + slug,
+      "note_url":"https://github.com/mozilla/oghliner",
+      "created_at":"2015-10-12T21:43:00Z",
+      "updated_at":"2015-10-12T21:43:00Z",
+      "scopes":["read:org","user:email","repo_deployment","repo:status","write:repo_hook"],
+      "fingerprint":null
+    });
+  }
+
+  function nock_Travis_GetTokenAndUser() {
+    return nock('https://api.travis-ci.org:443')
+    .post('/auth/github', {"github_token":"1111111111111111111111111111111111111111"})
+    .reply(200, {"access_token":"2222222222222222222222"})
+    .get('/users', {"access_token":"2222222222222222222222"})
+    .reply(200, {
+      "user":{
+        "id":93336,
+        "name":"Myk Melez",
+        "login":"mykmelez",
+        "email":"myk@mozilla.org",
+        "gravatar_id":"4bcc1646956acd3ee25234b34da91414",
+        "locale":null,
+        "is_syncing":false,
+        "synced_at":"2015-10-12T07:41:47Z",
+        "correct_scopes":true,
+        "created_at":"2014-08-28T16:52:57Z",
+        "channels":["user-93336","repo-6189247"]
+      }
+    });
+  }
+
+  function nock_GitHub_DeleteTemporaryToken() {
+    return nock('https://api.github.com:443')
+    .delete('/authorizations/23157726')
+    .reply(204, "");
+  }
+
   function nock_GitHub_GetPermanentToken_AlreadyExists() {
     return nock('https://api.github.com:443')
     .post('/authorizations', {
@@ -211,59 +264,6 @@ describe('Configure', function() {
       "message":"Must specify two-factor authentication OTP code.",
       "documentation_url":"https://developer.github.com/v3/auth#working-with-two-factor-authentication"
     });
-  }
-
-  function nock_GitHub_GetTemporaryToken() {
-    return nock('https://api.github.com:443')
-    .post('/authorizations', {
-      "scopes":["read:org","user:email","repo_deployment","repo:status","write:repo_hook"],
-      "note":"temporary Oghliner token to get Travis token for " + slug,
-      "note_url":"https://github.com/mozilla/oghliner"
-    })
-    .reply(201, {
-      "id":23157726,
-      "url":"https://api.github.com/authorizations/23157726",
-      "app":{"name":"temporary Oghliner token to get Travis token for " + slug,
-      "url":"https://github.com/mozilla/oghliner",
-      "client_id":"00000000000000000000"},
-      "token":"1111111111111111111111111111111111111111",
-      "hashed_token":"1111111111111111111111111111111111111111111111111111111111111111",
-      "token_last_eight":"11111111",
-      "note":"temporary Oghliner token to get Travis token for " + slug,
-      "note_url":"https://github.com/mozilla/oghliner",
-      "created_at":"2015-10-12T21:43:00Z",
-      "updated_at":"2015-10-12T21:43:00Z",
-      "scopes":["read:org","user:email","repo_deployment","repo:status","write:repo_hook"],
-      "fingerprint":null
-    });
-  }
-
-  function nock_Travis_GetTokenAndUser() {
-    return nock('https://api.travis-ci.org:443')
-    .post('/auth/github', {"github_token":"1111111111111111111111111111111111111111"})
-    .reply(200, {"access_token":"2222222222222222222222"})
-    .get('/users', {"access_token":"2222222222222222222222"})
-    .reply(200, {
-      "user":{
-        "id":93336,
-        "name":"Myk Melez",
-        "login":"mykmelez",
-        "email":"myk@mozilla.org",
-        "gravatar_id":"4bcc1646956acd3ee25234b34da91414",
-        "locale":null,
-        "is_syncing":false,
-        "synced_at":"2015-10-12T07:41:47Z",
-        "correct_scopes":true,
-        "created_at":"2014-08-28T16:52:57Z",
-        "channels":["user-93336","repo-6189247"]
-      }
-    });
-  }
-
-  function nock_GitHub_DeleteTemporaryToken() {
-    return nock('https://api.github.com:443')
-    .delete('/authorizations/23157726')
-    .reply(204, "");
   }
 
   function nock_Travis_GetHooks() {
