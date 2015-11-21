@@ -3,7 +3,12 @@ var childProcess = require('child_process');
 var readlineSync = require('readline-sync');
 
 var Travis = require('travis-ci');
-var travis = new Travis({ version: '2.0.0' });
+var travis = new Travis({
+  version: '2.0.0',
+  headers: {
+    'user-agent': 'Oghliner'
+  },
+});
 
 travis.authenticate = promisify(travis.authenticate);
 travis.users.get = promisify(travis.users.get);
