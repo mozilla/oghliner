@@ -54,7 +54,7 @@
     "mozilla-tabzilla": "^0.5.1",
     "pretty-bytes": "^2.0.1",
     "promisified-promptly": "^1.0.0",
-    "promisify-node": "^0.2.1",
+    "promisify-node": "^0.2.1 || ^0.3.0",
     "read-yaml": "^1.0.0",
     "sw-precache": "^2.0.0",
     "temp": "^0.8.3",
