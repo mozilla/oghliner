@@ -26,13 +26,13 @@ describe('Bootstrap', function() {
     });
   });
 
-  it('should create files supporting files', function() {
+  it('should create supporting files', function() {
     expect(glob.sync('.gitignore').length).to.equal(1);
     expect(glob.sync('package.json').length).to.equal(1);
     expect(glob.sync('gulpfile.js').length).to.equal(1);
   });
 
-  it('should create some temple app files', function() {
+  it('should create some app/ files', function() {
     expect(glob.sync('**/*.html').length).to.above(0);
     expect(glob.sync('**/*.css').length).to.above(0);;
     expect(glob.sync('**/*.png').length).to.above(0);

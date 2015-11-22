@@ -143,13 +143,13 @@ Integrating Oghliner into the app in the current directory…
 
 Oghliner has been integrated into the app!
 
-The app needs to load the script offline-manager.js in order to register
+The app needs to load the offline-manager.js script in order to register
 the service worker that offlines the app. To load the script, add this line
 to the app's HTML page(s)/template(s):
 
 <script src="app/scripts/offline-manager.js"></script>
 
-And commit the changes and push the commit to the origin/master branch:
+Then commit the changes and push the commit to the origin/master branch:
 
 git commit -m"integrate Oghliner" --all
 git push origin master
@@ -253,7 +253,7 @@ username and password (and two-factor authentication code, if appropriate).
 Username: mykmelez
 Password:
 
-× Checking credentials… error!
+✗ Checking credentials… error!
 
 You're using two-factor authentication with GitHub.
 Please enter the code provided by your authentication software.

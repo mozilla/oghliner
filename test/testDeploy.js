@@ -118,7 +118,7 @@ describe('Deploy', function() {
             }
           });
         }, function(e) {
-          console.log(e);
+          process.stderr.write(e + '\n');
           assert(false, 'Deploy\'s promise should be resolved');
         }).catch(done);
       });
