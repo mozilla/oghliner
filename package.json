@@ -42,7 +42,7 @@
     "git-list-remotes": "^1.0.0",
     "git-remote-url": "^1.0.0",
     "github": "^0.2.4",
-    "github-slug": "https://github.com/marco-c/github-slug/tarball/578496733b40e1c7ac1427f95473b55c8658ad1b",
+    "github-slug": "^1.1.0",
     "github-url-from-git": "^1.4.0",
     "glob": "^5.0.15 || ^6.0.1",
     "gulp": "^3.9.0",
