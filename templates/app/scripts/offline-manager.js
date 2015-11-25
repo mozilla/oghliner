@@ -27,6 +27,10 @@ function updateFound() {
 if ('serviceWorker' in navigator) {
   navigator.serviceWorker.register('offline-worker.js').then(function(registration) {
     console.log('offline worker registered');
+    // Check if there's an updated version of service-worker
+    if (typeof registration.update === 'function') {
+      registration.update();
+    }
     registration.addEventListener('updatefound', updateFound);
   });
 }
