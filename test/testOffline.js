@@ -71,6 +71,29 @@ describe('Offline', function() {
     });
   });
 
+  it('should not fail if rootDir doesn\'t exist', function() {
+    var dir = temp.mkdirSync('oghliner');
+
+    return offline({
+      rootDir: path.join(dir, 'subDir'),
+    }).then(function() {
+      assert.doesNotThrow(fs.accessSync.bind(fs, path.join(dir, 'subDir', 'offline-worker.js')));
+    });
+  });
+
+  it('should fail if rootDir isn\'t a directory', function() {
+    var dir = temp.mkdirSync('oghliner');
+    fs.writeFileSync(path.join(dir, 'subDir'), 'something');
+
+    return offline({
+      rootDir: path.join(dir, 'subDir'),
+    }).then(function() {
+      assert(false);
+    }, function() {
+      assert(true);
+    });
+  });
+
   it('should use importScripts in the service worker if the importScripts option is defined', function() {
     var dir = temp.mkdirSync('oghliner');
     fs.writeFileSync(path.join(dir, 'a-script.js'), 'data');
