@@ -418,9 +418,7 @@ describe('Configure', function() {
     .then(enterUsernamePassword)
     .then(function() {
       return Promise.all([
-        await('Creating temporary GitHub token for getting Travis token… done!'),
         await('Getting Travis token… done!'),
-        await('Deleting temporary GitHub token for getting Travis token… done!'),
         await('Creating permanent GitHub token for Travis to push to the repository… done!'),
         await('Good news, your repository is active in Travis!'),
         await('Encrypting permanent GitHub token… done!'),
