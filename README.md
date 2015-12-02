@@ -261,9 +261,7 @@ Please enter the code provided by your authentication software.
 Auth Code: 123456
 
 ✓ Checking credentials… done!
-✓ Creating temporary GitHub token for getting Travis token… done!
 ✓ Getting Travis token… done!
-✓ Deleting temporary GitHub token for getting Travis token… done!
 ✓ Creating permanent GitHub token for Travis to push to the repository… done!
 ✓ Checking the status of your repository in Travis… done!
 ✓ I didn't find your repository in Travis; syncing Travis with GitHub… done!
