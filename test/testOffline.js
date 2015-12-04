@@ -257,6 +257,31 @@ describe('Offline', function() {
     });
   });
 
+  it('should cache directoryIndexes as dirs', function() {
+    var rootDir = temp.mkdirSync('oghliner');
+    var dir = path.join(rootDir, 'dist');
+    fs.mkdirSync(dir);
+    var subDir = path.join(dir, 'subdir');
+    fs.mkdirSync(subDir);
+
+    fs.writeFileSync(path.join(subDir, 'test_file_1.js'), 'test_file_1');
+    fs.writeFileSync(path.join(subDir, 'test_file_2.js'), 'test_file_2');
+    fs.writeFileSync(path.join(subDir, 'test_file_3.js'), 'test_file_3');
+
+    process.chdir(rootDir);
+
+    return offline({
+      rootDir: dir,
+      directoryIndexes: ['test_file_1.js']
+    }).then(function() {
+      var content = fs.readFileSync(path.join(dir, 'offline-worker.js'), 'utf8');
+      assert.notEqual(content.indexOf('\'./\''), -1, 'Must have a directory in the output');
+      assert.equal(content.indexOf('test_file_1.js'), -1, 'Must have replaced the file name');
+      assert.notEqual(content.indexOf('test_file_2.js'), -1);
+      assert.notEqual(content.indexOf('test_file_3.js'), -1);
+    });
+  });
+
   it('should cache large files', function() {
     var rootDir = temp.mkdirSync('oghliner');
     var dir = path.join(rootDir, 'dist');

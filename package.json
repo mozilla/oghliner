@@ -37,6 +37,7 @@
     "change-case": "^2.3.0",
     "cli": "^0.11.1",
     "commander": "^2.8.1",
+    "escape-string-regexp": "^1.0.3",
     "fs-extra": "^0.26.0",
     "gh-pages": "https://github.com/marco-c/gh-pages/tarball/817ee16441d72a0c1d33ce109cddf9c1963991d8",
     "git-list-remotes": "^1.0.0",

@@ -44,7 +44,6 @@
 
     // This is a list of resources that will be cached.
     RESOURCES: [
-      './', // cache always the current root to make the default page available
 <% resources.forEach(function (pathAndHash) {
 %>      '<%- pathAndHash.path %>', // <%- pathAndHash.hash %>
 <% }); %>

@@ -190,6 +190,7 @@ The *offline* command takes the following options:
 
 - `--file-globs glob,…` or `fileGlobs: ['glob', …]` - a comma-separated list of globs identifying the files to offline (default: `**/*`). The globs are matched inside *rootDir*.
 - `--import-scripts script,…` or `importScripts: ['script', …]` - a comma-separated list of additional scripts to evaluate in the service worker (no default value). This is useful, for example, when you want to use the [Push API](https://developer.mozilla.org/en-US/docs/Web/API/Push_API).
+- `--directory-indexes index.html,…` or `directoryIndexes: ['index.html', …]` - a comma-separated list of file names that will be replaced to be served as a directory. (default: `index.html`) This fixes links to `'path/name/'` that don't have the file: `'path/name/index.html'`
 
 ## Deploy
 
