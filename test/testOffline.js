@@ -53,6 +53,18 @@ describe('Offline', function() {
 
     return offline({
       rootDir: dir,
+      prefixResourceDirectory: '/sw'
+    }).then(function() {
+      var content = fs.readFileSync(path.join(dir, 'offline-worker.js'), 'utf8');
+      assert.notEqual(content.indexOf('\'/sw\','), -1);
+    });
+  });
+
+  it('should create offline-worker.js in the destination directory', function() {
+    var dir = temp.mkdirSync('oghliner');
+
+    return offline({
+      rootDir: dir,
     }).then(function() {
       assert.doesNotThrow(fs.accessSync.bind(fs, path.join(dir, 'offline-worker.js')));
     });

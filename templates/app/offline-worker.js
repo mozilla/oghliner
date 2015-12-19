@@ -50,6 +50,9 @@
 <% }); %>
     ],
 
+    // This is where the service worker will call for resources, allowing for a smaller service worker version of the same file.
+    prefixResourceDirectory: '<%= prefixResourceDirectory %>',
+
     // Adds the resources to the cache controlled by this worker.
     cacheResources: function () {
       var now = Date.now();
@@ -61,6 +64,9 @@
           var url = new URL(resource, baseUrl);
           var bustParameter = (url.search ? '&' : '') + '__bust=' + now;
           var bustedUrl = new URL(url.toString());
+          if (this.prefixResourceDirectory) {
+            bustedUrl.pathname = this.prefixResourceDirectory + bustedUrl.pathname;
+          }
           bustedUrl.search += bustParameter;
 
           // But cache the response for the original request
