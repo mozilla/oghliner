@@ -74,7 +74,8 @@ program
         var gitignore = fs.readFileSync('.gitignore', 'utf8');
 
         if (gitignore.indexOf('.gh-pages-cache') === -1) {
-          return promptly.confirm('.gh-pages-cache is a temporary repository that we use to push changes to your gh-pages branch. Do you want to add it to .gitignore?').then(function(answer) {
+          return promptly.confirm('.gh-pages-cache is a temporary repository that we use to push changes to your gh-pages branch. Do you want to add it to .gitignore (Y/n)?', { default: true })
+          .then(function(answer) {
             if (answer) {
               gitignore += '\n.gh-pages-cache\n';
               fs.writeFileSync('.gitignore', gitignore);
