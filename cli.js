@@ -74,7 +74,14 @@ program
         var gitignore = fs.readFileSync('.gitignore', 'utf8');
 
         if (gitignore.indexOf('.gh-pages-cache') === -1) {
-          return promptly.confirm('.gh-pages-cache is a temporary repository that we use to push changes to your gh-pages branch. Do you want to add it to .gitignore?').then(function(answer) {
+          process.stdout.write(chalk.yellow.bold(
+            '⚠ .gh-pages-cache is a temporary repository that I use to push\n' +
+            '  changes to your gh-pages branch. It isn\'t in your .gitignore file,\n' +
+            '  which means that Git will report it as an untracked file.\n\n'
+          ));
+
+          return promptly.confirm('Do you want to add .gh-pages-cache to .gitignore (Y/n)?', { default: true })
+          .then(function(answer) {
             if (answer) {
               gitignore += '\n.gh-pages-cache\n';
               fs.writeFileSync('.gitignore', gitignore);
