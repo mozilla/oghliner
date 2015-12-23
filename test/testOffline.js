@@ -107,7 +107,7 @@ describe('Offline', function() {
     });
   });
 
-  it('should fail if an entry in importScript is a directory', function() {
+  it('should warn if an entry in importScript is a directory', function() {
     var dir = temp.mkdirSync('oghliner');
     fs.mkdirSync(path.join(dir, 'subDir'));
 
@@ -123,7 +123,7 @@ describe('Offline', function() {
     return Promise.all([ checkWarnings, offlinePromise ]);
   });
 
-  it('should fail if a file in importScript doesn\'t exist', function() {
+  it('should warn if a file in importScript doesn\'t exist', function() {
     var dir = temp.mkdirSync('oghliner');
 
     var checkWarnings = checkWrite([
