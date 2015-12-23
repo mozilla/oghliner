@@ -49,14 +49,18 @@ describe('CLI interface, oghliner as a template', function() {
     .then(liveUtils.spawn.bind(null, 'git', ['clone', 'https://' + username + ':' + liveUtils.githubToken + '@github.com/' + username + '/' + liveUtils.repoName]))
     .then(process.chdir.bind(null, liveUtils.repoName))
     .then(liveUtils.spawn.bind(null, 'npm', ['install', path.dirname(__dirname)]))
+    .then(function() {
+      // Modify the template package.json to make bootstrap install the development version of oghliner.
+      var packageJson = JSON.parse(fse.readFileSync('node_modules/oghliner/templates/package.json', 'utf8'));
+      packageJson.dependencies.oghliner = path.dirname(__dirname);
+      fse.writeFileSync('node_modules/oghliner/templates/package.json', JSON.stringify(packageJson));
+    })
     .then(liveUtils.spawn.bind(null, path.join('node_modules', '.bin', 'oghliner'), ['bootstrap', '.'], [
       {
         q: 'Would you like to change its configuration (y/N)?',
         r: 'n',
       }
     ]))
-    // Overwrite the oghliner version installed by bootstrap with the development one from the top directory.
-    //.then(liveUtils.spawn.bind(null, 'npm', ['install', path.dirname(__dirname)]))
     .then(function() {
       assert.doesNotThrow(fse.statSync.bind(fse, 'README.md'));
       assert.doesNotThrow(fse.statSync.bind(fse, 'app'));
