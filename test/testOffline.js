@@ -111,27 +111,31 @@ describe('Offline', function() {
     var dir = temp.mkdirSync('oghliner');
     fs.mkdirSync(path.join(dir, 'subDir'));
 
-    return offline({
+    var checkWarnings = checkWrite([
+      'subDir doesn\'t exist or is a directory',
+    ], [], 'Total cache size');
+
+    var offlinePromise = offline({
       rootDir: dir,
       importScripts: [ 'subDir', ],
-    }).then(function() {
-      assert(false);
-    }, function() {
-      assert(true);
     });
+
+    return Promise.all([ checkWarnings, offlinePromise ]);
   });
 
   it('should fail if a file in importScript doesn\'t exist', function() {
     var dir = temp.mkdirSync('oghliner');
 
-    return offline({
+    var checkWarnings = checkWrite([
+      'a-script.js doesn\'t exist or is a directory',
+    ], [], 'Total cache size');
+
+    var offlinePromise = offline({
       rootDir: dir,
       importScripts: [ 'a-script.js', ],
-    }).then(function() {
-      assert(false);
-    }, function() {
-      assert(true);
     });
+
+    return Promise.all([ checkWarnings, offlinePromise ]);
   });
 
   it('should use the GitHub slug as the cache ID if it is available', function() {
