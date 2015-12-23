@@ -112,7 +112,7 @@ describe('Offline', function() {
     fs.mkdirSync(path.join(dir, 'subDir'));
 
     var checkWarnings = checkWrite([
-      'subDir doesn\'t exist or is a directory',
+      'subDir is a directory, but you\'ve added it to importScripts.',
     ], [], 'Total cache size');
 
     var offlinePromise = offline({
@@ -127,7 +127,7 @@ describe('Offline', function() {
     var dir = temp.mkdirSync('oghliner');
 
     var checkWarnings = checkWrite([
-      'a-script.js doesn\'t exist or is a directory',
+      'a-script.js doesn\'t exist, but you\'ve added it to importScripts.',
     ], [], 'Total cache size');
 
     var offlinePromise = offline({
