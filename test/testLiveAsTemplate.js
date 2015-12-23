@@ -48,7 +48,6 @@ describe('CLI interface, oghliner as a template', function() {
     return liveUtils.createRepo(false)
     .then(liveUtils.spawn.bind(null, 'git', ['clone', 'https://' + username + ':' + liveUtils.githubToken + '@github.com/' + username + '/' + liveUtils.repoName]))
     .then(process.chdir.bind(null, liveUtils.repoName))
-    .then(liveUtils.spawn.bind(null, 'npm', ['install', 'gulp']))
     .then(liveUtils.spawn.bind(null, 'npm', ['install', path.dirname(__dirname)]))
     .then(liveUtils.spawn.bind(null, path.join('node_modules', '.bin', 'oghliner'), ['bootstrap', '.'], [
       {
@@ -57,7 +56,7 @@ describe('CLI interface, oghliner as a template', function() {
       }
     ]))
     // Overwrite the oghliner version installed by bootstrap with the development one from the top directory.
-    .then(liveUtils.spawn.bind(null, 'npm', ['install', path.dirname(__dirname)]))
+    //.then(liveUtils.spawn.bind(null, 'npm', ['install', path.dirname(__dirname)]))
     .then(function() {
       assert.doesNotThrow(fse.statSync.bind(fse, 'README.md'));
       assert.doesNotThrow(fse.statSync.bind(fse, 'app'));
