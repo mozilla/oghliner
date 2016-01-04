@@ -60,7 +60,7 @@
     "sw-precache": "^2.0.0",
     "temp": "^0.8.3",
     "through2": "^2.0.0",
-    "travis-ci": "https://github.com/mykmelez/node-travis-ci/tarball/e35375de8b06bbe7209b5dfe94f816737002e928",
+    "travis-ci": "^2.1.0",
     "travis-encrypt": "^1.1.2",
     "write-yaml": "^0.2.1"
   },
