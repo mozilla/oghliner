@@ -84,7 +84,7 @@
           return Promise.resolve();
         }
         return self.caches.delete(cacheName);
-      }.bind(self);
+      }.bind(this);
 
       return self.caches.keys()
       .then(function (cacheNames) {
