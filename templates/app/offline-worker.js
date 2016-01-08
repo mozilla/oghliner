@@ -109,11 +109,13 @@
 
     // Make requests to directories become requests to index.html
     extendToIndex: function (request) {
-      var url = request.url;
-      if (url[url.length - 1] === '/') {
-        url += 'index.html';
+      var url = new URL(request.url, self.location);
+      var path = url.pathname;
+      if (!path[path.length - 1] === '/') {
+        return request;
       }
-      return new Request(url, request);
+      url.pathname += 'index.html';
+      return new Request(url.toString(), request);
     },
 
     // Prepare the cache for installation, deleting it before if it already exists.
