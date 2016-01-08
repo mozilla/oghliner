@@ -44,7 +44,6 @@
 
     // This is a list of resources that will be cached.
     RESOURCES: [
-      './', // cache always the current root to make the default page available
 <% resources.forEach(function (pathAndHash) {
 %>      '<%- pathAndHash.path %>', // <%- pathAndHash.hash %>
 <% }); %>
@@ -95,9 +94,10 @@
 
     // Get a response from the current offline cache or from the network.
     get: function (request) {
+      var extendToIndex = this.extendToIndex.bind(this);
       return this.openCache()
       .then(function (cache) {
-        return cache.match(request);
+        return cache.match(extendToIndex(request));
       })
       .then(function (response) {
         if (response) {
@@ -105,6 +105,17 @@
         }
         return self.fetch(request);
       });
+    },
+
+    // Make requests to directories become requests to index.html
+    extendToIndex: function (request) {
+      var url = new URL(request.url, self.location);
+      var path = url.pathname;
+      if (path[path.length - 1] !== '/') {
+        return request;
+      }
+      url.pathname += 'index.html';
+      return new Request(url.toString(), request);
     },
 
     // Prepare the cache for installation, deleting it before if it already exists.
