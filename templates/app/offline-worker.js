@@ -111,7 +111,7 @@
     extendToIndex: function (request) {
       var url = new URL(request.url, self.location);
       var path = url.pathname;
-      if (!path[path.length - 1] === '/') {
+      if (path[path.length - 1] !== '/') {
         return request;
       }
       url.pathname += 'index.html';
