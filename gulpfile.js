@@ -76,7 +76,7 @@ gulp.task('serve', function () {
   });
 });
 
-gulp.task('sw-test', function () {
+gulp.task('test-sw', function () {
   var testingDir = __dirname + '/testing';
   fs.ensureDirSync(testingDir);
 
