@@ -24,6 +24,8 @@ var eslint = require('gulp-eslint');
 var template = require('gulp-template');
 var marked = require('marked');
 var argv = require('yargs').argv;
+var fs = require('fs-extra');
+var karma = require('karma');
 
 var oghliner = require('./index.js');
 
@@ -71,6 +73,23 @@ gulp.task('offline', ['build'], function() {
 gulp.task('serve', function () {
   connect.server({
     root: 'dist',
+  });
+});
+
+gulp.task('test-sw', function () {
+  var testingDir = __dirname + '/testing';
+  fs.ensureDirSync(testingDir);
+
+  return oghliner.offline({
+    rootDir: testingDir
+  }).then(function () {
+    return new Promise(function (fulfill) {
+      var server = new karma.Server({
+        configFile: __dirname + '/karma-sw.conf.js'
+      });
+      server.on('run_complete', fulfill);
+      server.start();
+    });
   });
 });
 
