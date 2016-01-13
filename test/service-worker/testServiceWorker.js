@@ -67,7 +67,6 @@ describe('Oghliner service worker', function () {
 
     TEST_RESOURCES.forEach(function (url) {
       it('busts the request with the current time', function () {
-        var bumpingString = '=' + testTimestamp;
         var resourceUrl = new URL(url, self.location);
         oghliner.RESOURCES = [ resourceUrl.toString() ];
 
@@ -77,6 +76,7 @@ describe('Oghliner service worker', function () {
         });
 
         function isBumpedVersion(bumped, original) {
+          var bumpingString = '=' + testTimestamp;
           return bumped.search !== original.search &&
             bumped.search.endsWith(bumpingString) &&
             ['protocol', 'host', 'pathname'].every(function (property) {

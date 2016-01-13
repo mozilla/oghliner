@@ -94,7 +94,7 @@ gulp.task('test-sw', function () {
 });
 
 gulp.task('pre-test', function () {
-  return gulp.src(['lib/**/*.js,!lib/service-worker/**'])
+  return gulp.src(['lib/**/*.js'])
     .pipe(istanbul({ includeUntested: true }))
     .pipe(istanbul.hookRequire());
 });
