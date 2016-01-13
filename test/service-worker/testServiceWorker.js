@@ -259,8 +259,37 @@ describe('Oghliner service worker', function () {
     });
   });
 
-  describe('openCache()', function () {
+  describe('prepareCache()', function () {
+    function createNonEmptyCache(name) {
+      return self.caches.open(name)
+        .then(function (cache) {
+          return cache.put('/index.html', new Response('hello')).then(function () {
+            return cache.keys();
+          });
+        })
+        .then(function (entries) {
+          assert.isAbove(entries.length, 0);
+        });
+    }
 
+    it('clears the cache', function () {
+      return createNonEmptyCache(oghliner.CACHE_NAME)
+        .then(function () {
+          return oghliner.prepareCache();
+        })
+        .then(function () {
+          return self.caches.open(oghliner.CACHE_NAME);
+        })
+        .then(function (cache) {
+          return cache.keys();
+        })
+        .then(function (keys) {
+          assert.lengthOf(keys, 0);
+        });
+    });
+  });
+
+  describe('openCache()', function () {
     beforeEach(function () {
       sinon.stub(self.caches, 'open').returns(Promise.resolve(mockedCache));
     });
