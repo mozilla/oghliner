@@ -1,12 +1,14 @@
-importScripts('/base/testing/offline-worker.js');
 
 describe('Oghliner service worker', function () {
   'use strict';
 
-  var oghliner = self.oghliner;
+  var oghliner;
   var mockedCache;
 
   beforeEach(function () {
+    // this ensures the oghliner API is fresh new per test
+    importScripts('/base/testing/offline-worker.js');
+    oghliner = self.oghliner;
     mockedCache = {
       put: sinon.spy(),
       match: sinon.stub()
@@ -137,6 +139,7 @@ describe('Oghliner service worker', function () {
     });
 
     beforeEach(function () {
+      oghliner.CACHE_PREFIX = 'oghliner:';
       sinon.stub(self.caches, 'keys');
       sinon.stub(self.caches, 'delete').returns(Promise.resolve());
     });
@@ -147,7 +150,6 @@ describe('Oghliner service worker', function () {
     });
 
     it('ignores non-oghliner caches', function () {
-      oghliner.CACHE_PREFIX = 'oghliner:';
       self.caches.keys.returns(Promise.resolve([
         'other-application-cache',
         'another-application-cache'
@@ -253,6 +255,25 @@ describe('Oghliner service worker', function () {
         var resultUrl = new URL(resultRequest.url);
 
         assert(sameRequestURL(resultUrl, originalUrl));
+      });
+    });
+  });
+
+  describe('openCache()', function () {
+
+    beforeEach(function () {
+      sinon.stub(self.caches, 'open').returns(Promise.resolve(mockedCache));
+    });
+
+    afterEach(function () {
+      self.caches.open.restore();
+    });
+
+    it('caches the open cache to avoid repeating open() operations', function () {
+      return oghliner.openCache().then(function () {
+        return oghliner.openCache().then(function () {
+          assert(self.caches.open.calledOnce, self.caches.open.callCount + '');
+        });
       });
     });
   });
