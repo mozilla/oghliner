@@ -4,15 +4,42 @@ describe('Oghliner service worker', function () {
   'use strict';
 
   var oghliner = self.oghliner;
+  var mockedCache;
+
+  beforeEach(function () {
+    mockedCache = {
+      put: sinon.spy(),
+      match: sinon.stub()
+    };
+  });
+
+  function sameRequestURL(url1, url2, exceptList) {
+    exceptList = exceptList || [];
+    exceptList = Array.isArray(exceptList) ? exceptList : [ exceptList ];
+    // request URL drops the hash component of the url
+    exceptList.push('hash');
+    return sameURL(url1, url2, exceptList);
+  }
+
+  function sameURL(url1, url2, exceptList) {
+    exceptList = exceptList || [];
+    exceptList = Array.isArray(exceptList) ? exceptList : [ exceptList ];
+    var url = new URL(url1, self.location);
+    var anotherUrl = new URL(url2, self.location);
+    var parts = ['protocol', 'host', 'pathname', 'search', 'hash'];
+    for (var i = 0, part; part = parts[i]; i++) {
+      var isException = exceptList.indexOf(part) >= 0;
+      if (!isException && url[part] !== anotherUrl[part]) {
+        return false;
+      }
+    }
+    return true;
+  }
 
   describe('cacheResources()', function () {
-    var mockedCache = {
-      put: sinon.spy()
-    };
 
     var mockedOkResponse = { ok: true };
     var mockedFailingResponse = { ok: false };
-
     var testTimestamp = 1234567890;
 
     function allResourcesInCache(resources, cache) {
@@ -23,25 +50,14 @@ describe('Oghliner service worker', function () {
         responses.push(entry[1]);
       }
       return resources.every(function (path) {
-        return requests.some(sameURL.bind(undefined, path));
+        return requests.some(function (request) {
+          return sameRequestURL(path, request);
+        });
       });
-    }
-
-    function sameURL(url1, url2) {
-      var url = new URL(url1, self.location);
-      var anotherUrl = new URL(url2, self.location);
-      var parts = ['protocol', 'host', 'pathname', 'search'];
-      for (var i = 0, part; part = parts[i]; i++) {
-        if (url[part] !== anotherUrl[part]) {
-          return false;
-        }
-      }
-      return true;
     }
 
     beforeEach(function () {
       self.oghliner.RESOURCES = [];
-      mockedCache.put.reset();
       sinon.stub(Date, 'now').returns(testTimestamp);
       sinon.stub(self, 'fetch').returns(Promise.resolve(mockedOkResponse));
       sinon.stub(oghliner, 'prepareCache').returns(Promise.resolve(mockedCache));
@@ -155,7 +171,89 @@ describe('Oghliner service worker', function () {
         assert.notOk(self.caches.delete.calledWith(currentCache));
       });
     });
-
   });
 
+  describe('get()', function () {
+    beforeEach(function () {
+      sinon.stub(self, 'fetch');
+      sinon.stub(oghliner, 'openCache').returns(Promise.resolve(mockedCache));
+      sinon.stub(oghliner, 'extendToIndex').returns('/index.html');
+    });
+
+    afterEach(function () {
+      self.fetch.restore();
+      oghliner.openCache.restore();
+      oghliner.extendToIndex.restore();
+    });
+
+    it('looks for the request first in the cache', function () {
+      var mockedRequest = {};
+      var mockedResponse = {};
+      mockedCache.match.returns(Promise.resolve(mockedResponse));
+      return oghliner.get(mockedRequest).then(function (response) {
+        assert.strictEqual(response, mockedResponse);
+        assert.notOk(self.fetch.called);
+      });
+    });
+
+    it('looks for the request over the network if the cache fails', function () {
+      var mockedRequest = {};
+      var noResponse = undefined;
+      mockedCache.match.returns(Promise.resolve(noResponse));
+      return oghliner.get(mockedRequest).then(function (response) {
+        assert.strictEqual(response, noResponse);
+        assert(self.fetch.calledOnce);
+        assert(self.fetch.calledWith(mockedRequest));
+      });
+    });
+  });
+
+  describe('extendToIndex()', function () {
+    [
+      '/',
+      '/?param=1',
+      '/#section',
+      '/?param=1#section',
+      '/path/',
+      '/path/?param=1',
+      '/path/#section',
+      '/path/?param=1#section',
+    ].forEach(function (path) {
+      var originalUrl = new URL(path, self.location);
+      var originalRequest = new Request(originalUrl);
+
+      it('makes requests to folders to be requests to index.html', function () {
+        var resultRequest = oghliner.extendToIndex(originalRequest);
+        var resultUrl = new URL(resultRequest.url);
+        var folderUrl = new URL(resultUrl);
+        folderUrl.pathname = folderUrl.pathname.replace(/index\.html$/, '');
+
+        // check they are the same except for pathname
+        assert(sameRequestURL(resultUrl, originalUrl, 'pathname'));
+        assert(resultUrl.pathname.endsWith('/index.html'));
+        assert(sameRequestURL(folderUrl, originalUrl));
+      });
+    });
+
+    [
+      '/index.html',
+      '/page.html?param=1',
+      '/page.html#section',
+      '/page.html?param=1#section',
+      '/path/item',
+      '/path/item?param=1',
+      '/path/item#section',
+      '/path/item?param=1#section',
+    ].forEach(function (path) {
+      var originalUrl = new URL(path, self.location);
+      var originalRequest = new Request(originalUrl);
+
+      it('does not alter requests to non folders', function () {
+        var resultRequest = oghliner.extendToIndex(originalRequest);
+        var resultUrl = new URL(resultRequest.url);
+
+        assert(sameRequestURL(resultUrl, originalUrl));
+      });
+    });
+  });
 });
