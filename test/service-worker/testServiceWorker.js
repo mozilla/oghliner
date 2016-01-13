@@ -15,7 +15,7 @@ describe('Oghliner service worker', function () {
 
     var testTimestamp = 1234567890;
 
-    function resourcesInCache(resources, cache) {
+    function allResourcesInCache(resources, cache) {
       var requests = [];
       var responses = [];
       for (var call = 0, entry; entry = cache.put.args[call]; call++) {
@@ -89,22 +89,70 @@ describe('Oghliner service worker', function () {
     it('adds the listed resources to the cache', function () {
       oghliner.RESOURCES = TEST_RESOURCES;
       return self.oghliner.cacheResources().then(function () {
-        assert(mockedCache.put.callCount === TEST_RESOURCES.length);
-        assert(resourcesInCache(TEST_RESOURCES, mockedCache));
+        assert.strictEqual(mockedCache.put.callCount, TEST_RESOURCES.length);
+        assert(allResourcesInCache(TEST_RESOURCES, mockedCache));
       });
 
     });
 
     it('accepts some resources to be unavailable', function () {
-      self.fetch.restore();
-      sinon.stub(self, 'fetch')
+      self.fetch
         .onFirstCall().returns(Promise.resolve(mockedOkResponse))
         .onSecondCall().returns(Promise.resolve(mockedFailingResponse));
 
       oghliner.RESOURCES = [ '/available', '/unavailable' ];
       return oghliner.cacheResources().then(function () {
-        assert(!resourcesInCache(oghliner.RESOURCES, mockedCache));
-        assert(resourcesInCache([oghliner.RESOURCES[0]], mockedCache));
+        assert.notOk(allResourcesInCache(oghliner.RESOURCES, mockedCache));
+        assert(allResourcesInCache([oghliner.RESOURCES[0]], mockedCache));
+      });
+    });
+
+  });
+
+  describe('clearOtherCaches()', function () {
+    var originalPrefix;
+
+    before(function () {
+      originalPrefix = oghliner.CACHE_PREFIX;
+    });
+
+    after(function () {
+      oghliner.CACHE_PREFIX = originalPrefix;
+    });
+
+    beforeEach(function () {
+      sinon.stub(self.caches, 'keys');
+      sinon.stub(self.caches, 'delete').returns(Promise.resolve());
+    });
+
+    afterEach(function () {
+      self.caches.keys.restore();
+      self.caches.delete.restore();
+    });
+
+    it('ignores non-oghliner caches', function () {
+      oghliner.CACHE_PREFIX = 'oghliner:';
+      self.caches.keys.returns(Promise.resolve([
+        'other-application-cache',
+        'another-application-cache'
+      ]));
+      return oghliner.clearOtherCaches().then(function () {
+        assert.notOk(self.caches.delete.called);
+      });
+    });
+
+    it('delete oghliner caches except the current one', function () {
+      var currentCache = oghliner.CACHE_NAME;
+      self.caches.keys.returns(Promise.resolve([
+        'oghliner:1',
+        'oghliner:2',
+        currentCache
+      ]));
+      return oghliner.clearOtherCaches().then(function () {
+        assert.strictEqual(self.caches.delete.callCount, 2);
+        assert(self.caches.delete.calledWith('oghliner:1'));
+        assert(self.caches.delete.calledWith('oghliner:2'));
+        assert.notOk(self.caches.delete.calledWith(currentCache));
       });
     });
 
