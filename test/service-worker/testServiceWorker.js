@@ -46,11 +46,9 @@ describe('Oghliner service worker', function () {
 
     function allResourcesInCache(resources, cache) {
       var requests = [];
-      var responses = [];
-      for (var call = 0, entry; entry = cache.put.args[call]; call++) {
+      cache.put.args.forEach(function (entry) {
         requests.push(entry[0].url);
-        responses.push(entry[1]);
-      }
+      });
       return resources.every(function (path) {
         return requests.some(function (request) {
           return sameRequestURL(path, request);
@@ -262,30 +260,30 @@ describe('Oghliner service worker', function () {
   describe('prepareCache()', function () {
     function createNonEmptyCache(name) {
       return self.caches.open(name)
-        .then(function (cache) {
-          return cache.put('/index.html', new Response('hello')).then(function () {
-            return cache.keys();
-          });
-        })
-        .then(function (entries) {
-          assert.isAbove(entries.length, 0);
+      .then(function (cache) {
+        return cache.put('/index.html', new Response('hello')).then(function () {
+          return cache.keys();
         });
+      })
+      .then(function (entries) {
+        assert.isAbove(entries.length, 0);
+      });
     }
 
     it('clears the cache', function () {
       return createNonEmptyCache(oghliner.CACHE_NAME)
-        .then(function () {
-          return oghliner.prepareCache();
-        })
-        .then(function () {
-          return self.caches.open(oghliner.CACHE_NAME);
-        })
-        .then(function (cache) {
-          return cache.keys();
-        })
-        .then(function (keys) {
-          assert.lengthOf(keys, 0);
-        });
+      .then(function () {
+        return oghliner.prepareCache();
+      })
+      .then(function () {
+        return self.caches.open(oghliner.CACHE_NAME);
+      })
+      .then(function (cache) {
+        return cache.keys();
+      })
+      .then(function (keys) {
+        assert.lengthOf(keys, 0);
+      });
     });
   });
 
