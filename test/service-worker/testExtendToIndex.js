@@ -4,7 +4,7 @@ describe('extendToIndex()', function () {
   var oghliner;
 
   beforeEach(function () {
-    importScripts('/base/test/service-worker/utilsURL.js');
+    importScripts('/base/test/service-worker/urlUtils.js');
     importScripts('/base/test/service-worker/mockCache.js');
     oghliner = self.oghliner;
   });

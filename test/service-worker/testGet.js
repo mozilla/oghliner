@@ -5,7 +5,6 @@ describe('get()', function () {
   var mockCache;
 
   beforeEach(function () {
-    importScripts('/base/test/service-worker/utilsURL.js');
     importScripts('/base/test/service-worker/mockCache.js');
     importScripts('/base/testing/offline-worker.js');
     oghliner = self.oghliner;

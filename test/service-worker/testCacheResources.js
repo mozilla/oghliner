@@ -21,7 +21,7 @@ describe('cacheResources()', function () {
   }
 
   beforeEach(function () {
-    importScripts('/base/test/service-worker/utilsURL.js');
+    importScripts('/base/test/service-worker/urlUtils.js');
     importScripts('/base/test/service-worker/mockCache.js');
     importScripts('/base/testing/offline-worker.js');
     oghliner = self.oghliner;
