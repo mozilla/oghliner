@@ -14,6 +14,8 @@ module.exports = function(config) {
 
     // list of files / patterns to load in the browser
     files: [
+      { pattern: 'test/service-worker/*.js', included: false },
+      { pattern: 'testing/*.js', included: false },
     ],
 
 
