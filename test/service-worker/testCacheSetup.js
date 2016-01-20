@@ -29,6 +29,13 @@ describe('Setup methods for cache', function () {
       .then(function () {
         return oghliner.prepareCache();
       })
+      .then(function (cache) {
+        assert.equal(cache.constructor.name, "Cache");
+        return cache.keys();
+      })
+      .then(function (keys) {
+        assert.lengthOf(keys, 0);
+      })
       .then(function () {
         return self.caches.open(oghliner.CACHE_NAME);
       })
