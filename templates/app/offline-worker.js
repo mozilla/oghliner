@@ -81,7 +81,7 @@
     clearOtherCaches: function () {
       return self.caches.keys()
       .then(cacheNames => Promise.all(cacheNames.map(cacheName => {
-        // Delete old caches.
+        // Delete old caches (but not the ones we don't directly control).
         if (cacheName.indexOf(this.CACHE_PREFIX) !== 0 || cacheName === this.CACHE_NAME) {
           return Promise.resolve();
         }
