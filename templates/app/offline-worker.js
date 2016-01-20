@@ -9,22 +9,24 @@
 
   // On install, cache resources and skip waiting so the worker won't
   // wait for clients to be closed before becoming active.
-  self.addEventListener('install', function (event) {
-    event.waitUntil(oghliner.cacheResources().then(function () {
-      return self.skipWaiting();
-    }));
-  });
+  self.addEventListener('install', event =>
+    event.waitUntil(
+      oghliner.cacheResources()
+      .then(() => self.skipWaiting())
+    )
+  );
 
   // On activation, delete old caches and start controlling the clients
   // without waiting for them to reload.
-  self.addEventListener('activate', function (event) {
-    event.waitUntil(oghliner.clearOtherCaches().then(function () {
-      return self.clients.claim();
-    }));
-  });
+  self.addEventListener('activate', event =>
+    event.waitUntil(
+      oghliner.clearOtherCaches()
+      .then(() => self.clients.claim())
+    )
+  );
 
   // Retrieves the request following oghliner strategy.
-  self.addEventListener('fetch', function (event) {
+  self.addEventListener('fetch', event => {
     if (event.request.method === 'GET') {
       event.respondWith(oghliner.get(event.request));
     } else {
@@ -44,7 +46,7 @@
 
     // This is a list of resources that will be cached.
     RESOURCES: [
-<% resources.forEach(function (pathAndHash) {
+<% resources.forEach(pathAndHash => {
 %>      '<%- pathAndHash.path %>', // <%- pathAndHash.hash %>
 <% }); %>
     ],
@@ -54,52 +56,44 @@
       var now = Date.now();
       var baseUrl = self.location;
       return this.prepareCache()
-      .then(function (cache) {
-        return Promise.all(this.RESOURCES.map(function (resource) {
-          // Bust the request to get a fresh response
-          var url = new URL(resource, baseUrl);
-          var bustParameter = (url.search ? '&' : '') + '__bust=' + now;
-          var bustedUrl = new URL(url.toString());
-          bustedUrl.search += bustParameter;
+      .then(cache => Promise.all(this.RESOURCES.map(resource => {
+        // Bust the request to get a fresh response
+        var url = new URL(resource, baseUrl);
+        var bustParameter = (url.search ? '&' : '') + '__bust=' + now;
+        var bustedUrl = new URL(url.toString());
+        bustedUrl.search += bustParameter;
 
-          // But cache the response for the original request
-          var requestConfig = { credentials: 'same-origin' };
-          var originalRequest = new Request(url.toString(), requestConfig);
-          var bustedRequest = new Request(bustedUrl.toString(), requestConfig);
-          return fetch(bustedRequest).then(function (response) {
-            if (response.ok) {
-              return cache.put(originalRequest, response);
-            }
-            console.error('Error fetching ' + url + ', status was ' + response.status);
-          });
-        }));
-      }.bind(this));
+        // But cache the response for the original request
+        var requestConfig = { credentials: 'same-origin' };
+        var originalRequest = new Request(url.toString(), requestConfig);
+        var bustedRequest = new Request(bustedUrl.toString(), requestConfig);
+        return fetch(bustedRequest)
+        .then(response => {
+          if (response.ok) {
+            return cache.put(originalRequest, response);
+          }
+          console.error('Error fetching ' + url + ', status was ' + response.status);
+        });
+      })));
     },
 
     // Remove the offline caches not controlled by this worker.
     clearOtherCaches: function () {
-      var deleteIfNotCurrent = function (cacheName) {
+      return self.caches.keys()
+      .then(cacheNames => Promise.all(cacheNames.map(cacheName => {
+        // Delete old caches.
         if (cacheName.indexOf(this.CACHE_PREFIX) !== 0 || cacheName === this.CACHE_NAME) {
           return Promise.resolve();
         }
         return self.caches.delete(cacheName);
-      }.bind(this);
-
-      return self.caches.keys()
-      .then(function (cacheNames) {
-        return Promise.all(cacheNames.map(deleteIfNotCurrent));
-      });
-
+      })));
     },
 
     // Get a response from the current offline cache or from the network.
     get: function (request) {
-      var extendToIndex = this.extendToIndex.bind(this);
       return this.openCache()
-      .then(function (cache) {
-        return cache.match(extendToIndex(request));
-      })
-      .then(function (response) {
+      .then(cache => cache.match(() => this.extendToIndex(request)))
+      .then(response => {
         if (response) {
           return response;
         }
@@ -120,7 +114,8 @@
 
     // Prepare the cache for installation, deleting it before if it already exists.
     prepareCache: function () {
-      return self.caches.delete(this.CACHE_NAME).then(this.openCache.bind(this));
+      return self.caches.delete(this.CACHE_NAME)
+      .then(() => this.openCache);
     },
 
     // Open and cache the offline cache promise to improve the performance when
