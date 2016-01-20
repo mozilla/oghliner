@@ -30,7 +30,7 @@ describe('Setup methods for cache', function () {
         return oghliner.prepareCache();
       })
       .then(function (cache) {
-        assert.equal(cache.constructor.name, "Cache");
+        assert.instanceOf(cache, Cache);
         return cache.keys();
       })
       .then(function (keys) {
