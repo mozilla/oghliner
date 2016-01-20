@@ -46,7 +46,7 @@
 
     // This is a list of resources that will be cached.
     RESOURCES: [
-<% resources.forEach(pathAndHash => {
+<% resources.forEach(function (pathAndHash) {
 %>      '<%- pathAndHash.path %>', // <%- pathAndHash.hash %>
 <% }); %>
     ],
