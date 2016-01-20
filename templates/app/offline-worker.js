@@ -79,14 +79,14 @@
 
     // Remove the offline caches not controlled by this worker.
     clearOtherCaches: function () {
+      var outOfDate = cacheName => cacheName.startsWith(this.CACHE_PREFIX) && cacheName !== this.CACHE_NAME;
+
       return self.caches.keys()
-      .then(cacheNames => Promise.all(cacheNames.map(cacheName => {
-        // Delete old caches (but not the ones we don't directly control).
-        if (cacheName.indexOf(this.CACHE_PREFIX) !== 0 || cacheName === this.CACHE_NAME) {
-          return Promise.resolve();
-        }
-        return self.caches.delete(cacheName);
-      })));
+      .then(cacheNames => Promise.all(
+        cacheNames
+        .filter(outOfDate)
+        .map(cacheName => self.caches.delete(cacheName))
+      ));
     },
 
     // Get a response from the current offline cache or from the network.
