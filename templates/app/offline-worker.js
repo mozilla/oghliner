@@ -115,7 +115,7 @@
     // Prepare the cache for installation, deleting it before if it already exists.
     prepareCache: function () {
       return self.caches.delete(this.CACHE_NAME)
-      .then(() => this.openCache);
+      .then(() => this.openCache());
     },
 
     // Open and cache the offline cache promise to improve the performance when
