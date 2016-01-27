@@ -76,7 +76,7 @@
     "karma-sw-mocha": "^0.1.2",
     "marked": "^0.3.5",
     "mocha": "^2.3.3",
-    "nock": "^5.2.1",
+    "nock": "^7.0.1",
     "readline-sync": "^1.2.21",
     "rewire": "^2.3.4",
     "simple-git": "^1.11.0",
