@@ -26,6 +26,8 @@ before_script:
   - 'sh -e /etc/init.d/xvfb start'
   - sleep 3
 script:
+  - gulp build && gulp offline
+  - gulp test
   - gulp test-sw
 after_success:
   - 'echo "travis_fold:end:after_success" && [ "${TRAVIS_PULL_REQUEST}" = "false" ] && [ "${TRAVIS_BRANCH}" = "master" ] && [ "${TRAVIS_NODE_VERSION}" = "0.12" ] && echo "Deploying…" && gulp deploy'
