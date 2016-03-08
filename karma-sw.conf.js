@@ -64,7 +64,11 @@ module.exports = function(config) {
           'devtools.serviceWorkers.testing.enabled': true,
           'dom.serviceWorkers.enabled': true
         }
-      }
+      },
+      'Chrome': {
+        base: 'Chrome',
+        flags: ['--no-sandbox'],
+      },
     },
 
 
