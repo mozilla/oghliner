@@ -7,15 +7,13 @@ addons:
   firefox: 'latest'
   apt:
     sources:
-    - google-chrome
     - ubuntu-toolchain-r-test
     packages:
     - g++-4.8
-    - google-chrome-stable
 env:
   global:
     - FIREFOX_NIGHTLY_BIN=firefox
-    - CHROME_BIN=google-chrome-stable
+    - CHROME_BIN=chromium-browser
     - CXX=g++-4.8
     - secure: WL6yLpMK5ikOClB3s5qlsSqy3wJqGUuwIPSzcGmAl3RCVTNfYFWUzJNyS48T/rzSvdnLk05G3j+sE1emQwDHonXzJqZ5Hb0V6r3aNxORGAO0Y/XJTbGiFHX3VaXzqrXTxwAYKiuQEHX40zVE+2Ns2nmBncl8i2Sbv4O3lLRpMV1H4xo5S2MuY9yXKDspnf22ymKqdVrNw89YL5EKFmx5cQudJ0ZE20lS5A2qH5Y0ZeCedMZNa1shJ1GAFQl7DseXRHSM32F8pZMO17qIsUSr1naroLEVFKkFjumSm6X6LyjJk+DJR9Zc1fEk1dnP73iILGyEOvSMER7LHAFKiP48IM5ha73YpjjBQKA8Z3RIBOtXsGq9Kk/5MtJF7lDmABpLqDIAQkObOOBKg1XxhD3LHU78jZO+zgqCGlJuoHUHOno8MminfDgR74/cOUwJ+4b2WmJqKN6s1MR1oUXoDVaLK+rSJt+WqTLv12/Jgl5sO9E8Vk4HbpWIg3DhJGAJybu/C/76wQLl+060tNbgQj/SkOo34AduzB4LMzWWgo0Fy32ZhA5P8mamp9ket7OZ8G74yIyHdfaDQTXLoBqx6oVs8+50B6NP9QyEMUCdDpdQpkpWmsbYxn2rq6T1Vw4/7WrbiANUh6CKvj3LcnRh/gDDyXcSEfXs5p1/fV3lln7N7DU=
 install: npm install
