@@ -101,11 +101,13 @@ program
   .description('offline the files in the directory by generating offline-worker.js script')
   .option('--file-globs [fileGlobs]', 'a comma-separated list of file globs to offline (default: \'**/*\')', '**/*')
   .option('--import-scripts <importScripts>', 'a comma-separated list of additional scripts to import into offline-worker.js')
+  .option('--directory-indexes <directoryIndexes>', 'change files to be a directory only')
   .action(function(dir, options) {
     offline({
       rootDir: dir,
       fileGlobs: options.fileGlobs ? options.fileGlobs.split(',') : null,
       importScripts: options.importScripts ? options.importScripts.split(',') : null,
+      directoryIndexes: options.directoryIndexes ? options.directoryIndexes.split(',') : null,
     })
     .catch(function(err) {
       process.stderr.write(chalk.red.bold(err) + '\n');
