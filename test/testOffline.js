@@ -48,6 +48,10 @@ describe('Offline', function() {
     offline.__set__('ghslug', ghslug);
   });
 
+  it('fails', function() {
+    return Promise.reject();
+  });
+
   it('should create offline-worker.js in the destination directory', function() {
     var dir = temp.mkdirSync('oghliner');
 
