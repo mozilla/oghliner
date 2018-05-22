@@ -79,12 +79,30 @@ describe('Configure', function() {
     expect(travisYml.env.global).to.have.length(1);
     expect(travisYml.env.global[0]).to.have.keys('secure');
     expect(travisYml.before_script).to.have.length(2);
-    expect(travisYml.after_success).to.have.length(1);
-    expect(travisYml.after_success[0]).to.equal(
-      'echo "travis_fold:end:after_success" && ' +
-      '[ "${TRAVIS_PULL_REQUEST}" = "false" ] && [ "${TRAVIS_BRANCH}" = "master" ] && ' +
-      'echo "Deploying…" && gulp deploy'
-    );
+    expect(travisYml).to.include.keys('deploy');
+    expect(travisYml.deploy).to.include.keys('skip_cleanup');
+    expect(travisYml.deploy.skip_cleanup).to.equal(true);
+    expect(travisYml.deploy).to.include.keys('provider');
+    expect(travisYml.deploy.provider).to.equal('script');
+    expect(travisYml.deploy).to.include.keys('script');
+    expect(travisYml.deploy.script).to.equal('echo "travis_fold:end:deploy" && ' +
+    'export TRAVIS_PULL_REQUEST="false" && ' +
+    'echo "Deploying…" && ' +
+    'gulp deploy');
+    expect(travisYml.deploy).to.include.keys('on');
+    expect(travisYml.deploy.on).to.include.keys('branch');
+    expect(travisYml.deploy.on.branch).to.equal('master');
+
+
+
+
+
+    // expect(travisYml.after_success).to.have.length(1);
+    // expect(travisYml.after_success[0]).to.equal(
+    //   'echo "travis_fold:end:after_success" && ' +
+    //   '[ "${TRAVIS_PULL_REQUEST}" = "false" ] && [ "${TRAVIS_BRANCH}" = "master" ] && ' +
+    //   'echo "Deploying…" && gulp deploy'
+    // );
   }
 
   var oldSetTimeout = setTimeout;
@@ -827,14 +845,14 @@ describe('Configure', function() {
     });
   });
 
-  it('does not remove "after_success" in an already existing .travis.yml file', function() {
+  it('does not remove "deploy" in an already existing .travis.yml file', function() {
     nockBasicPostAuthFlow();
     configure();
 
     writeYaml.sync('.travis.yml', {
-      after_success: [
-        'a_command'
-      ]
+      deploy: {
+        provider: 'a_provider'
+      }
     });
 
     return enterUsernamePassword()
@@ -843,8 +861,9 @@ describe('Configure', function() {
     })
     .then(function() {
       var travisYml = readYaml.sync('.travis.yml');
-      expect(travisYml.after_success).to.have.length.above(1);
-      expect(travisYml.after_success).to.include('a_command');
+      expect(travisYml).to.include.keys('deploy');
+      expect(travisYml.deploy).to.include.keys('provider');
+      expect(travisYml.deploy.provider).to.equal('a_provider');
     });
   });
 

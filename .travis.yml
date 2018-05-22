@@ -32,6 +32,6 @@ deploy:
   skip_cleanup: true
   provider: script
   script: >-
-    echo "travis_fold:end:deploy" && export TRAVIS_PULL_REQUEST="false" && TRAVIS_NODE_VERSEION="0.12" && echo "Deploying…" && gulp deploy
+    echo "travis_fold:end:deploy" && export TRAVIS_PULL_REQUEST="false" && TRAVIS_NODE_VERSION="0.12" && echo "Deploying…" && gulp deploy
   'on':
     branch: master
