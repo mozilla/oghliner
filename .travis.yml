@@ -27,7 +27,6 @@ before_script:
 script:
   - gulp build && gulp offline
   - gulp test
-  - gulp test-sw
 deploy:
   skip_cleanup: true
   provider: script
