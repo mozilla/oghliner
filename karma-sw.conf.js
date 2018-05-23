@@ -66,7 +66,7 @@ module.exports = function(config) {
         }
       },
       'Chrome': {
-        base: 'Chrome',
+        base: 'ChromeHeadless',
         flags: ['--no-sandbox'],
       },
     },
