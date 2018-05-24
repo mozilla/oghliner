@@ -4,6 +4,8 @@ node_js:
   - '4'
   - '6'
   - 'node'
+    env:
+      - CXX=g++
 addons:
   firefox: 'latest'
   apt:
